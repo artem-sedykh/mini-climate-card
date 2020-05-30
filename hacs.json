@@ -1,0 +1,6 @@
+{
+  "name": "mini climate card",
+  "render_readme": false,
+  "filename": "mini-climate-card-bundle.js",
+  "domains": ["climate"]
+}
