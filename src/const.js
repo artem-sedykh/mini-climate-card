@@ -9,6 +9,8 @@ const ICON = {
   DRY: 'mdi:weather-sunny',
   FAN_ONLY: 'mdi:fan',
   TOGGLE: 'mdi:dots-horizontal',
+  UP: 'mdi:chevron-up',
+  DOWN: 'mdi:chevron-down',
 };
 
 export default ICON;

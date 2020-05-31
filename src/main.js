@@ -340,8 +340,8 @@ class MiniClimate extends LitElement {
     };
 
     this.config.target_temperature.icons = {
-      up: 'mdi:chevron-up',
-      down: 'mdi:chevron-down',
+      up: ICON.UP,
+      down: ICON.DOWN,
       ...this.config.target_temperature.icons || {},
     };
 
