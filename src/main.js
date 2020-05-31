@@ -19,6 +19,7 @@ import {
   toggleState,
 } from './utils/utils';
 import ICON from './const';
+import IndicatorObject from './indicatorModel';
 
 if (!customElements.get('ha-icon-button')) {
   customElements.define(
@@ -35,7 +36,7 @@ class MiniClimate extends LitElement {
     this.targetTemperature = { inFlux: false };
     this.temperature = undefined;
     this.buttonsState = {};
-    this.indicatorsState = {};
+    this.indicators = {};
 
     // eslint-disable-next-line no-console
     console.info(
@@ -77,7 +78,7 @@ class MiniClimate extends LitElement {
       }
     }
 
-    this.updateIndicatorsState(hass);
+    this.updateIndicators(hass);
     this.updateButtonsState(hass);
     this.updateTemperature(hass);
   }
@@ -90,32 +91,27 @@ class MiniClimate extends LitElement {
     return this.config.name || this.climate.name;
   }
 
-  updateIndicatorsState(hass) {
-    const indicatorsState = { };
+  updateIndicators(hass) {
+    const indicators = { };
     let changed = false;
 
     for (let i = 0; i < this.config.indicators.length; i += 1) {
-      const indicator = this.config.indicators[i];
-      const { id } = indicator;
-      this.indicatorsState[id] = this.indicatorsState[id] || {};
+      const config = this.config.indicators[i];
+      const { id } = config;
 
-      if (indicator.source) {
-        const entityId = indicator.source.entity || this.config.entity;
-        const entity = hass.states[entityId];
+      const entityId = config.source.entity || this.climate.id;
+      const entity = hass.states[entityId];
 
-        if (entity) {
-          indicatorsState[id] = indicatorsState[id] || {};
-          indicatorsState[id].originalValue = getEntityValue(entity, indicator.source);
-          indicatorsState[id].entity = entity;
-        }
-
-        if (entity !== this.indicatorsState[indicator.id].entity)
-          changed = true;
+      if (entity) {
+        indicators[id] = new IndicatorObject(entity, config, this.climate);
       }
+
+      if (entity !== (this.indicators[id] && this.indicators[id].entity))
+        changed = true;
     }
 
     if (changed)
-      this.indicatorsState = indicatorsState;
+      this.indicators = indicators;
   }
 
   updateTemperature(hass) {
@@ -494,9 +490,7 @@ class MiniClimate extends LitElement {
     return html`
         <div class='bottom flex'>
           <mc-indicators
-            .climate=${this.climate}
-            .state=${this.indicatorsState}
-            .indicators=${this.config.indicators}>
+            .indicators=${this.indicators}>
           </mc-indicators>
           ${this.renderToggleButton()}
         </div>

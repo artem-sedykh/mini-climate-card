@@ -2,36 +2,20 @@ import { LitElement, html, css } from 'lit-element';
 
 import { styleMap } from 'lit-html/directives/style-map';
 
-import { round } from '../utils/utils';
-
 class ClimateIndicators extends LitElement {
   static get properties() {
     return {
       indicators: {},
-      state: {},
-      climate: {},
     };
   }
 
-  renderIcon(indicator, state) {
-    let indicatorIcon = '';
-    let style;
+  renderIcon(indicator) {
+    const { icon } = indicator;
 
-    if (indicator.functions.icon && indicator.functions.icon.template) {
-      indicatorIcon = indicator.functions.icon.template(state.value, state.entity,
-        this.climate.entity, this.climate.mode);
-    } else if (indicator.icon && typeof indicator.icon === 'string') {
-      indicatorIcon = indicator.icon;
-    }
-
-    if (indicator.functions.icon && indicator.functions.icon.style)
-      style = indicator.functions.icon.style(state.value, state.entity,
-        this.climate.entity, this.climate.mode);
-
-    if (!indicatorIcon)
+    if (!icon)
       return '';
 
-    return html`<ha-icon style=${styleMap(style || {})} class='state__value_icon' .icon=${indicatorIcon}></ha-icon>`;
+    return html`<ha-icon style=${styleMap(indicator.iconStyle)} class='state__value_icon' .icon=${icon}></ha-icon>`;
   }
 
   renderUnit(unit) {
@@ -42,27 +26,10 @@ class ClimateIndicators extends LitElement {
   }
 
   renderIndicator(indicator) {
-    const state = this.state[indicator.id];
-
-    if (!state)
-      return '';
-
-    let value = state.originalValue;
-
-    if (indicator.functions.mapper) {
-      value = indicator.functions.mapper(value, state.entity,
-        this.climate.entity, this.climate.mode);
-    }
-
-    state.value = value;
-
-    if ('round' in indicator && Number.isNaN(value) === false)
-      value = round(value, indicator.round);
-
     return html`
        <div class='state'>
-         ${this.renderIcon(indicator, state)}
-         <span class='state__value'>${value}</span>
+         ${this.renderIcon(indicator)}
+         <span class='state__value'>${indicator.value}</span>
          ${this.renderUnit(indicator.unit)}
        </div>
     `;
@@ -73,7 +40,7 @@ class ClimateIndicators extends LitElement {
 
     return html`
      <div class='mc-indicators__container'>
-       ${this.indicators.map(i => context.renderIndicator(i))}
+       ${Object.entries(this.indicators).map(i => context.renderIndicator(i[1]))}
      </div>
     `;
   }
