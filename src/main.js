@@ -376,9 +376,7 @@ class MiniClimate extends LitElement {
 
     return html`
         <mc-mode-menu
-          .hass=${this.hass}
-          .climate=${this.climate}
-          .config=${this.config}>
+          .climate=${this.climate}>
         </mc-mode-menu>
         <mc-temperature
           .temperature=${this.temperature}

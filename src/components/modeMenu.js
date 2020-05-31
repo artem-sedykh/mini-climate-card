@@ -7,9 +7,7 @@ import ICON from '../const';
 class ModeMenu extends LitElement {
   static get properties() {
     return {
-      climate: {},
-      config: {},
-      icon: String,
+      climate: Object,
     };
   }
 
