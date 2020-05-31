@@ -20,6 +20,7 @@ import {
 } from './utils/utils';
 import ICON from './const';
 import IndicatorObject from './indicatorModel';
+import ButtonObject from './buttonModel';
 
 if (!customElements.get('ha-icon-button')) {
   customElements.define(
@@ -35,7 +36,7 @@ class MiniClimate extends LitElement {
     this.toggle = false;
     this.targetTemperature = { inFlux: false };
     this.temperature = undefined;
-    this.buttonsState = {};
+    this.buttons = {};
     this.indicators = {};
 
     // eslint-disable-next-line no-console
@@ -79,7 +80,7 @@ class MiniClimate extends LitElement {
     }
 
     this.updateIndicators(hass);
-    this.updateButtonsState(hass);
+    this.updateButtons(hass);
     this.updateTemperature(hass);
   }
 
@@ -130,56 +131,27 @@ class MiniClimate extends LitElement {
     }
   }
 
-  updateButtonsState(hass) {
-    const buttonsState = { };
+  updateButtons(hass) {
+    const buttons = { };
     let changed = false;
 
     for (let i = 0; i < this.config.buttons.length; i += 1) {
-      const button = this.config.buttons[i];
-      this.buttonsState[button.id] = this.buttonsState[button.id] || {};
+      const config = this.config.buttons[i];
+      const { id } = config;
 
-      const entityId = button.state.entity || this.config.entity;
+      const entityId = (config.state && config.state.entity) || this.climate.id;
       const entity = hass.states[entityId];
 
       if (entity) {
-        buttonsState[button.id] = buttonsState[button.id] || {};
-        buttonsState[button.id].entity = entity;
-        buttonsState[button.id].originalValue = getEntityValue(entity, button.state);
-
-        if (button.id === 'fan_mode') {
-          const source = this.getFanModeSource(button, entity);
-          if (button.source !== source) {
-            button.source = source;
-            changed = true;
-          }
-        }
+        buttons[id] = new ButtonObject(entity, config, this.climate);
       }
 
-      if (entity !== this.buttonsState[button.id].entity)
+      if (entity !== (this.buttons[id] && this.buttons[id].entity))
         changed = true;
     }
 
     if (changed)
-      this.buttonsState = buttonsState;
-  }
-
-  getFanModeSource(button, entity) {
-    const entries = Object.entries(button.source || {}).filter(s => s[0] !== '__filter');
-    let source = {};
-
-    if (entries.length === 0 && entity && entity.attributes && entity.attributes.fan_modes) {
-      for (let i = 0; i < entity.attributes.fan_modes.length; i += 1) {
-        const fanMode = entity.attributes.fan_modes[i];
-        const labels = [`state_attributes.climate.fan_mode.${fanMode}`];
-        source[fanMode] = getLabel(this.hass, labels, fanMode);
-      }
-
-      source = { ...source, ...button.source || {} };
-
-      return source;
-    }
-
-    return button.source;
+      this.buttons = buttons;
   }
 
   getButtonsConfig(config) {
@@ -255,12 +227,24 @@ class MiniClimate extends LitElement {
       type: 'dropdown',
       order: 0,
       state: { attribute: 'fan_mode' },
-      active: '(state, entity) => entity.state !== \'off\'',
-      change_action: '(selected, state, entity) => this.callService(\'climate\', \'set_fan_mode\', { entity_id: entity.entity_id, fan_mode: selected })',
       ...config.fan_mode || {},
     };
 
     fanModeConfig = this.getButtonConfig('fan_mode', fanModeConfig, config);
+
+    const entries = Object.entries(fanModeConfig.source || {}).filter(s => s[0] !== '__filter');
+
+    if (entries.length === 0) {
+      fanModeConfig.functions.source.__init = e => ((e.attributes && e.attributes.fan_modes) || [])
+        .map(f => ({ id: f, name: getLabel(this.hass, [`state_attributes.climate.fan_mode.${f}`], f) }));
+    }
+
+    if (!fanModeConfig.functions.change_action)
+      fanModeConfig.functions.change_action = selected => this.climate.setFanMode(selected);
+
+    if (!fanModeConfig.functions.active)
+      fanModeConfig.functions.active = () => this.climate.isOn();
+
     return fanModeConfig;
   }
 
@@ -463,9 +447,7 @@ class MiniClimate extends LitElement {
     return html`
         <div class="mc-toggle_content">
           <mc-buttons
-            .climate=${this.climate}
-            .buttons=${this.config.buttons}
-            .state=${this.buttonsState}>
+            .buttons=${this.buttons}>
           </mc-buttons>
         </div>
     `;
@@ -510,30 +492,16 @@ class MiniClimate extends LitElement {
     if (this.climate.isUnavailable)
       return '';
 
-    const fanModeConfig = this.config.buttons.find(b => b.id === 'fan_mode');
-    const label = this.getSecondaryInfoLabel(fanModeConfig);
+    const fanMode = this.buttons.fan_mode;
+    const { selected } = fanMode;
+    const label = selected ? selected.name : fanMode.state;
+
     return html`
       <div class='entity__secondary_info ellipsis'>
-         <ha-icon class='entity__secondary_info_icon' .icon=${fanModeConfig.icon}></ha-icon>
+         <ha-icon class='entity__secondary_info_icon' .icon=${fanMode.icon}></ha-icon>
          <span class='entity__secondary_info__name'>${label}</span>
       </div>
     `;
-  }
-
-  getSecondaryInfoLabel(fanModeConfig) {
-    const state = this.buttonsState.fan_mode;
-
-    let value = state.originalValue;
-
-    if (fanModeConfig.functions.state && fanModeConfig.functions.state.mapper) {
-      value = fanModeConfig.functions.state.mapper(value, state.entity,
-        this.climate.entity, this.climate.mode);
-    }
-
-    if (value in fanModeConfig.source)
-      value = fanModeConfig.source[value];
-
-    return value;
   }
 
   computeIcon() {

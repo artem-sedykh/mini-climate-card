@@ -11,10 +11,6 @@ export default class IndicatorObject {
     return this.config.id;
   }
 
-  get entityId() {
-    return this.entity.entity_id;
-  }
-
   get originalValue() {
     return getEntityValue(this.entity, this.config.source);
   }

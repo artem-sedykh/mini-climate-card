@@ -106,6 +106,10 @@ export default class ClimateObject {
     return this.isUnavailable === false && this.isOff === false;
   }
 
+  setFanMode(value) {
+    return this.callService('climate', 'set_fan_mode', { fan_mode: value });
+  }
+
   setTargetTemperature(value) {
     return this.callService('climate', 'set_temperature', { temperature: value });
   }
