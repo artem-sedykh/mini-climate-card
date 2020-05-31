@@ -1,4 +1,4 @@
-import getLabel from './utils/getLabel';
+import getLabel from '../utils/getLabel';
 
 export default class ClimateObject {
   constructor(hass, config, entity) {
@@ -55,35 +55,8 @@ export default class ClimateObject {
     return this.entity.entity_id;
   }
 
-  get targetTemperature() {
-    const config = { };
-
-    if (this.config.target_temperature) {
-      if ('min' in this.config.target_temperature)
-        config.min = this.config.target_temperature.min;
-
-      if ('max' in this.config.target_temperature)
-        config.max = this.config.target_temperature.max;
-
-      if ('step' in this.config.target_temperature)
-        config.step = this.config.target_temperature.step;
-
-      if ('unit' in this.config.target_temperature)
-        config.unit = this.config.target_temperature.unit;
-    }
-
-    if (!('min' in config))
-      config.min = this.attr.min_temp || 16;
-
-    if (!('max' in config))
-      config.max = this.attr.max_temp || 30;
-
-    if (!('step' in config))
-      config.step = this.attr.target_temp_step || 1;
-
-    config.value = this.attr.temperature || 0;
-
-    return config;
+  get icon() {
+    return this.attr.icon;
   }
 
   get name() {
@@ -108,10 +81,6 @@ export default class ClimateObject {
 
   setFanMode(value) {
     return this.callService('climate', 'set_fan_mode', { fan_mode: value });
-  }
-
-  setTargetTemperature(value) {
-    return this.callService('climate', 'set_temperature', { temperature: value });
   }
 
   setHvacMode(mode) {

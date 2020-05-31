@@ -12,6 +12,9 @@ const toggleState = (state) => {
 };
 
 const getEntityValue = (entity, config) => {
+  if (!entity)
+    return undefined;
+
   if (!config)
     return entity.state;
 

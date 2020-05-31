@@ -1,7 +1,6 @@
 import { html, LitElement } from 'lit-element';
 import { classMap } from 'lit-html/directives/class-map';
 import { styleMap } from 'lit-html/directives/style-map';
-import ClimateObject from './model';
 import style from './style';
 import sharedStyle from './sharedStyle';
 import handleClick from './utils/handleClick';
@@ -11,16 +10,17 @@ import './components/indicators';
 import './components/modeMenu';
 import './components/buttons';
 import './components/temperature';
-import './components/temperatureControls';
+import './components/targetTemperature';
 import {
   compileTemplate,
-  getEntityValue,
-  round,
   toggleState,
 } from './utils/utils';
 import ICON from './const';
-import IndicatorObject from './indicatorModel';
-import ButtonObject from './buttonModel';
+import TemperatureObject from './models/temperature';
+import TargetTemperatureObject from './models/targetTemperature';
+import ButtonObject from './models/button';
+import IndicatorObject from './models/indicator';
+import ClimateObject from './models/climate';
 
 if (!customElements.get('ha-icon-button')) {
   customElements.define(
@@ -34,10 +34,11 @@ class MiniClimate extends LitElement {
     super();
     this.initial = true;
     this.toggle = false;
-    this.targetTemperature = { inFlux: false };
-    this.temperature = undefined;
+    this.temperature = {};
+    this.targetTemperature = {};
     this.buttons = {};
     this.indicators = {};
+    this.targetTemperatureChanging = false;
 
     // eslint-disable-next-line no-console
     console.info(
@@ -73,15 +74,12 @@ class MiniClimate extends LitElement {
     if (entity && this.entity !== entity) {
       this.entity = entity;
       this.climate = new ClimateObject(hass, this.config, entity);
-
-      if (this.targetTemperature.value !== this.climate.targetTemperature.value) {
-        this.targetTemperature = { ...this.targetTemperature, ...this.climate.targetTemperature };
-      }
     }
 
     this.updateIndicators(hass);
     this.updateButtons(hass);
     this.updateTemperature(hass);
+    this.updateTargetTemperature(hass);
   }
 
   get hass() {
@@ -116,18 +114,39 @@ class MiniClimate extends LitElement {
   }
 
   updateTemperature(hass) {
-    const entityId = this.config.temperature.source.entity || this.config.entity;
-    const entity = hass.states[entityId];
-    let temperature;
+    if (this.targetTemperatureChanging)
+      return;
 
-    if (entity) {
-      temperature = getEntityValue(entity, this.config.temperature.source);
-      if (temperature !== undefined)
-        temperature = round(temperature, this.config.temperature.round);
+    const temperatureEntityId = this.config.temperature.source.entity || this.config.entity;
+    const temperatureEntity = hass.states[temperatureEntityId];
 
-      if (temperature && this.temperature !== temperature) {
-        this.temperature = temperature;
-      }
+    const targetTemperatureEntityId = (this.config.target_temperature.source
+      && this.config.target_temperature.source.entity) || this.config.entity;
+
+    const targetTemperatureEntity = hass.states[targetTemperatureEntityId];
+
+    const temperature = new TemperatureObject(temperatureEntity, targetTemperatureEntity,
+      this.config);
+
+    if (this.temperature.rawValue !== temperature.rawValue
+      || this.temperature.target !== temperature.target) {
+      this.temperature = temperature;
+    }
+  }
+
+  updateTargetTemperature(hass) {
+    if (this.targetTemperatureChanging)
+      return;
+
+    const targetTemperatureEntityId = (this.config.target_temperature.source
+      && this.config.target_temperature.source.entity) || this.config.entity;
+
+    const targetTemperatureEntity = hass.states[targetTemperatureEntityId];
+    const targetTemperature = new TargetTemperatureObject(hass, targetTemperatureEntity,
+      this.config);
+
+    if (this.targetTemperature.value !== targetTemperature.value) {
+      this.targetTemperature = targetTemperature;
     }
   }
 
@@ -233,17 +252,18 @@ class MiniClimate extends LitElement {
     fanModeConfig = this.getButtonConfig('fan_mode', fanModeConfig, config);
 
     const entries = Object.entries(fanModeConfig.source || {}).filter(s => s[0] !== '__filter');
+    const labelPrefix = 'state_attributes.climate.fan_mode';
 
     if (entries.length === 0) {
       fanModeConfig.functions.source.__init = e => ((e.attributes && e.attributes.fan_modes) || [])
-        .map(f => ({ id: f, name: getLabel(this.hass, [`state_attributes.climate.fan_mode.${f}`], f) }));
+        .map(f => ({ id: f, name: getLabel(this.hass, [`${labelPrefix}.${f}`], f) }));
     }
 
     if (!fanModeConfig.functions.change_action)
       fanModeConfig.functions.change_action = selected => this.climate.setFanMode(selected);
 
     if (!fanModeConfig.functions.active)
-      fanModeConfig.functions.active = () => this.climate.isOn();
+      fanModeConfig.functions.active = () => this.climate.isOn;
 
     return fanModeConfig;
   }
@@ -316,6 +336,7 @@ class MiniClimate extends LitElement {
     this.config.target_temperature = {
       hide: false,
       unit: '°C',
+      source: { entity: undefined, attribute: 'temperature' },
       ...config.target_temperature || {},
     };
 
@@ -360,8 +381,9 @@ class MiniClimate extends LitElement {
           .config=${this.config}>
         </mc-mode-menu>
         <mc-temperature
-          .targetTemperature=${this.targetTemperature}
-          .temperature=${this.temperature}>
+          .temperature=${this.temperature}
+          .target=${this.temperature.target}
+          .changing=${this.targetTemperatureChanging}>
         </mc-temperature>
     `;
   }
@@ -372,12 +394,10 @@ class MiniClimate extends LitElement {
 
     return html`
         <div class="entity__controls">
-          <mc-temperature-controls
-            .climate=${this.climate}
-            .config=${this.config.target_temperature}
-            .targetTemperature=${this.targetTemperature}
-            @changed="${e => this.handleChangeTargetTemperature(e)}">
-          </mc-temperature-controls>
+          <mc-target-temperature
+            .target_temperature=${this.targetTemperature}
+            @changing="${e => this.handleChangingTargetTemperature(e)}">
+          </mc-target-temperature>
         </div>
     `;
   }
@@ -411,11 +431,10 @@ class MiniClimate extends LitElement {
     `;
   }
 
-  handleChangeTargetTemperature(e) {
-    const old = this.targetTemperature;
-    this.targetTemperature = { ...e.detail.targetTemperature };
-
-    return this.requestUpdate('targetTemperature', old);
+  handleChangingTargetTemperature(e) {
+    this.temperature.target = this.targetTemperature.value;
+    this.targetTemperatureChanging = e.detail.changing;
+    return this.requestUpdate('targetTemperatureChanging');
   }
 
   handlePopup(e) {
@@ -453,29 +472,27 @@ class MiniClimate extends LitElement {
     `;
   }
 
-  renderToggleButton() {
-    if (this.config.buttons.filter(b => !b.hide).length === 0)
-      return '';
-
-    return html`
-        <ha-icon-button class='toggle-button ${this.toggleButtonCls()}'
-          icon='mdi:dots-horizontal'
-          @click=${e => this.handleToggle(e)}>
-        </ha-icon-button>
-    `;
-  }
-
   renderBottomPanel() {
     if (this.climate.isUnavailable)
       return '';
 
     return html`
         <div class='bottom flex'>
-          <mc-indicators
-            .indicators=${this.indicators}>
-          </mc-indicators>
+          <mc-indicators .indicators=${this.indicators}></mc-indicators>
           ${this.renderToggleButton()}
         </div>
+    `;
+  }
+
+  renderToggleButton() {
+    if (this.config.buttons.filter(b => !b.hide).length === 0)
+      return '';
+
+    return html`
+        <ha-icon-button class='toggle-button ${this.toggleButtonCls()}'
+          .icon=${ICON.TOGGLE}
+          @click=${e => this.handleToggle(e)}>
+        </ha-icon-button>
     `;
   }
 

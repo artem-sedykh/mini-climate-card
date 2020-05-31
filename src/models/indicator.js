@@ -1,4 +1,4 @@
-import { getEntityValue, round } from './utils/utils';
+import { getEntityValue, round } from '../utils/utils';
 
 export default class IndicatorObject {
   constructor(entity, config, climate) {

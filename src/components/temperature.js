@@ -1,49 +1,40 @@
 import { LitElement, html, css } from 'lit-element';
 
 class ClimateTemperature extends LitElement {
-  constructor() {
-    super();
-    this.targetTemperature = {
-      value: 0,
-      inFlux: false,
-      step: 1,
-      unit: '',
-    };
-
-    this.temperature = 0;
-  }
-
   static get properties() {
     return {
-      targetTemperature: Object,
-      temperature: Number,
+      temperature: Object,
+      changing: Boolean,
+      target: Number,
     };
   }
 
-  get targetTemperatureStr() {
-    const { step } = this.targetTemperature;
-    const s = step.toString().split('.');
-    return s[1]
-      ? parseFloat(this.targetTemperature.value).toFixed(s[1].length)
-      : this.targetTemperature.value;
+  get targetStr() {
+    const parts = this.temperature.step.toString().split('.');
+    return parts[1]
+      ? parseFloat(this.target.toString()).toFixed(parts[1].length)
+      : this.target;
   }
 
   renderTemperature() {
-    if (this.temperature === undefined)
+    if (this.temperature.value === undefined)
       return '';
 
     return html`
       <span class='state__value'>/</span>
-      <span class='state__value'>${this.temperature}</span>`;
+      <span class='state__value'>${this.temperature.value}</span>`;
   }
 
   render() {
-    const cls = this.targetTemperature.inFlux ? 'in-flux' : '';
-    const { unit } = this.targetTemperature;
+    if (!this.temperature)
+      return '';
+
+    const cls = this.changing ? 'changing' : '';
+    const { unit } = this.temperature;
 
     return html`
     <div class='state ellipsis'>
-      <span class='state__value ${cls}'>${this.targetTemperatureStr}</span>
+      <span class='state__value ${cls}'>${this.targetStr}</span>
       ${this.renderTemperature()}
       <span class='state__uom'>${unit}</span>
     </div>
@@ -71,7 +62,7 @@ class ClimateTemperature extends LitElement {
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .in-flux {
+    .changing {
       color: var(--mc-accent-color);
     }
     `;

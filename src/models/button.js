@@ -1,4 +1,4 @@
-import { getEntityValue } from './utils/utils';
+import { getEntityValue } from '../utils/utils';
 
 export default class ButtonObject {
   constructor(entity, config, climate) {
