@@ -1,5 +1,7 @@
 # Mini Climate Card
 
+[![buymeacoffee_badge](https://img.shields.io/badge/Donate-buymeacoffe-ff813f?style=flat)](https://www.buymeacoffee.com/anavrin72)
+
 A minimalistic yet customizable climate card for [Home Assistant](https://github.com/home-assistant/home-assistant) Lovelace UI.
 
 ![Preview Image](https://user-images.githubusercontent.com/861063/83363491-98b13080-a3a2-11ea-90e6-1ba6364c800d.png)
@@ -16,7 +18,7 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.jss?v=1.0.1
+    - url: /local/mini-climate-card-bundle.js?v=1.0.1
       type: module
   ```
 
@@ -58,3 +60,461 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 ### Options
 
 #### Card options
+| Name | Type | Default | Since | Description |
+|------|------|---------|-------|-------------|
+| type | string | **required** | v1.0.1 | `custom:mini-climate`
+| entity | string | **required** | v1.0.1 | An entity_id from an entity within the `climate` domain.
+| name | string | optional | v1.0.1 | Override the entities friendly name.
+| icon | string | optional | v1.0.1 | Specify a custom icon from any of the available mdi icons.
+| **temperature** | object | optional | v1.0.1 | current temperature configuration. [temperature examples](#temperature)
+| temperature: `unit` | string | optional | v1.0.1 | display unit, default `°C`
+| temperature: `round` | number | optional | v1.0.1 | rounding value, default `1`
+| temperature: `source` | object | optional | v1.0.1 | data source for target temperature
+| temperature: `source:entity` | string | optional | v1.0.1 | entity_id, default current climate entity_id
+| temperature: `source:attribute` | string | optional | v1.0.1 | default `current_temperature`
+| **target_temperature** | object | optional | v1.0.1 | target temperature configuration. [target_temperature examples](#target_temperature)
+| target_temperature: `icons` | object | optional | v1.0.1 | Icons for temperature change buttons
+| target_temperature: `icons:up` | string | optional | v1.0.1 | up icon, default `mdi:chevron-up`
+| target_temperature: `icons:down` | string | optional | v1.0.1 | down icon, default `mdi:chevron-down`
+| target_temperature: `unit` | string | optional | v1.0.1 | display unit, default `°C`
+| target_temperature: `min` | number | optional | v1.0.1 | minimum temperature, the default value is taken from the attribute `min_temp` of the given entity
+| target_temperature: `max` | number | optional | v1.0.1 | maximum temperature, the default value is taken from the attribute `max_temp` of the given entity
+| target_temperature: `step` | number | optional | v1.0.1 | temperature change step, the default value is taken from the attribute `target_temp_step` of the given entity
+| target_temperature: `source` | object | optional | v1.0.1 | data source for target temperature
+| target_temperature: `source:entity` | string | optional | v1.0.1 | entity_id, default current climate entity_id
+| target_temperature: `source:attribute` | string | optional | v1.0.1 | default `temperature`
+| target_temperature: `change_action` | function | optional | v1.0.1 | custom temperature change function
+| **hvac_mode** | object | optional | v1.0.1 | HVAC mode. [hvac_mode examples](#hvac_mode)
+| hvac_mode: `style` | function | optional | v1.0.1 | custom style
+| hvac_mode: `change_action` | function | optional | v1.0.1 | custom hvac_mode change function
+| hvac_mode: `source` | object | optional | v1.0.1 | data for dropdown list
+| hvac_mode: `source:item` | object | optional | v1.0.1 | `item` - mode name e.g. cool, heat, off, etc.
+| hvac_mode: `source:item:icon` | string | optional | v1.0.1 | Specify a custom icon from any of the available mdi icons.
+| hvac_mode: `source:item:name` | string | optional | v1.0.1 | Display name.
+| **fan_mode** | object | optional | v1.0.1 | fan operation for climate device. [fan_mode examples](#fan_mode)
+| fan_mode: `icon` | string | optional | v1.0.1 | Specify a custom icon from any of the available mdi icons.
+| fan_mode: `order` | number | optional | v1.0.1 | sort order, default value `0`
+| fan_mode: `hide` | number | optional | v1.0.1 | hide button, default value `False`
+| fan_mode: `style` | function | optional | v1.0.1 | style
+| fan_mode: `disabled` | function | optional | v1.0.1 | disabled function
+| fan_mode: `active` | function | optional | v1.0.1 | active
+| fan_mode: `change_action` | function | optional | v1.0.1 | custom fan_mode change function
+| fan_mode: `state` | object | optional | v1.0.1 | config to get fan_mode state.
+| fan_mode: `state:entity` | string | optional | v1.0.1 | fan_mode entity_id.
+| fan_mode: `state:attribute` | string | optional | v1.0.1 | fan_mode attribute, default `fan_mode`
+| fan_mode: `source` | object | optional | v1.0.1 | Source for drop down list
+| fan_mode: `source:item` | string | optional | v1.0.1 | `item` - mode name e.g. auto, low, medium ...
+| fan_mode: `source:__filter` | function | optional | v1.0.1 | source filter
+| **indicators** | object | optional | v1.0.1 | any indicators, [examples](#indicators).
+| indicators: `name` | object | optional | v1.0.1 | the name of your indicator see [examples](#indicators).
+| indicators: `name:icon` | string | optional | v1.0.1 | Specify a custom icon from any of the available mdi icons.
+| indicators: `name:icon` | object | optional | v1.0.1 | icon object
+| indicators: `name:icon:template` | function | optional | v1.0.1 | icon template function
+| indicators: `name:icon:style` | function | optional | v1.0.1 | styles
+| indicators: `name:unit` | string | optional | v1.0.1 | display unit.
+| indicators: `name:round` | number | optional | v1.0.1 | rounding number value.
+| indicators: `name:source` | number | optional | v1.0.1 | data source.
+| indicators: `name:source:entity` | string | optional | v1.0.1 | indicator entity_id
+| indicators: `name:source:attribute` | string | optional | v1.0.1 | entity attribute
+| indicators: `name:source:mapper` | function | optional | v1.0.1 | value processing function
+| **buttons** | object | optional | v1.0.1 | any buttons, [example](#buttons).
+| buttons: `name` | object | optional | v1.0.1 | the name of your button see examples
+| buttons: `name:icon` | string | optional | v1.0.1 | Specify a custom icon from any of the available mdi icons.
+| buttons: `name:type` | string | optional | v1.0.1 | `dropdown` or `button` default `bitton`
+| buttons: `name:order` | number | optional | v1.0.1 | sort order
+| buttons: `name:state` | object | optional | v1.0.1 | config to get button state.
+| buttons: `name:state:entity` | string | optional | v1.0.1 | button entity_id.
+| buttons: `name:state:attribute` | string | optional | v1.0.1 | entity attribute
+| buttons: `name:state:mapper` | function | optional | v1.0.1 | state processing function
+| buttons: `name:disabled` | function | optional | v1.0.1 | calc disabled button
+| buttons: `name:active` | function | optional | v1.0.1 | for type `dropdown`
+| buttons: `name:source` | object | optional | v1.0.1 | for type `dropdown`
+| buttons: `name:source:item` | string | optional | v1.0.1 | source item, format horizontal: horizontal
+| buttons: `name:source:__filter` | function | optional | v1.0.1 | filter function
+| buttons: `name:change_action` | function | optional | v1.0.1 | for type `dropdown`
+| buttons: `name:toggle_action` | function | optional | v1.0.1 | for type `button`
+| buttons: `name:style` | function | optional | v1.0.1 | styles
+
+#### temperature
+
+> Configuration example for the temperature:  
+```yaml
+- type: custom:mini-climate
+  entity: climate.my_ac
+  temperature:
+    unit: '°C'
+    round: 1
+    # use an external temperature sensor
+    source:
+      entity: sensor.temperature
+``` 
+
+#### target_temperature
+
+> Functions available for the target_temperature:  
+
+| Name | Type | execution context | arguments | return type |
+|------|------|-------------------|-----------|-------------|
+|`change_action` | function | target_temperature config | value, entity, climate_entity | any
+
+`value` - target_temperature value  
+`entity` - target_temperature entity  
+`climate_entity` - climate entity
+
+**execution context methods:**  
+
+| Name | arguments | description | return type |
+|------|-----------|-------------|-------------|
+|`toggle_state` | sate | toggle state, example: `this.toggle_state('on') => off`  | string
+|`call_service` | domain, service, options, | call Home Assistant service | promise
+
+> Configuration example for the target_temperature:  
+```yaml
+- type: custom:mini-climate
+  entity: climate.my_ac
+  target_temperature:
+    icons:
+      up: mdi:chevron-up
+      down: mdi:chevron-down
+    unit: '°C'
+    min: 16
+    max: 31
+    step: 0.5
+    change_action: >
+      (value, entity) => this.call_service('climate', 'set_temperature', { entity_id: entity.entity_id, temperature: value })
+``` 
+
+#### hvac_mode
+
+> Functions available for the hvac_mode:  
+
+| Name | Type | execution context | arguments | return type |
+|------|------|-------------------|-----------|-------------|
+|`change_action` | function | hvac_mode config | value, entity | any
+|`style` | function | hvac_mode config | value, entity | object
+
+`value` - current hvac_mode  
+`entity` - current entity  
+
+**execution context methods:**  
+
+| Name | arguments | description | return type |
+|------|-----------|-------------|-------------|
+|`toggle_state` | sate | toggle state, example: `this.toggle_state('on') => off`  | string
+|`call_service` | domain, service, options, | call Home Assistant service | promise
+
+> Configuration example for the hvac_mode:  
+```yaml
+- type: custom:mini-climate
+  entity: climate.my_ac
+  hvac_mode:
+    style: "(value, entity) => ({ color: 'black' })"
+    source:
+      'off':
+        icon: mdi:power
+        name: 'off'
+      heat:
+        icon: mdi:weather-sunny
+        name: heat
+      auto:
+        icon: mdi:cached
+        name: auto
+      cool:
+        icon: mdi:snowflake
+        name: cool
+      dry:
+        icon: mdi:water
+        name: dry
+      fan_only:
+        icon: mdi:fan
+        name: fan
+    change_action: >
+      (value, entity) => this.call_service('climate', 'set_hvac_mode', { entity_id: entity.entity_id, hvac_mode: value })
+``` 
+
+#### fan_mode
+
+> Functions available for the fan_mode:  
+
+| Name | Type | execution context | arguments | return type |
+|------|------|-------------------|-----------|-------------|
+|`state:mapper` | function | button config | state, entity, climate_entity, hvac_mode | any
+|`source:__filter` | function | button config | source, state, entity, climate_entity, hvac_mode | any
+|`active` | function | button config | value, entity, climate_entity, hvac_mode | boolean
+|`disabled` | function | button config | value, entity, climate_entity, hvac_mode | boolean
+|`style` | function | button config | value, entity, climate_entity, hvac_mode | object
+|`change_action` | function | button config | selected_value, entity, climate_entity, hvac_mode | promise
+
+`state` - current button state value  
+`entity` - button entity  
+`climate_entity` - climate entity  
+`hvac_mode` - current hvac_mode  
+`source` - dropdown source object array: [ { id: 'id', name: 'name' }, ... ]  
+`selected_value` -  selected dropdown value  
+
+**execution context methods:**  
+
+| Name | arguments | description | return type |
+|------|-----------|-------------|-------------|
+|`toggle_state` | sate | toggle state, example: `this.toggle_state('on') => off`  | string
+|`call_service` | domain, service, options, | call Home Assistant service | promise 
+
+> Configuration example for the fan_mode:  
+```yaml
+- type: custom:mini-climate
+  entity: climate.my_ac
+  fan_mode:
+    hide: off
+    icon: mdi:fan
+    order: 0
+    active: (state, entity) => entity.state !== 'off'
+    source:
+      auto: auto
+      low: low
+      medium: medium
+      high: high
+      # filter usage example
+      __filter: >
+        (source, state, entity) => entity.attributes
+          .fan_modes_al.map(fan_mode => source.find(s => s.id === fan_mode))
+          .filter(fan_mode=>fan_mode)
+    change_action: >
+      (selected, state, entity) => this.call_service('climate', 'set_fan_mode', { entity_id: entity.entity_id, fan_mode: selected })
+``` 
+#### Indicators
+
+> The indicators display additional information on the card, for example, you can display humidity, consumption, etc.  
+> Adding a simple indicator:
+```yaml
+- type: custom:mini-climate
+  entity: climate.my_ac
+  indicators:
+    humidity:
+      icon: mdi:water
+      unit: '%'
+      round: 1
+      source:
+        entity: sensor.humidity
+```
+##### indicator functions
+
+> Consider configuring an indicator using javascript
+> Functions available for the indicator:  
+
+| Name | Type | execution context | arguments | return type |
+|------|------|-------------------|-----------|-------------|
+|`source:mapper` | function | indicator config | value, entity, climate_entity, hvac_mode | any
+|`icon:template` | function | indicator config | value, entity, climate_entity, hvac_mode | string
+|`icon:style` | function | indicator config | value, entity, climate_entity, hvac_mode | object
+
+`value` - current indicator value  
+`entity` - indicator entity  
+`climate_entity` - climate entity
+`hvac_mode` - current hvac_mode  
+
+##### source mapper
+
+> Using the mapper function, you can change the indicator value:
+```yaml
+- type: custom:mini-climate
+  entity: climate.my_ac
+  indicators:
+    power:
+      icon: mdi:power-plug
+      source:
+        values:
+          'on': 'power is on!'
+          'off': 'power is off!'
+        entity: switch.ac_power
+        # since the current execution context is an indicator config, we can use this.source.values to get values
+        mapper: value => this.source.values[value]
+        # example of using all function arguments
+        # mapper: >
+        #   (value, entity, climate_entity, hvac_mode) => {
+        #     console.log(value);
+        #     console.log(entity);
+        #     console.log(climate_entity);
+        #     console.log(hvac_mode);
+        #     console.log(this);
+        #     return ...
+        #   }
+```
+
+##### icon template
+
+> The indicator icon can be calculated dynamically
+  for example:
+```yaml
+- type: custom:mini-climate
+  entity: climate.my_ac
+  indicators:
+    humidity:
+      icon:
+        template: >
+          (value) => (value > 30 ? 'mdi:weather-rainy' : 'mdi:water')
+      unit: '%'
+      round: 1
+      source:
+        entity: sensor.humidity
+```
+
+##### icon template
+
+> You can also set custom styles.
+  for example:
+```yaml
+- type: custom:mini-climate
+  entity: climate.my_ac
+  indicators:
+    humidity:
+      icon:
+        template: () => 'mdi:water'
+        style: >
+          (value) => (value > 30 ? { color: 'red'} : {})
+      unit: '%'
+      round: 1
+      source:
+        entity: sensor.humidity
+```
+
+#### Buttons
+
+> You can add various buttons, supported types: button and dropdown
+
+##### buttons functions
+
+| Name | Type | execution context | arguments | return type |
+|------|------|-------------------|-----------|-------------|
+|`state:mapper` | function | button config | state, entity, climate_entity, hvac_mode | any
+|`source:__filter` | function | button config | source, state, entity, climate_entity, hvac_mode | any
+|`active` | function | button config | value, entity, climate_entity, hvac_mode | boolean
+|`disabled` | function | button config | value, entity, climate_entity, hvac_mode | boolean
+|`style` | function | button config | value, entity, climate_entity, hvac_mode | object
+|`toggle_action` | function | button config | state, entity, climate_entity, hvac_mode | promise
+|`change_action` | function | button config | selected_value, entity, climate_entity, hvac_mode | promise
+
+`state` - current button state value  
+`entity` - button entity  
+`climate_entity` - climate entity  
+`hvac_mode` - current hvac_mode  
+`source` - dropdown source object array: [ { id: 'id', name: 'name' }, ... ]  
+`selected_value` -  selected dropdown value  
+
+**execution context methods:**  
+
+| Name | arguments | description | return type |
+|------|-----------|-------------|-------------|
+|`toggle_state` | sate | toggle state, example: `this.toggle_state('on') => off`  | string
+|`call_service` | domain, service, options, | call Home Assistant service | promise 
+
+
+##### dropdown
+> Consider an example swing_mode configuration:
+
+```yaml
+- type: custom:mini-climate
+  entity: climate.my_ac
+  buttons:
+    swing_mode:
+      type: dropdown
+      icon: mdi:approximately-equal
+      state:
+        attribute: swing_mode
+      active: state => state !== 'off'
+      source:
+        'off': Off
+        horizontal: On
+      change_action: >
+        (selected, state, entity) => this.call_service('climate', 'set_swing_mode', { entity_id: entity.entity_id, swing_mode: selected })
+```
+
+##### button
+> Consider the example of adding buttons:
+```yaml
+- type: custom:mini-climate
+  entity: climate.my_ac
+  buttons:
+    power:
+      icon: mdi:power-plug
+      state:
+        entity: switch.ac_power
+# for the button type, if no toggle_action is specified, the switch.toggle method is called
+```
+
+```yaml
+- type: custom:mini-climate
+  entity: climate.my_ac
+  buttons:
+    turbo:
+      icon: mdi:weather-hurricane
+      state:
+        attribute: turbo
+        mapper: "state => (state ? 'on': 'off')"
+      disabled: (state, entity) => !entity.attributes.turbo_al
+      toggle_action: >
+        (state) => this.call_service('mqtt', 'publish', { payload: this.toggle_state(state), topic: 'my_ac/turbo/set', retain: false, qos: 1 })
+```
+
+
+## Development
+*If you plan to contribute back to this repo, please fork & create the PR against the [dev](https://github.com/artem-sedykh/mini-climate-card/tree/dev) branch.*
+
+**Clone this repository into your `config/www` folder using git.**
+
+ ```console
+$ git clone https://github.com/artem-sedykh/mini-climate-card.git
+```
+
+**Add a reference to the card in your `ui-lovelace.yaml`.**
+
+```yaml
+resources:
+  - url: /local/mini-humidifier/dist/mini-climate-card-bundle.js
+    type: module
+```
+
+### Instructions
+
+*Requires `nodejs` & `npm`*
+
+1. Move into the `mini-climate-card` repo, checkout the *dev* branch & install dependencies.
+```console
+$ cd mini-climate-card-dev && git checkout dev && npm install
+```
+
+2. Make changes to the source
+
+3. Build the source by running
+```console
+$ npm run build
+```
+
+4. Refresh the browser to see changes
+
+    *Make sure cache is cleared or disabled*
+
+5. *(Optional)* Watch the source and automatically rebuild on save
+```console
+$ npm run watch
+```
+
+*The new `mini-climate-card-bundle.js` will be build and ready inside `/dist`.*
+
+
+## Getting errors?
+Make sure you have `javascript_version: latest` in your `configuration.yaml` under `frontend:`.
+
+Make sure you have the latest version of `mini-climate-card-bundle.js`.
+
+If you have issues after updating the card, try clearing your browsers cache or restart Home Assistant.
+
+If you are getting "Custom element doesn't exist: mini-climate" or running older browsers try replacing `type: module` with `type: js` in your resource reference, like below.
+
+```yaml
+resources:
+  - url: ...
+    type: js
+```
+
+## License
+This project is under the MIT license.

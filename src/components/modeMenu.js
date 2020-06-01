@@ -1,5 +1,5 @@
 import { LitElement, html, css } from 'lit-element';
-
+import { styleMap } from 'lit-html/directives/style-map';
 import './dropdown';
 import ICON from '../const';
 
@@ -36,12 +36,18 @@ class ModeMenu extends LitElement {
   }
 
   render() {
+    let style = {};
+    if (this.climate.config.hvac_mode.functions.style)
+      style = this.climate.config.hvac_mode.functions.style(this.climate.mode.id,
+        this.climate.entity) || {};
+
     return html`
       <mc-dropdown
         @change=${this.handleSource}
         .climate=${this.climate}
         .items=${this.sources}
         .icon=${this.calcIcon}
+        .style=${styleMap(style)}
         .active=${this.climate.isOn} 
         .selected=${this.source.id}>
       </mc-dropdown>

@@ -204,7 +204,7 @@ class MiniClimate extends LitElement {
     item.functions = {};
 
     const context = { ...value };
-    context.callService = (domain, service, options) => this.hass.callService(
+    context.call_service = (domain, service, options) => this.hass.callService(
       domain, service, options,
     );
     context.entity_config = config;
@@ -308,14 +308,61 @@ class MiniClimate extends LitElement {
     return indicators;
   }
 
+  getTargetTemperatureConfig(config) {
+    const item = {
+      unit: '°C',
+      source: { entity: undefined, attribute: 'temperature' },
+      ...config.target_temperature || {},
+    };
+
+    item.icons = {
+      up: ICON.UP,
+      down: ICON.DOWN,
+      ...item.icons || {},
+    };
+
+    item.functions = {};
+
+    const context = { ...config.target_temperature || {} };
+    context.call_service = (domain, service, options) => this.hass.callService(
+      domain, service, options,
+    );
+    context.entity_config = config;
+    context.toggle_state = toggleState;
+
+    if (item.change_action) {
+      item.functions.change_action = compileTemplate(item.change_action, context);
+    }
+
+    return item;
+  }
+
+  getHvacModeConfig(config) {
+    const item = { ...config.hvac_mode || {} };
+
+    item.functions = {};
+
+    const context = { ...config.hvac_mode || {} };
+    context.call_service = (domain, service, options) => this.hass.callService(
+      domain, service, options,
+    );
+    context.entity_config = config;
+    context.toggle_state = toggleState;
+
+    if (item.change_action)
+      item.functions.change_action = compileTemplate(item.change_action, context);
+
+    if (item.style)
+      item.functions.style = compileTemplate(item.style, context);
+
+    return item;
+  }
+
   setConfig(config) {
     if (!config.entity || config.entity.split('.')[0] !== 'climate')
       throw new Error('Specify an entity from within the fan domain.');
 
     this.config = {
-      toggle_power: true,
-      fan_modes: [],
-      modes: { source: {} },
       tap_action: {
         action: 'more-info',
         navigation_path: '',
@@ -333,18 +380,7 @@ class MiniClimate extends LitElement {
 
     this.config.buttons.push(this.getFanModeConfig(config));
 
-    this.config.target_temperature = {
-      hide: false,
-      unit: '°C',
-      source: { entity: undefined, attribute: 'temperature' },
-      ...config.target_temperature || {},
-    };
-
-    this.config.target_temperature.icons = {
-      up: ICON.UP,
-      down: ICON.DOWN,
-      ...this.config.target_temperature.icons || {},
-    };
+    this.config.target_temperature = this.getTargetTemperatureConfig(config);
 
     this.config.temperature = {
       round: 1,
@@ -353,16 +389,7 @@ class MiniClimate extends LitElement {
       ...config.current_temperature || {},
     };
 
-    this.config.fan_mode = {
-      icon: ICON.FAN,
-      hide: false,
-      order: 0,
-      ...config.fan_mode || {},
-    };
-
-    this.hvac_mode = {
-      ...config.hvac_mode || {},
-    };
+    this.hvac_mode = this.getHvacModeConfig(this.config);
   }
 
   renderCtlWrap() {
@@ -376,7 +403,8 @@ class MiniClimate extends LitElement {
 
     return html`
         <mc-mode-menu
-          .climate=${this.climate}>
+          .climate=${this.climate}
+          .config=${this.config.hvac_mode}>
         </mc-mode-menu>
         <mc-temperature
           .temperature=${this.temperature}

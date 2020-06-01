@@ -84,6 +84,9 @@ export default class ClimateObject {
   }
 
   setHvacMode(mode) {
+    if (this.config.hvac_mode.functions.change_action)
+      return this.config.hvac_mode.functions.change_action(mode, this.entity);
+
     return this.callService('climate', 'set_hvac_mode', { hvac_mode: mode });
   }
 
