@@ -27,15 +27,19 @@ class ClimateButtons extends LitElement {
   }
 
   renderDropdown(dropdown) {
+    let selected = '';
+    if (dropdown.state !== null && dropdown.state !== undefined)
+      selected = dropdown.state.toString();
+
     return html`
       <mc-dropdown
         style=${styleMap(dropdown.style)}
         @change=${e => dropdown.handleChange(e)}
         .items=${dropdown.source}
         .icon=${dropdown.icon}
-        ?disabled="${dropdown.disabled}"
+        .disabled="${dropdown.disabled}"
         .active=${dropdown.isActive}
-        .selected=${dropdown.state}>
+        .selected=${selected}>
       </mc-dropdown>
     `;
   }
