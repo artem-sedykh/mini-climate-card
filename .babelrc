@@ -8,7 +8,8 @@
           "esmodules": true
         }
       }
-    ]
+    ],
+    ["minify"]
   ],
   "comments": false,
   "plugins": [
