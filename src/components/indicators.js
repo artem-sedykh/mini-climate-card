@@ -82,9 +82,6 @@ class ClimateIndicators extends LitElement {
         height: calc(var(--mc-unit) * .475);
         opacity: 0.8;
      }
-     .humidity .state__value {
-        margin: 0;
-     }
     `;
   }
 }
