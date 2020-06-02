@@ -27,9 +27,6 @@ class ClimateButtons extends LitElement {
   }
 
   renderDropdown(dropdown) {
-    if (dropdown.isUnavailable)
-      return '';
-
     return html`
       <mc-dropdown
         style=${styleMap(dropdown.style)}
