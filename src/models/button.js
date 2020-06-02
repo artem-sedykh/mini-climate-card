@@ -101,7 +101,11 @@ export default class ButtonObject {
   }
 
   get selected() {
-    return this.source.find(s => s.id === this.state);
+    const { state } = this;
+    if (state === undefined || state === null)
+      return undefined;
+
+    return this.source.find(s => s.id === state.toString());
   }
 
   handleToggle(e) {
