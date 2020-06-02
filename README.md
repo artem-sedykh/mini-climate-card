@@ -136,6 +136,7 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 | buttons: `name:change_action` | function | optional | v1.0.1 | for type `dropdown`
 | buttons: `name:toggle_action` | function | optional | v1.0.1 | for type `button`
 | buttons: `name:style` | function | optional | v1.0.1 | styles
+| tap_action | [action object](#tap_action) | true | v1.0.4 | Action on click/tap, [tap_action](#tap_action).
 
 #### temperature
 
@@ -457,6 +458,70 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
         (state) => this.call_service('mqtt', 'publish', { payload: this.toggle_state(state), topic: 'my_ac/turbo/set', retain: false, qos: 1 })
 ```
 
+#### tap_action
+
+| Name | Type | Default | Options | Description |
+|------|:----:|:-------:|:-----------:|-------------|
+| action | string | `more-info` | `more-info` / `navigate` / `call-service`  / `url` / `none` | Action to perform.
+| entity | string |  | Any entity id | Override default entity of `more-info`, when  `action` is defined as `more-info`.
+| service | string |  | Any service | Service to call (e.g. `fan.turn_on`) when `action` is defined as `call-service`
+| service_data | object |  | Any service data | Service data to include with the service call.
+| navigation_path | string |  | Any path | Path to navigate to (e.g. `/lovelace/0/`) when `action` is defined as `navigate`.
+| url | string |  | Any URL | URL to open when `action` is defined as `url`.
+
+```yaml
+# toggle example
+# call-service example
+- type: custom:mini-climate
+  entity: climate.my_ac
+  tap_action:
+    action: call-service
+    service: climate.set_hvac_mode
+    service_data:
+      entity_id: climate.my_ac
+      hvac_mode: 'off'
+
+# navigate example
+- type: custom:mini-climate
+  entity: climate.my_ac
+  tap_action:
+    action: navigate
+    navigation_path: '/lovelace/4'
+
+# navigate example
+- type: custom:mini-climate
+  entity: climate.my_ac
+  tap_action:
+    action: url
+    url: 'https://www.google.com/'
+
+# none example
+- type: custom:mini-climate
+  entity: climate.my_ac
+  tap_action: none
+
+# more-info for custom entity example
+- type: custom:mini-climate
+  entity: climate.my_ac
+  tap_action:
+    action: more-info
+    entity: sensor.humidity
+```
+
+### Theme variables
+The following variables are available and can be set in your theme to change the appearence of the card.
+Can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically anything supported by CSS.
+
+| name | Default | Description |
+|------|---------|-------------|
+| mini-climate-name-font-weight | 400 | Font weight of the entity name
+| mini-climate-info-font-weight | 300 | Font weight of the states
+| mini-climate-icon-color | --mini-humidifier-base-color, var(--paper-item-icon-color, #44739e) | The color for icons
+| mini-climate-button-color |--mini-humidifier-button-color, var(--paper-item-icon-color, #44739e) | The color for buttons icons
+| mini-climate-accent-color | var(--accent-color) | The accent color of UI elements
+| mini-climate-base-color | var(--primary-text-color) & var(--paper-item-icon-color) | The color of base text
+| mini-climate-background-opacity | 1 | Opacity of the background
+| mini-climate-scale | 1 | Scale of the card
 
 ## Development
 *If you plan to contribute back to this repo, please fork & create the PR against the [dev](https://github.com/artem-sedykh/mini-climate-card/tree/dev) branch.*
