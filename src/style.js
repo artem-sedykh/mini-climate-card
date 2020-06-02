@@ -126,6 +126,8 @@ const style = css`
     font-size: calc(var(--mc-unit) * .35);
     font-weight: var(--mc-info-font-weight);
     line-height: calc(var(--mc-unit) * .5);
+    vertical-align: middle;
+    display: inline-block;
   }
   ha-card.--initial .mc-climate {
     padding: 16px 16px 5px 16px;
