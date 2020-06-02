@@ -360,7 +360,7 @@ class MiniClimate extends LitElement {
 
   setConfig(config) {
     if (!config.entity || config.entity.split('.')[0] !== 'climate')
-      throw new Error('Specify an entity from within the fan domain.');
+      throw new Error('Specify an entity from within the climate domain.');
 
     this.config = {
       tap_action: {
