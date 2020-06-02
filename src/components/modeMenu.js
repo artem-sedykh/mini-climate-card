@@ -3,7 +3,6 @@ import { styleMap } from 'lit-html/directives/style-map';
 import './dropdown';
 import ICON from '../const';
 
-
 class ModeMenu extends LitElement {
   static get properties() {
     return {
