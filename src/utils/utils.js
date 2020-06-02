@@ -26,8 +26,14 @@ const getEntityValue = (entity, config) => {
 
 const round = (value, decimals) => Number(`${Math.round(Number(`${value}e${decimals}`))}e-${decimals}`);
 
-// eslint-disable-next-line no-new-func
-const compileTemplate = (template, context) => (new Function('', `return ${template}`)).call(context || {});
+const compileTemplate = (template, context) => {
+  try {
+    // eslint-disable-next-line no-new-func
+    return (new Function('', `return ${template}`)).call(context || {});
+  } catch (e) {
+    throw new Error(`\n[COMPILE ERROR]: [${e.toString()}]\n[SOURCE]: ${template}\n`);
+  }
+};
 
 export {
   round,

@@ -47,7 +47,7 @@ class ModeMenu extends LitElement {
         .climate=${this.climate}
         .items=${this.sources}
         .icon=${this.calcIcon}
-        .style=${styleMap(style)}
+        style=${styleMap(style)}
         .active=${this.climate.isOn} 
         .selected=${this.source.id}>
       </mc-dropdown>

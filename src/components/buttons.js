@@ -16,7 +16,7 @@ class ClimateButtons extends LitElement {
 
     return html`
        <ha-icon-button
-         .style=${styleMap(button.style)}
+         style=${styleMap(button.style)}
          class='custom-button'
          .icon=${button.icon}
          @click=${e => button.handleToggle(e)}
@@ -32,7 +32,7 @@ class ClimateButtons extends LitElement {
 
     return html`
       <mc-dropdown
-        .style=${styleMap(dropdown.style)}
+        style=${styleMap(dropdown.style)}
         @change=${e => dropdown.handleChange(e)}
         .items=${dropdown.source}
         .icon=${dropdown.icon}
