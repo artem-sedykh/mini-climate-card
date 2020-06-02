@@ -242,7 +242,7 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 | Name | Type | execution context | arguments | return type |
 |------|------|-------------------|-----------|-------------|
 |`state:mapper` | function | button config | state, entity, climate_entity, hvac_mode | any
-|`source:__filter` | function | button config | source, state, entity, climate_entity, hvac_mode | any
+|`source:__filter` | function | button config | source, state, entity, climate_entity, hvac_mode | object({ id..., name... }) array
 |`active` | function | button config | value, entity, climate_entity, hvac_mode | boolean
 |`disabled` | function | button config | value, entity, climate_entity, hvac_mode | boolean
 |`style` | function | button config | value, entity, climate_entity, hvac_mode | object
@@ -389,7 +389,7 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 | Name | Type | execution context | arguments | return type |
 |------|------|-------------------|-----------|-------------|
 |`state:mapper` | function | button config | state, entity, climate_entity, hvac_mode | any
-|`source:__filter` | function | button config | source, state, entity, climate_entity, hvac_mode | any
+|`source:__filter` | function | button config | source, state, entity, climate_entity, hvac_mode | object({ id..., name... }) array
 |`active` | function | button config | value, entity, climate_entity, hvac_mode | boolean
 |`disabled` | function | button config | value, entity, climate_entity, hvac_mode | boolean
 |`style` | function | button config | value, entity, climate_entity, hvac_mode | object
@@ -525,9 +525,9 @@ Can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically any
 
 ## My configuration
 
-> изначально я писал плагин для своей реализации кондиционера с использованием [esphome](https://github.com/esphome/esphome)
-> если интерсно можете вот исходники [esphome-mqtt-climate](https://github.com/artem-sedykh/esphome-mqtt-climate)
-> далее идет пример конфигурации для моего кондиционера
+> I originally wrote a plugin for my air conditioner implementation using [esphome](https://github.com/esphome/esphome)
+> if interested, you can source [esphome-mqtt-climate](https://github.com/artem-sedykh/esphome-mqtt-climate)
+> the following is a configuration example for my air conditioner
 
 ```yaml
 - type: custom:mini-climate
