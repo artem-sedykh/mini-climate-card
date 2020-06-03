@@ -174,6 +174,7 @@ const style = css`
   .entity__info__name_wrap {
     margin-right: calc(var(--mc-unit) * .5);
     max-width: calc(var(--mc-unit) * 3);
+    cursor: pointer;
   }
   mc-buttons {
     width: 100%;

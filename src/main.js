@@ -5,7 +5,7 @@ import style from './style';
 import sharedStyle from './sharedStyle';
 import handleClick from './utils/handleClick';
 import getLabel from './utils/getLabel';
-import { version } from '../package';
+import './initialize';
 import './components/indicators';
 import './components/modeMenu';
 import './components/buttons';
@@ -39,13 +39,6 @@ class MiniClimate extends LitElement {
     this.buttons = {};
     this.indicators = {};
     this.targetTemperatureChanging = false;
-
-    // eslint-disable-next-line no-console
-    console.info(
-      `%c MINI-CLIMATE-CARD %c ${version} `,
-      'color: white; background: coral; font-weight: 700;',
-      'color: coral; background: white; font-weight: 700;',
-    );
   }
 
   static get properties() {
@@ -432,15 +425,15 @@ class MiniClimate extends LitElement {
     return html`
       <ha-card
         class=${this.computeClasses()}
-        style=${this.computeStyles()}
-        @click=${e => this.handlePopup(e)}>
+        style=${this.computeStyles()}>
         <div class='mc__bg'></div>
         <div class='mc-climate'>
           <div class='mc-climate__core flex'>
             ${this.renderIcon()}
             <div class='entity__info'>
               <div class="wrap">
-                <div class="entity__info__name_wrap">
+                <div class="entity__info__name_wrap"
+                  @click=${e => this.handlePopup(e)}>
                   ${this.renderEntityName()}
                 </div>
                 <div class="ctl-wrap ellipsis">
