@@ -1,105 +1,97 @@
 import { LitElement, html, css } from 'lit-element';
-
+import { styleMap } from 'lit-html/directives/style-map';
 import sharedStyle from '../sharedStyle';
+import './dropdown-base';
+import { ACTION_TIMEOUT } from '../const';
 
-class MiniClimateDropdown extends LitElement {
+class ClimateDropDown extends LitElement {
+  constructor() {
+    super();
+    this.dropdown = {};
+    this.timer = undefined;
+    this._state = undefined;
+  }
+
   static get properties() {
     return {
-      items: [],
-      label: String,
-      selected: String,
-      icon: String,
-      active: Boolean,
-      disabled: Boolean,
+      dropdown: { type: Object },
     };
   }
 
-  get selectedId() {
-    return this.items.map(item => item.id).indexOf(this.selected);
-  }
+  handleChange(e) {
+    e.stopPropagation();
 
-  onChange(e) {
-    const id = e.target.selected;
-    if (id !== this.selectedId && this.items[id]) {
-      this.dispatchEvent(new CustomEvent('change', {
-        detail: this.items[id],
-      }));
-      e.target.selected = -1;
-    }
+    const selected = e.detail.id;
+    const { entity } = this.dropdown;
+    this._state = selected;
+
+    this.dropdown.handleChange(selected);
+
+    if (this.timer)
+      clearTimeout(this.timer);
+
+    this.timer = setTimeout(async () => {
+      if (this.dropdown.entity === entity) {
+        this._state = (this.dropdown.state !== undefined && this.dropdown.state !== null)
+          ? this.dropdown.state.toString() : '';
+
+        return this.requestUpdate('_state');
+      }
+    }, ACTION_TIMEOUT);
+
+    return this.requestUpdate('_state');
   }
 
   render() {
     return html`
-      <paper-menu-button
-        class='mc-dropdown'
-        noink no-animations
-        .horizontalAlign=${'right'}
-        .verticalAlign=${'top'}
-        .verticalOffset=${44}
-        .dynamicAlign=${true}
-        ?disabled=${this.disabled}
-        @click=${e => e.stopPropagation()}>
-        <ha-icon-button class='mc-dropdown__button icon' slot='dropdown-trigger'
-          .icon=${this.icon}
-          ?disabled=${this.disabled}
-          ?color=${this.active}>
-        </ha-icon-button>
-        <paper-listbox slot="dropdown-content" .selected=${this.selectedId} @iron-select=${this.onChange}>
-          ${this.items.map(item => html`
-            <paper-item value=${item.id || item.name}>
-              <span class='mc-dropdown__item__label'>${item.name}</span>
-            </paper-item>`)}
-        </paper-listbox>
-      </paper-menu-button>
+      <mc-dropdown-base
+        style=${styleMap(this.dropdown.style)}
+        @change=${e => this.handleChange(e)}
+        .items=${this.dropdown.source}
+        .icon=${this.dropdown.icon}
+        .disabled="${this.dropdown.disabled}"
+        .active=${this.dropdown.isActive(this._state)}
+        .selected=${this._state}>
+      </mc-dropdown-base>
     `;
+  }
+
+  updated(changedProps) {
+    if (changedProps.has('dropdown')) {
+      this._state = (this.dropdown.state !== undefined && this.dropdown.state !== null)
+        ? this.dropdown.state.toString() : '';
+
+      if (this.timer)
+        clearTimeout(this.timer);
+
+      return this.requestUpdate('_state');
+    }
   }
 
   static get styles() {
     return [
       sharedStyle,
       css`
-        :host {
-          position: relative;
-          overflow: hidden;
-          --paper-item-min-height: 40px;
-        }
-        paper-menu-button
-        :host([disabled]) {
-          opacity: .25;
-          pointer-events: none;
-        }
-        :host([faded]) {
-          opacity: .75;
-        }
-        .mc-dropdown {
-          padding: 0;
-          display: block;
-        }
-        ha-icon-button[disabled] {
-          opacity: .25;
-          pointer-events: none;
-        }
-        .mc-dropdown__button.icon {
-          margin: 0;
-        }
-        ha-icon-button {
-          width: calc(var(--mc-dropdown-unit));
-          height: calc(var(--mc-dropdown-unit));
-          --mdc-icon-button-size: calc(var(--mc-dropdown-unit));
-        }
-        paper-item > *:nth-child(2) {
-          margin-left: 4px;
-        }
-        paper-menu-button[focused] ha-icon-button {
-          color: var(--mc-accent-color);
-        }
-        paper-menu-button[focused] ha-icon-button[focused] {
-          color: var(--mc-text-color);
-          transform: rotate(0deg);
-        }
-      `,
-    ];
+      :host {
+        position: relative;
+        box-sizing: border-box;
+        margin: 0;
+        overflow: hidden;
+        transition: background .5s;
+        --paper-item-min-height: var(--mc-unit);
+        --mc-dropdown-unit: var(--mc-unit);
+      }
+      :host([color]) {
+        background: var(--mc-active-color);
+        transition: background .25s;
+        opacity: 1;
+      }
+      :host([disabled]) {
+        opacity: .25;
+        pointer-events: none;
+      }
+    `];
   }
 }
 
-customElements.define('mc-dropdown', MiniClimateDropdown);
+customElements.define('mc-dropdown', ClimateDropDown);

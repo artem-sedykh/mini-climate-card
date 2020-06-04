@@ -67,7 +67,12 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 | type | string | **required** | v1.0.1 | `custom:mini-climate`
 | entity | string | **required** | v1.0.1 | An entity_id from an entity within the `climate` domain.
 | name | string | optional | v1.0.1 | Override the entities friendly name.
+| group | boolean | optional | v1.0.2 | Removes paddings, background color and box-shadow.
 | icon | string | optional | v1.0.1 | Specify a custom icon from any of the available mdi icons.
+| **toggle** | object | optional | v1.0.2 | Toggle button.
+| toggle: `icon` | string | optional | v1.0.2 | Custom icon, default value `mdi:dots-horizontal`
+| toggle: `hide` | boolean | optional | v1.0.2 | Hide button, default value `False`
+| toggle: `default` | boolean | optional | v1.0.2 | Default toggle button state, default value `off`.
 | **temperature** | object | optional | v1.0.1 | current temperature configuration. [temperature examples](#temperature)
 | temperature: `unit` | string | optional | v1.0.1 | display unit, default `°C`
 | temperature: `round` | number | optional | v1.0.1 | rounding value, default `1`

@@ -11,10 +11,7 @@ import './components/modeMenu';
 import './components/buttons';
 import './components/temperature';
 import './components/targetTemperature';
-import {
-  compileTemplate,
-  toggleState,
-} from './utils/utils';
+import { compileTemplate, toggleState } from './utils/utils';
 import ICON from './const';
 import TemperatureObject from './models/temperature';
 import TargetTemperatureObject from './models/targetTemperature';
@@ -39,6 +36,7 @@ class MiniClimate extends LitElement {
     this.buttons = {};
     this.indicators = {};
     this.targetTemperatureChanging = false;
+    this.climate = {};
   }
 
   static get properties() {
@@ -174,7 +172,8 @@ class MiniClimate extends LitElement {
     for (let i = 0; i < data.length; i += 1) {
       const key = data[i][0];
       const value = data[i][1];
-      const button = this.getButtonConfig(key, value, config);
+      const button = this.getButtonConfig(value, config);
+      button.id = key;
 
       if (!('order' in button))
         button.order = i + 1;
@@ -185,9 +184,8 @@ class MiniClimate extends LitElement {
     return buttons;
   }
 
-  getButtonConfig(key, value, config) {
+  getButtonConfig(value, config) {
     const item = {
-      id: key,
       icon: 'mdi:radiobox-marked',
       type: 'button',
       toggle_action: undefined,
@@ -235,70 +233,60 @@ class MiniClimate extends LitElement {
 
   getFanModeConfig(config) {
     let fanModeConfig = {
+      id: 'fan_mode',
       icon: 'mdi:fan',
       type: 'dropdown',
       order: 0,
       state: { attribute: 'fan_mode' },
+      change_action: (selected, state, entity) => {
+        const options = { fan_mode: selected, entity_id: entity.entity_id };
+        return this.call_service('climate', 'set_fan_mode', options);
+      },
       ...config.fan_mode || {},
     };
 
-    fanModeConfig = this.getButtonConfig('fan_mode', fanModeConfig, config);
+    fanModeConfig = this.getButtonConfig(fanModeConfig, config);
+    const { functions } = fanModeConfig;
 
-    const entries = Object.entries(fanModeConfig.source || {}).filter(s => s[0] !== '__filter');
-    const labelPrefix = 'state_attributes.climate.fan_mode';
-
-    if (entries.length === 0) {
-      fanModeConfig.functions.source.__init = e => ((e.attributes && e.attributes.fan_modes) || [])
-        .map(f => ({ id: f, name: getLabel(this.hass, [`${labelPrefix}.${f}`], f) }));
-    }
-
-    if (!fanModeConfig.functions.change_action)
-      fanModeConfig.functions.change_action = selected => this.climate.setFanMode(selected);
-
-    if (!fanModeConfig.functions.active)
-      fanModeConfig.functions.active = () => this.climate.isOn;
+    if (!functions.active)
+      functions.active = () => this.climate.isOn;
 
     return fanModeConfig;
   }
 
-  getIndicatorsConfig(config) {
-    const data = Object.entries(config.indicators || {});
+  getIndicatorConfig(key, value, config) {
+    const item = {
+      id: key,
+      source: { enitity: undefined, attribute: undefined, mapper: undefined },
+      icon: '',
+      ...value,
+    };
 
-    const indicators = [];
+    item.functions = item.functions || {};
+    const context = { ...value };
+    context.entity_config = config;
+    context.toggle_state = toggleState;
 
-    for (let i = 0; i < data.length; i += 1) {
-      const key = data[i][0];
-      const value = data[i][1];
+    if (item.source.mapper)
+      item.functions.mapper = compileTemplate(item.source.mapper, context);
 
-      const item = {
-        id: key,
-        source: { enitity: undefined, attribute: undefined, mapper: undefined },
-        icon: '',
-        ...value,
-      };
+    if (typeof item.icon === 'object') {
+      item.functions.icon = {};
 
-      item.functions = {};
-      const context = { ...value };
-      context.entity_config = config;
-      context.toggle_state = toggleState;
+      if (item.icon.template)
+        item.functions.icon.template = compileTemplate(item.icon.template, context);
 
-      if (item.source.mapper)
-        item.functions.mapper = compileTemplate(item.source.mapper, context);
-
-      if (typeof item.icon === 'object') {
-        item.functions.icon = {};
-
-        if (item.icon.template)
-          item.functions.icon.template = compileTemplate(item.icon.template, context);
-
-        if (item.icon.style)
-          item.functions.icon.style = compileTemplate(item.icon.style, context);
-      }
-
-      indicators.push(item);
+      if (item.icon.style)
+        item.functions.icon.style = compileTemplate(item.icon.style, context);
     }
 
-    return indicators;
+    return item;
+  }
+
+  getIndicatorsConfig(config) {
+    return Object.entries(config.indicators || {})
+      .map(i => this.getIndicatorConfig(i[0], i[1], config))
+      .filter(i => !i.hide);
   }
 
   getTargetTemperatureConfig(config) {
@@ -371,7 +359,9 @@ class MiniClimate extends LitElement {
 
     this.config.buttons = this.getButtonsConfig(config);
 
-    this.config.buttons.push(this.getFanModeConfig(config));
+    this.fanModeConfig = this.getFanModeConfig(config);
+
+    this.config.buttons.push(this.fanModeConfig);
 
     this.config.target_temperature = this.getTargetTemperatureConfig(config);
 
@@ -383,6 +373,15 @@ class MiniClimate extends LitElement {
     };
 
     this.config.hvac_mode = this.getHvacModeConfig(this.config);
+
+    this.config.toggle = {
+      icon: ICON.TOGGLE,
+      hide: false,
+      default: false,
+      ...config.toggle || {},
+    };
+
+    this.toggle = this.config.toggle.default;
   }
 
   renderCtlWrap() {
@@ -507,9 +506,12 @@ class MiniClimate extends LitElement {
     if (this.config.buttons.filter(b => !b.hide).length === 0)
       return '';
 
+    if (this.config.toggle.hide)
+      return '';
+
     return html`
         <ha-icon-button class='toggle-button ${this.toggleButtonCls()}'
-          .icon=${ICON.TOGGLE}
+          .icon=${this.config.toggle.icon}
           @click=${e => this.handleToggle(e)}>
         </ha-icon-button>
     `;
@@ -560,6 +562,23 @@ class MiniClimate extends LitElement {
     return styleMap({
       ...(scale && { '--mc-unit': `${40 * scale}px` }),
     });
+  }
+
+  initDefaultFanModeSource() {
+    const fanMode = this.fanModeConfig;
+    const entries = Object.entries(fanMode.source || {}).filter(s => s[0] !== '__filter');
+    const { entity } = this.climate;
+
+    if (entity && entries.length === 0 && entity.attributes && entity.attributes.fan_modes) {
+      fanMode.source = { ...this.climate.defaultFanModes, ...fanMode.source || {} };
+    }
+  }
+
+  firstUpdated(changedProps) {
+    if (changedProps.has('climate')) {
+      this.initDefaultFanModeSource();
+      this.requestUpdate('climate').then();
+    }
   }
 }
 

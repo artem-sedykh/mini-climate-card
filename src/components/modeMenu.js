@@ -1,21 +1,26 @@
 import { LitElement, html, css } from 'lit-element';
 import { styleMap } from 'lit-html/directives/style-map';
-import './dropdown';
+import './dropdown-base';
 import ICON from '../const';
 
 class ModeMenu extends LitElement {
+  constructor() {
+    super();
+    this.climate = {};
+  }
+
   static get properties() {
     return {
-      climate: Object,
+      climate: { type: Object },
     };
   }
 
   get calcIcon() {
-    if (this.source) {
-      if (this.source.icon)
-        return this.source.icon;
+    if (this.selected) {
+      if (this.selected.icon)
+        return this.selected.icon;
 
-      const id = this.source.id.toUpperCase();
+      const id = this.selected.id.toUpperCase();
 
       if (id in ICON)
         return ICON[id];
@@ -24,7 +29,7 @@ class ModeMenu extends LitElement {
     return '';
   }
 
-  get source() {
+  get selected() {
     return this.climate.mode || {};
   }
 
@@ -34,6 +39,12 @@ class ModeMenu extends LitElement {
       .map(s => ({ name: s.name, id: s.id, type: 'source' }));
   }
 
+  handleChange(e) {
+    e.stopPropagation();
+    const selected = e.detail.id;
+    this.climate.setHvacMode(selected);
+  }
+
   render() {
     let style = {};
     if (this.climate.config.hvac_mode.functions.style)
@@ -41,22 +52,16 @@ class ModeMenu extends LitElement {
         this.climate.entity) || {};
 
     return html`
-      <mc-dropdown
-        @change=${this.handleSource}
+      <mc-dropdown-base
+        @change=${this.handleChange}
         .climate=${this.climate}
         .items=${this.sources}
         .icon=${this.calcIcon}
         style=${styleMap(style)}
         .active=${this.climate.isOn} 
-        .selected=${this.source.id}>
-      </mc-dropdown>
+        .selected=${this.selected.id}>
+      </mc-dropdown-base>
     `;
-  }
-
-  handleSource(ev) {
-    ev.stopPropagation();
-    const { id } = ev.detail;
-    this.climate.setHvacMode(id);
   }
 
   static get styles() {

@@ -1,12 +1,14 @@
+import { STATES_OFF, UNAVAILABLE_STATES } from '../const';
+
 const toggleState = (state) => {
   if (!state)
     return state;
 
-  if (state.toString().trim().toUpperCase() === 'ON')
-    return 'OFF';
+  if (!STATES_OFF.includes(state) && !UNAVAILABLE_STATES.includes(state))
+    return 'off';
 
-  if (state.toString().trim().toUpperCase() === 'OFF')
-    return 'ON';
+  if (STATES_OFF.includes(state) && !UNAVAILABLE_STATES.includes(state))
+    return 'on';
 
   return state;
 };

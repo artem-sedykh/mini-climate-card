@@ -1,4 +1,5 @@
 import getLabel from '../utils/getLabel';
+import { STATES_OFF, UNAVAILABLE_STATES } from '../const';
 
 export default class ClimateObject {
   constructor(hass, config, entity) {
@@ -15,6 +16,7 @@ export default class ClimateObject {
       target_temp_step: undefined,
       min_temp: undefined,
       max_temp: undefined,
+      fan_modes: [],
       ...entity.attributes || {},
     };
 
@@ -51,6 +53,18 @@ export default class ClimateObject {
     return source;
   }
 
+  get defaultFanModes() {
+    const fanModes = this.attr.fan_modes;
+    const source = {};
+    const labelPrefix = 'state_attributes.climate.fan_mode';
+
+    for (let i = 0; i < fanModes.length; i += 1) {
+      const mode = fanModes[i];
+      source[mode] = getLabel(this.hass, [`${labelPrefix}.${mode}`], mode);
+    }
+    return source;
+  }
+
   get id() {
     return this.entity.entity_id;
   }
@@ -64,7 +78,9 @@ export default class ClimateObject {
   }
 
   get isOff() {
-    return this.state === 'off';
+    return this.entity !== undefined
+      && STATES_OFF.includes(this.state)
+      && !UNAVAILABLE_STATES.includes(this.state);
   }
 
   get isActive() {
@@ -72,15 +88,13 @@ export default class ClimateObject {
   }
 
   get isUnavailable() {
-    return this.state === 'unavailable';
+    return this.entity === undefined || UNAVAILABLE_STATES.includes(this.state);
   }
 
   get isOn() {
-    return this.isUnavailable === false && this.isOff === false;
-  }
-
-  setFanMode(value) {
-    return this.callService('climate', 'set_fan_mode', { fan_mode: value });
+    return this.entity !== undefined
+      && !STATES_OFF.includes(this.state)
+      && !UNAVAILABLE_STATES.includes(this.state);
   }
 
   setHvacMode(mode) {

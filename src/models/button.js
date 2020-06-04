@@ -1,4 +1,5 @@
 import { getEntityValue } from '../utils/utils';
+import { STATES_OFF, UNAVAILABLE_STATES } from '../const';
 
 export default class ButtonObject {
   constructor(entity, config, climate) {
@@ -42,9 +43,9 @@ export default class ButtonObject {
     return state;
   }
 
-  get isActive() {
+  isActive(state) {
     if (this.config.functions.active) {
-      return this.config.functions.active(this.state, this.entity,
+      return this.config.functions.active(state, this.entity,
         this.climate.entity, this.climate.mode);
     }
 
@@ -52,15 +53,19 @@ export default class ButtonObject {
   }
 
   get isUnavailable() {
-    return !this.state || this.state.toString().trim().toUpperCase() === 'UNAVAILABLE';
+    return this.entity === undefined || UNAVAILABLE_STATES.includes(this.state);
   }
 
   get isOff() {
-    return this.state && this.state.toString().trim().toUpperCase() === 'OFF';
+    return this.entity !== undefined
+      && STATES_OFF.includes(this.state)
+      && !UNAVAILABLE_STATES.includes(this.state);
   }
 
   get isOn() {
-    return (this.isOff === false && this.isUnavailable === false) || false;
+    return this.entity !== undefined
+      && !STATES_OFF.includes(this.state)
+      && !UNAVAILABLE_STATES.includes(this.state);
   }
 
   get disabled() {
@@ -83,17 +88,12 @@ export default class ButtonObject {
 
   get source() {
     const { functions } = this.config;
-    let source;
-    if (functions && functions.source && functions.source.__init) {
-      source = functions.source.__init(this.entity, this.config);
-    } else {
-      source = Object.entries(this.config.source || {})
-        .filter(s => s[0] !== '__filter')
-        .map(s => ({ id: s[0], name: s[1] }));
-    }
+    const source = Object.entries(this.config.source || {})
+      .filter(s => s[0] !== '__filter')
+      .map(s => ({ id: s[0], name: s[1] }));
 
-    if (this.config.functions.source && this.config.functions.source.filter) {
-      return this.config.functions.source.filter(source, this.state, this.entity,
+    if (functions.source && functions.source.filter) {
+      return functions.source.filter(source, this.state, this.entity,
         this.climate.entity, this.climate.mode);
     }
 
@@ -108,9 +108,7 @@ export default class ButtonObject {
     return this.source.find(s => s.id === state.toString());
   }
 
-  handleToggle(e) {
-    e.stopPropagation();
-
+  handleToggle() {
     if (this.config.functions.toggle_action) {
       return this.config.functions.toggle_action(this.state, this.entity,
         this.climate.entity, this.climate.mode);
@@ -119,11 +117,7 @@ export default class ButtonObject {
     return this.climate.callService('switch', 'toggle', { entity_id: this.entity.entity_id });
   }
 
-  handleChange(e) {
-    e.stopPropagation();
-
-    const selected = e.detail.id;
-
+  handleChange(selected) {
     if (this.config.functions.change_action) {
       return this.config.functions.change_action(selected, this.state, this.entity,
         this.climate.entity, this.climate.mode);

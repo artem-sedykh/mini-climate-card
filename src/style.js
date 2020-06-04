@@ -73,6 +73,7 @@ const style = css`
   }
   .mc-climate__core {
     position: relative;
+    padding-right: 5px;
   }
   .entity__info {
     user-select: none;

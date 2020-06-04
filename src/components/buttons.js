@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit-element';
-import { styleMap } from 'lit-html/directives/style-map';
 import sharedStyle from '../sharedStyle';
 import './dropdown';
+import './button';
 
 class ClimateButtons extends LitElement {
   static get properties() {
@@ -15,31 +15,17 @@ class ClimateButtons extends LitElement {
       return '';
 
     return html`
-       <ha-icon-button
-         style=${styleMap(button.style)}
-         class='custom-button'
-         .icon=${button.icon}
-         @click=${e => button.handleToggle(e)}
-         ?disabled="${button.disabled}"
-         ?color=${button.isOn}>
-        </ha-icon-button>
+       <mc-button
+         class="custom-button"
+         .button=${button}>
+        </mc-button>
     `;
   }
 
   renderDropdown(dropdown) {
-    let selected = '';
-    if (dropdown.state !== null && dropdown.state !== undefined)
-      selected = dropdown.state.toString();
-
     return html`
       <mc-dropdown
-        style=${styleMap(dropdown.style)}
-        @change=${e => dropdown.handleChange(e)}
-        .items=${dropdown.source}
-        .icon=${dropdown.icon}
-        .disabled="${dropdown.disabled}"
-        .active=${dropdown.isActive}
-        .selected=${selected}>
+        .dropdown=${dropdown}>
       </mc-dropdown>
     `;
   }
