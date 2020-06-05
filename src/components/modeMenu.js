@@ -20,10 +20,12 @@ class ModeMenu extends LitElement {
       if (this.selected.icon)
         return this.selected.icon;
 
-      const id = this.selected.id.toUpperCase();
+      if (this.selected.id !== undefined && this.selected.id !== null) {
+        const id = this.selected.id.toString().toUpperCase();
 
-      if (id in ICON)
-        return ICON[id];
+        if (id in ICON)
+          return ICON[id];
+      }
     }
 
     return '';

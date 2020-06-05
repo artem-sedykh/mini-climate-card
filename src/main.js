@@ -369,7 +369,7 @@ class MiniClimate extends LitElement {
       round: 1,
       unit: '°C',
       source: { entity: undefined, attribute: 'current_temperature' },
-      ...config.current_temperature || {},
+      ...config.temperature || {},
     };
 
     this.config.hvac_mode = this.getHvacModeConfig(this.config);
