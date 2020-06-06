@@ -1,5 +1,5 @@
 import getLabel from '../utils/getLabel';
-import { STATES_OFF, UNAVAILABLE_STATES } from '../const';
+import ICON, { STATES_OFF, UNAVAILABLE_STATES } from '../const';
 
 export default class ClimateObject {
   constructor(hass, config, entity) {
@@ -19,34 +19,27 @@ export default class ClimateObject {
       fan_modes: [],
       ...entity.attributes || {},
     };
-
-    this.hvac_modes = this.getHvacModes;
   }
 
   get mode() {
-    return this.hvac_modes.find(s => s.id.toUpperCase() === this.state.toUpperCase());
+    return this._hvac_mode;
   }
 
-  get getHvacModes() {
+  set mode(value) {
+    this._hvac_mode = value;
+  }
+
+  get defaultHvacModes() {
     const hvacModes = this.attr.hvac_modes;
     const source = [];
 
     for (let i = 0; i < hvacModes.length; i += 1) {
       const hvacMode = hvacModes[i];
-      let mode = {};
-
-      if (this.config.hvac_mode && this.config.hvac_mode.source
-        && this.config.hvac_mode.source[hvacMode]) {
-        mode = this.config.hvac_mode.source[hvacMode];
-      }
-
-      const item = { ...mode || {} };
-
-      item.id = hvacMode;
-      if (!item.name) {
-        const labels = [`state.climate.${item.id}`, `component.climate.state._.${item.id}`];
-        item.name = getLabel(this.hass, labels, item.id);
-      }
+      const labels = [`state.climate.${hvacMode}`, `component.climate.state._.${hvacMode}`];
+      const item = { id: hvacMode, name: getLabel(this.hass, labels, hvacMode) };
+      const iconId = hvacMode.toString().toUpperCase();
+      if (iconId in ICON)
+        item.icon = ICON[iconId];
 
       source.push(item);
     }
@@ -95,13 +88,6 @@ export default class ClimateObject {
     return this.entity !== undefined
       && !STATES_OFF.includes(this.state)
       && !UNAVAILABLE_STATES.includes(this.state);
-  }
-
-  setHvacMode(mode) {
-    if (this.config.hvac_mode.functions.change_action)
-      return this.config.hvac_mode.functions.change_action(mode, this.entity);
-
-    return this.callService('climate', 'set_hvac_mode', { hvac_mode: mode });
   }
 
   callService(domain, service, inOptions) {

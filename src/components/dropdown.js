@@ -2,7 +2,6 @@ import { LitElement, html, css } from 'lit-element';
 import { styleMap } from 'lit-html/directives/style-map';
 import sharedStyle from '../sharedStyle';
 import './dropdown-base';
-import { ACTION_TIMEOUT } from '../const';
 
 class ClimateDropDown extends LitElement {
   constructor() {
@@ -37,7 +36,7 @@ class ClimateDropDown extends LitElement {
 
         return this.requestUpdate('_state');
       }
-    }, ACTION_TIMEOUT);
+    }, this.dropdown.actionTimeout);
 
     return this.requestUpdate('_state');
   }

@@ -45,7 +45,7 @@ export default class TargetTemperatureObject {
   }
 
   get value() {
-    if (this._targetTemperature)
+    if (this._targetTemperature !== undefined)
       return this._targetTemperature;
 
     return getEntityValue(this.entity, this.config.target_temperature.source);

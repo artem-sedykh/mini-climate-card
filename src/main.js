@@ -1,4 +1,5 @@
 import { html, LitElement } from 'lit-element';
+import ResizeObserver from 'resize-observer-polyfill';
 import { classMap } from 'lit-html/directives/class-map';
 import { styleMap } from 'lit-html/directives/style-map';
 import style from './style';
@@ -12,12 +13,13 @@ import './components/buttons';
 import './components/temperature';
 import './components/targetTemperature';
 import { compileTemplate, toggleState } from './utils/utils';
-import ICON from './const';
 import TemperatureObject from './models/temperature';
 import TargetTemperatureObject from './models/targetTemperature';
 import ButtonObject from './models/button';
 import IndicatorObject from './models/indicator';
 import ClimateObject from './models/climate';
+import HvacModeObject from './models/hvac_mode';
+import ICON from './const';
 
 if (!customElements.get('ha-icon-button')) {
   customElements.define(
@@ -35,18 +37,21 @@ class MiniClimate extends LitElement {
     this.targetTemperature = {};
     this.buttons = {};
     this.indicators = {};
+    this.hvacMode = {};
     this.targetTemperatureChanging = false;
     this.climate = {};
+    this.targetTemperatureValue = 0;
+    this.width = 0;
   }
 
   static get properties() {
     return {
-      _hass: {},
-      config: {},
-      entity: {},
-      climate: {},
-      initial: Boolean,
-      toggle: Boolean,
+      _hass: { type: Object },
+      config: { type: Object },
+      entity: { type: Object },
+      climate: { type: Object },
+      initial: { type: Boolean },
+      toggle: { type: Boolean },
     };
   }
 
@@ -61,16 +66,21 @@ class MiniClimate extends LitElement {
     if (!hass) return;
     const entity = hass.states[this.config.entity];
     this._hass = hass;
+    let force = false;
 
     if (entity && this.entity !== entity) {
       this.entity = entity;
       this.climate = new ClimateObject(hass, this.config, entity);
+      force = true;
     }
 
-    this.updateIndicators(hass);
-    this.updateButtons(hass);
-    this.updateTemperature(hass);
-    this.updateTargetTemperature(hass);
+    this.updateIndicators(hass, force);
+    this.updateButtons(hass, force);
+    this.updateTemperature(hass, force);
+    this.updateTargetTemperature(hass, force);
+    this.updateHvacMode(hass, force);
+
+    this.climate.mode = this.hvacMode.selected;
   }
 
   get hass() {
@@ -81,7 +91,7 @@ class MiniClimate extends LitElement {
     return this.config.name || this.climate.name;
   }
 
-  updateIndicators(hass) {
+  updateIndicators(hass, force) {
     const indicators = { };
     let changed = false;
 
@@ -100,11 +110,11 @@ class MiniClimate extends LitElement {
         changed = true;
     }
 
-    if (changed)
+    if (changed || force)
       this.indicators = indicators;
   }
 
-  updateTemperature(hass) {
+  updateTemperature(hass, force) {
     if (this.targetTemperatureChanging)
       return;
 
@@ -120,28 +130,38 @@ class MiniClimate extends LitElement {
       this.config);
 
     if (this.temperature.rawValue !== temperature.rawValue
-      || this.temperature.target !== temperature.target) {
+      || this.temperature.target !== temperature.target || force) {
       this.temperature = temperature;
     }
   }
 
-  updateTargetTemperature(hass) {
+  updateTargetTemperature(hass, force) {
     if (this.targetTemperatureChanging)
       return;
 
-    const targetTemperatureEntityId = (this.config.target_temperature.source
+    const entityId = (this.config.target_temperature.source
       && this.config.target_temperature.source.entity) || this.config.entity;
 
-    const targetTemperatureEntity = hass.states[targetTemperatureEntityId];
-    const targetTemperature = new TargetTemperatureObject(hass, targetTemperatureEntity,
-      this.config);
+    const entity = hass.states[entityId];
 
-    if (this.targetTemperature.value !== targetTemperature.value) {
-      this.targetTemperature = targetTemperature;
+    if (this.targetTemperature.entity !== entity || force) {
+      this.targetTemperature = new TargetTemperatureObject(hass, entity, this.config);
+      this.targetTemperatureValue = this.targetTemperature.value;
     }
   }
 
-  updateButtons(hass) {
+  updateHvacMode(hass, force) {
+    const config = this.config.hvac_mode;
+
+    const entityId = (config.state && config.state.entity) || this.climate.id;
+    const entity = hass.states[entityId];
+
+    if ((entity && entity !== (this.hvacMode && this.hvacMode.entity)) || force) {
+      this.hvacMode = new HvacModeObject(entity, config, this.climate);
+    }
+  }
+
+  updateButtons(hass, force) {
     const buttons = { };
     let changed = false;
 
@@ -160,8 +180,9 @@ class MiniClimate extends LitElement {
         changed = true;
     }
 
-    if (changed)
+    if (changed || force) {
       this.buttons = buttons;
+    }
   }
 
   getButtonsConfig(config) {
@@ -262,6 +283,11 @@ class MiniClimate extends LitElement {
       ...value,
     };
 
+    if (typeof value.tap_action === 'string')
+      item.tap_action = { action: value.tap_action };
+    else
+      item.tap_action = { action: 'none', ...item.tap_action || {} };
+
     item.functions = item.functions || {};
     const context = { ...value };
     context.entity_config = config;
@@ -285,7 +311,7 @@ class MiniClimate extends LitElement {
 
   getIndicatorsConfig(config) {
     return Object.entries(config.indicators || {})
-      .map(i => this.getIndicatorConfig(i[0], i[1], config))
+      .map(i => this.getIndicatorConfig(i[0], i[1] || {}, config))
       .filter(i => !i.hide);
   }
 
@@ -319,29 +345,30 @@ class MiniClimate extends LitElement {
   }
 
   getHvacModeConfig(config) {
-    const item = { ...config.hvac_mode || {} };
+    let mode = {
+      type: 'dropdown',
+      change_action: (selected, entity) => {
+        const options = { hvac_mode: selected, entity_id: entity.entity_id };
+        return this.call_service('climate', 'set_hvac_mode', options);
+      },
+      ...config.hvac_mode || {},
+    };
 
-    item.functions = {};
+    mode = this.getButtonConfig(mode, this.config);
 
-    const context = { ...config.hvac_mode || {} };
-    context.call_service = (domain, service, options) => this.hass.callService(
-      domain, service, options,
-    );
-    context.entity_config = config;
-    context.toggle_state = toggleState;
+    const { functions } = mode;
 
-    if (item.change_action)
-      item.functions.change_action = compileTemplate(item.change_action, context);
+    if (!functions.active)
+      functions.active = () => this.climate.isOn;
 
-    if (item.style)
-      item.functions.style = compileTemplate(item.style, context);
-
-    return item;
+    return mode;
   }
 
   setConfig(config) {
-    if (!config.entity || config.entity.split('.')[0] !== 'climate')
-      throw new Error('Specify an entity from within the climate domain.');
+    const supportedDomains = ['climate', 'fan'];
+
+    if (!config.entity || supportedDomains.includes(config.entity.split('.')[0]) === false)
+      throw new Error(`Specify an entity from within domains: [${supportedDomains.join(', ')}].`);
 
     this.config = {
       tap_action: {
@@ -381,6 +408,15 @@ class MiniClimate extends LitElement {
       ...config.toggle || {},
     };
 
+    if (typeof config.secondary_info === 'string') {
+      this.config.secondary_info = { type: config.secondary_info };
+    } else {
+      this.config.secondary_info = {
+        type: 'fan_mode',
+        ...config.secondary_info || {},
+      };
+    }
+
     this.toggle = this.config.toggle.default;
   }
 
@@ -394,13 +430,12 @@ class MiniClimate extends LitElement {
     }
 
     return html`
-        <mc-mode-menu
-          .climate=${this.climate}
-          .config=${this.config.hvac_mode}>
+        <mc-mode-menu 
+          .mode=${this.hvacMode}>
         </mc-mode-menu>
         <mc-temperature
           .temperature=${this.temperature}
-          .target=${this.temperature.target}
+          .target=${this.targetTemperatureValue}
           .changing=${this.targetTemperatureChanging}>
         </mc-temperature>
     `;
@@ -413,7 +448,7 @@ class MiniClimate extends LitElement {
     return html`
         <div class="entity__controls">
           <mc-target-temperature
-            .target_temperature=${this.targetTemperature}
+            .targetTemperature=${this.targetTemperature}
             @changing="${e => this.handleChangingTargetTemperature(e)}">
           </mc-target-temperature>
         </div>
@@ -450,14 +485,14 @@ class MiniClimate extends LitElement {
   }
 
   handleChangingTargetTemperature(e) {
-    this.temperature.target = this.targetTemperature.value;
+    this.targetTemperatureValue = this.targetTemperature.value;
     this.targetTemperatureChanging = e.detail.changing;
     return this.requestUpdate('targetTemperatureChanging');
   }
 
   handlePopup(e) {
     e.stopPropagation();
-    handleClick(this, this._hass, this.config, this.config.tap_action, this.climate.id);
+    handleClick(this, this._hass, this.config.tap_action, this.climate.id);
   }
 
   handleToggle(e) {
@@ -496,7 +531,10 @@ class MiniClimate extends LitElement {
 
     return html`
         <div class='bottom flex'>
-          <mc-indicators .indicators=${this.indicators}></mc-indicators>
+          <mc-indicators
+            .indicators=${this.indicators}>
+            .hass=${this.hass}
+          </mc-indicators>
           ${this.renderToggleButton()}
         </div>
     `;
@@ -530,13 +568,39 @@ class MiniClimate extends LitElement {
     if (this.climate.isUnavailable)
       return '';
 
+    if (this.config.secondary_info.type === 'last-changed') {
+      return html`
+        <div class='entity__secondary_info ellipsis'>
+            <ha-relative-time
+              .hass=${this.hass}
+              .datetime=${this.entity.last_changed}>
+            </ha-relative-time>
+        </div>
+      `;
+    }
+
+    if (this.config.secondary_info.type === 'hvac-mode') {
+      const { hvacMode } = this;
+      const selected = hvacMode.selected || {};
+      const icon = this.config.secondary_info.icon
+        ? this.config.secondary_info.icon : selected.icon;
+
+      return html`
+        <div class='entity__secondary_info ellipsis'>
+        ${icon ? html`<ha-icon class='entity__secondary_info_icon' .icon=${icon}></ha-icon>` : ''}
+         <span class='entity__secondary_info__name'>${selected.name}</span>
+        </div>
+      `;
+    }
+
     const fanMode = this.buttons.fan_mode;
     const { selected } = fanMode;
     const label = selected ? selected.name : fanMode.state;
+    const icon = this.config.secondary_info.icon ? this.config.secondary_info.icon : fanMode.icon;
 
     return html`
       <div class='entity__secondary_info ellipsis'>
-         <ha-icon class='entity__secondary_info_icon' .icon=${fanMode.icon}></ha-icon>
+         <ha-icon class='entity__secondary_info_icon' .icon=${icon}></ha-icon>
          <span class='entity__secondary_info__name'>${label}</span>
       </div>
     `;
@@ -559,8 +623,10 @@ class MiniClimate extends LitElement {
 
   computeStyles() {
     const { scale } = this.config;
+
     return styleMap({
       ...(scale && { '--mc-unit': `${40 * scale}px` }),
+      ...{ '--mc-card-width': `${this.width}px` },
     });
   }
 
@@ -574,11 +640,37 @@ class MiniClimate extends LitElement {
     }
   }
 
+  initDefaultHvacModeSource() {
+    const hvacMode = this.config.hvac_mode;
+    const entries = Object.entries(hvacMode.source || {}).filter(s => s[0] !== '__filter');
+    const { entity } = this.climate;
+
+    if (entity && entries.length === 0)
+      hvacMode.source = { ...this.climate.defaultHvacModes, ...hvacMode.source || {} };
+  }
+
   firstUpdated(changedProps) {
+    super.firstUpdated(changedProps);
+
     if (changedProps.has('climate')) {
       this.initDefaultFanModeSource();
+      this.initDefaultHvacModeSource();
       this.requestUpdate('climate').then();
     }
+    if (changedProps.has('targetTemperature')) {
+      this.targetTemperatureValue = this.targetTemperature.value;
+      this.requestUpdate('targetTemperatureValue').then();
+    }
+
+    const ro = new ResizeObserver((entries) => {
+      const item = entries.find(e => e.target === this);
+      if (item && item.contentRect && this.width !== item.contentRect.width) {
+        this.width = item.contentRect.width;
+        this.requestUpdate('width').then();
+      }
+    });
+
+    ro.observe(this);
   }
 }
 

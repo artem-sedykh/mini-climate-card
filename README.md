@@ -21,7 +21,7 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=1.0.1
+    - url: /local/mini-climate-card-bundle.js?v=1.1.0
       type: module
   ```
 
@@ -32,14 +32,14 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 2. Grab `mini-climate-card-bundle.js`
 
   ```console
-  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v1.0.1/mini-climate-card-bundle.js
+  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v1.1.0/mini-climate-card-bundle.js
   ```
 
 3. Add a reference to `mini-climate-card-bundle.js` inside your `ui-lovelace.yaml`.
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=1.0.1
+    - url: /local/mini-climate-card-bundle.js?v=1.1.0
       type: module
   ```
 
@@ -52,7 +52,7 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=1.0.1
+    - url: /local/mini-climate-card-bundle.js?v=1.1.0
       type: module
   ```
 
@@ -74,6 +74,9 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 | toggle: `icon` | string | optional | v1.0.2 | Custom icon, default value `mdi:dots-horizontal`
 | toggle: `hide` | boolean | optional | v1.0.2 | Hide button, default value `False`
 | toggle: `default` | boolean | optional | v1.0.2 | Default toggle button state, default value `off`.
+| **secondary_info** | object | optional | v1.1.0 | secondary_info config. [secondary info examples](#secondary-info)
+| secondary_info: `type` | string | optional | v1.1.0 | available types: `last-changed, fan-mode, hvac-mode`
+| secondary_info: `icon` | string | optional | v1.1.0 | icon for types: `fan-mode, hvac-mode`
 | **temperature** | object | optional | v1.0.1 | current temperature configuration. [temperature examples](#temperature)
 | temperature: `unit` | string | optional | v1.0.1 | display unit, default `°C`
 | temperature: `round` | number | optional | v1.0.1 | rounding value, default `1`
@@ -95,7 +98,13 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 | **hvac_mode** | object | optional | v1.0.1 | HVAC mode. [hvac_mode examples](#hvac_mode)
 | hvac_mode: `style` | function | optional | v1.0.1 | custom style
 | hvac_mode: `change_action` | function | optional | v1.0.1 | custom hvac_mode change function
-| hvac_mode: `source` | object | optional | v1.0.1 | data for dropdown list
+| hvac_mode: `state` | object | optional | v1.0.1 | config to get hvac_mode state.
+| hvac_mode: `state:entity` | string | optional | v1.1.0 | hvac_mode entity_id.
+| hvac_mode: `state:attribute` | string | optional | v1.1.0 | hvac_mode attribute.
+| hvac_mode: `state:mapper` | function | optional | v1.1.0 | state processing function
+| hvac_mode: `active` | function | optional | v1.1.0 | active function
+| hvac_mode: `source` | object | optional | v1.0.1 | data
+| hvac_mode: `source:__filter` | function | optional | v1.1.0 | filter function
 | hvac_mode: `source:item` | object | optional | v1.0.1 | `item` - mode name e.g. cool, heat, off, etc.
 | hvac_mode: `source:item:icon` | string | optional | v1.0.1 | Specify a custom icon from any of the available mdi icons.
 | hvac_mode: `source:item:name` | string | optional | v1.0.1 | Display name.
@@ -125,6 +134,7 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 | indicators: `name:source:entity` | string | optional | v1.0.1 | indicator entity_id
 | indicators: `name:source:attribute` | string | optional | v1.0.1 | entity attribute
 | indicators: `name:source:mapper` | function | optional | v1.0.1 | value processing function
+| indicators: `name:tap_action` | [action object](#tap-action-object) | true | v1.1.0 | Action on click/tap.
 | **buttons** | object | optional | v1.0.1 | any buttons, [example](#buttons).
 | buttons: `name` | object | optional | v1.0.1 | the name of your button see examples
 | buttons: `name:icon` | string | optional | v1.0.1 | Specify a custom icon from any of the available mdi icons.
@@ -142,7 +152,8 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 | buttons: `name:change_action` | function | optional | v1.0.1 | for type `dropdown`
 | buttons: `name:toggle_action` | function | optional | v1.0.1 | for type `button`
 | buttons: `name:style` | function | optional | v1.0.1 | styles
-| tap_action | [action object](#tap_action) | true | v1.0.4 | Action on click/tap, [tap_action](#tap_action).
+| tap_action | [action object](#tap-action-object) | true | v1.0.4 | Action on click/tap, [tap_action](#tap-action-example).
+| scale | number | optional | v1.0.1 | UI scale modifier, default is `1`.
 
 #### temperature
 
@@ -199,11 +210,16 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 
 | Name | Type | execution context | arguments | return type |
 |------|------|-------------------|-----------|-------------|
-|`change_action` | function | hvac_mode config | value, entity | any
-|`style` | function | hvac_mode config | value, entity | object
+|`state:mapper` | function | hvac_mode config | state, entity, climate_entity | any
+|`active` | function | hvac_mode config | state, entity, climate_entity | boolean
+|`change_action` | function | hvac_mode config | selected, entity, climate_entity | any
+|`style` | function | hvac_mode config | value, entity, climate_entity | object
+|`source:__filter` | function | hvac_mode config | source, state, entity, climate_entity | object({ id..., name...,... }) array
 
-`value` - current hvac_mode  
-`entity` - current entity  
+`state` - current hvac state  
+`selected` - selected value  
+`entity` - hvac entity  
+`climate_entity` - current climate entity  
 
 **execution context methods:**  
 
@@ -238,7 +254,7 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
         icon: mdi:fan
         name: fan
     change_action: >
-      (value, entity) => this.call_service('climate', 'set_hvac_mode', { entity_id: entity.entity_id, hvac_mode: value })
+      (selected, entity) => this.call_service('climate', 'set_hvac_mode', { entity_id: entity.entity_id, hvac_mode: selected })
 ``` 
 
 #### fan_mode
@@ -464,7 +480,7 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
         (state) => this.call_service('mqtt', 'publish', { payload: this.toggle_state(state), topic: 'my_ac/turbo/set', retain: false, qos: 1 })
 ```
 
-#### tap_action
+#### tap action object
 
 | Name | Type | Default | Options | Description |
 |------|:----:|:-------:|:-----------:|-------------|
@@ -475,6 +491,7 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 | navigation_path | string |  | Any path | Path to navigate to (e.g. `/lovelace/0/`) when `action` is defined as `navigate`.
 | url | string |  | Any URL | URL to open when `action` is defined as `url`.
 
+#### tap action example
 ```yaml
 # toggle example
 # call-service example
@@ -513,6 +530,25 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
     action: more-info
     entity: sensor.humidity
 ```
+
+#### secondary info
+
+```yaml
+- type: custom:mini-climate
+  entity: climate.dahatsu
+  secondary_info: last-changed
+
+- type: custom:mini-climate
+  entity: climate.dahatsu
+  secondary_info:
+    type: fan-mode
+    icon: 'mdi:fan'
+
+- type: custom:mini-climate
+  entity: climate.dahatsu
+  secondary_info: hvac-mode
+```
+
 
 ### Theme variables
 The following variables are available and can be set in your theme to change the appearence of the card.
