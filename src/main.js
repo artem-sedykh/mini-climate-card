@@ -280,9 +280,13 @@ class MiniClimate extends LitElement {
       id: key,
       source: { enitity: undefined, attribute: undefined, mapper: undefined },
       icon: '',
-      tap_action: { action: 'none' },
       ...value,
     };
+
+    if (typeof value.tap_action === 'string')
+      item.tap_action = { action: value.tap_action };
+    else
+      item.tap_action = { action: 'none', ...item.tap_action || {} };
 
     item.functions = item.functions || {};
     const context = { ...value };
@@ -307,7 +311,7 @@ class MiniClimate extends LitElement {
 
   getIndicatorsConfig(config) {
     return Object.entries(config.indicators || {})
-      .map(i => this.getIndicatorConfig(i[0], i[1], config))
+      .map(i => this.getIndicatorConfig(i[0], i[1] || {}, config))
       .filter(i => !i.hide);
   }
 
