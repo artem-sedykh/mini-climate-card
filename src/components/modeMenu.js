@@ -6,12 +6,12 @@ import ICON from '../const';
 class ModeMenu extends LitElement {
   constructor() {
     super();
-    this.climate = {};
+    this.mode = {};
   }
 
   static get properties() {
     return {
-      climate: { type: Object },
+      mode: { type: Object },
     };
   }
 
@@ -32,11 +32,11 @@ class ModeMenu extends LitElement {
   }
 
   get selected() {
-    return this.climate.mode || {};
+    return this.mode.source.find(i => i.id === this.mode.state) || {};
   }
 
   get sources() {
-    return this.climate.hvac_modes
+    return this.mode.source
       .filter(s => !s.hide)
       .map(s => ({ name: s.name, id: s.id, type: 'source' }));
   }
@@ -44,23 +44,17 @@ class ModeMenu extends LitElement {
   handleChange(e) {
     e.stopPropagation();
     const selected = e.detail.id;
-    this.climate.setHvacMode(selected);
+    this.mode.handleChange(selected);
   }
 
   render() {
-    let style = {};
-    if (this.climate.config.hvac_mode.functions.style)
-      style = this.climate.config.hvac_mode.functions.style(this.climate.mode.id,
-        this.climate.entity) || {};
-
     return html`
       <mc-dropdown-base
         @change=${this.handleChange}
-        .climate=${this.climate}
         .items=${this.sources}
         .icon=${this.calcIcon}
-        style=${styleMap(style)}
-        .active=${this.climate.isOn} 
+        style=${styleMap(this.mode.style)}
+        .active=${this.mode.isActive(this.mode.state)}
         .selected=${this.selected.id}>
       </mc-dropdown-base>
     `;

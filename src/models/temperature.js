@@ -35,15 +35,4 @@ export default class TemperatureObject {
   get rawValue() {
     return getEntityValue(this.temperatureEntity, this.config.temperature.source);
   }
-
-  get target() {
-    if (this._target)
-      return this._target;
-
-    return getEntityValue(this.targetTemperatureEntity, this.config.target_temperature.source);
-  }
-
-  set target(value) {
-    this._target = value;
-  }
 }

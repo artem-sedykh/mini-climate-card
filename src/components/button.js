@@ -1,7 +1,6 @@
 import { LitElement, html, css } from 'lit-element';
 import { styleMap } from 'lit-html/directives/style-map';
 import sharedStyle from '../sharedStyle';
-import { ACTION_TIMEOUT } from '../const';
 
 class ClimateButton extends LitElement {
   constructor() {
@@ -31,8 +30,7 @@ class ClimateButton extends LitElement {
         this._isOn = this.button.isOn;
         return this.requestUpdate('_isOn');
       }
-    }, ACTION_TIMEOUT);
-
+    }, this.button.actionTimeout);
     return this.requestUpdate('_isOn');
   }
 

@@ -1,5 +1,5 @@
 import { getEntityValue } from '../utils/utils';
-import { STATES_OFF, UNAVAILABLE_STATES } from '../const';
+import { ACTION_TIMEOUT, STATES_OFF, UNAVAILABLE_STATES } from '../const';
 
 export default class ButtonObject {
   constructor(entity, config, climate) {
@@ -56,12 +56,6 @@ export default class ButtonObject {
     return this.entity === undefined || UNAVAILABLE_STATES.includes(this.state);
   }
 
-  get isOff() {
-    return this.entity !== undefined
-      && STATES_OFF.includes(this.state)
-      && !UNAVAILABLE_STATES.includes(this.state);
-  }
-
   get isOn() {
     return this.entity !== undefined
       && !STATES_OFF.includes(this.state)
@@ -106,6 +100,13 @@ export default class ButtonObject {
       return undefined;
 
     return this.source.find(s => s.id === state.toString());
+  }
+
+  get actionTimeout() {
+    if ('action_timeout' in this.config)
+      return this.config.action_timeout;
+
+    return ACTION_TIMEOUT;
   }
 
   handleToggle() {

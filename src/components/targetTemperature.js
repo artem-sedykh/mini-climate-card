@@ -8,13 +8,13 @@ class ClimateTargetTemperature extends LitElement {
 
   static get properties() {
     return {
-      target_temperature: Object,
+      targetTemperature: { type: Object },
     };
   }
 
   increment(e) {
     e.stopPropagation();
-    const changed = this.target_temperature.increment();
+    const changed = this.targetTemperature.increment();
 
     if (changed) {
       this.temp_last_changed = Date.now();
@@ -25,7 +25,7 @@ class ClimateTargetTemperature extends LitElement {
   decrement(e) {
     e.stopPropagation();
 
-    const changed = this.target_temperature.decrement();
+    const changed = this.targetTemperature.decrement();
 
     if (changed) {
       this.temp_last_changed = Date.now();
@@ -48,9 +48,9 @@ class ClimateTargetTemperature extends LitElement {
     window.setTimeout(() => {
       const now = Date.now();
       if (now - this.temp_last_changed >= this.timeout) {
-        const { value } = this.target_temperature;
+        const { value } = this.targetTemperature;
         try {
-          this.target_temperature.update(value);
+          this.targetTemperature.update(value);
         } finally {
           this.sendChangeEvent(false);
           this.temp_last_changed = null;
@@ -60,17 +60,17 @@ class ClimateTargetTemperature extends LitElement {
   }
 
   render() {
-    if (!this.target_temperature)
+    if (!this.targetTemperature)
       return '';
 
     return html`
       <div class='controls-wrap'>
         <ha-icon-button class='temp --up'
-          .icon=${this.target_temperature.icons.up}
+          .icon=${this.targetTemperature.icons.up}
           @click=${e => this.increment(e)}>
         </ha-icon-button>
         <ha-icon-button class='temp --down'
-          .icon=${this.target_temperature.icons.down}
+          .icon=${this.targetTemperature.icons.down}
           @click=${e => this.decrement(e)}>
         </ha-icon-button>
       </div>

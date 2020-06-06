@@ -1,12 +1,20 @@
 import { LitElement, html, css } from 'lit-element';
 
 import { styleMap } from 'lit-html/directives/style-map';
+import handleClick from '../utils/handleClick';
+import { TAP_ACTIONS } from '../const';
 
 class ClimateIndicators extends LitElement {
   static get properties() {
     return {
-      indicators: {},
+      indicators: { type: Object },
+      hass: { type: Object },
     };
+  }
+
+  handlePopup(e, indicator) {
+    e.stopPropagation();
+    handleClick(this, this.hass, indicator.config.tap_action, indicator.entity.entity_id);
   }
 
   renderIcon(indicator) {
@@ -26,8 +34,14 @@ class ClimateIndicators extends LitElement {
   }
 
   renderIndicator(indicator) {
+    if (!indicator)
+      return '';
+    const action = indicator.config && indicator.config.tap_action
+      && indicator.config.tap_action.action;
+    const cls = action && TAP_ACTIONS.includes(action) ? 'pointer' : '';
+
     return html`
-       <div class='state'>
+       <div class='state ${cls}' @click=${e => this.handlePopup(e, indicator)}>
          ${this.renderIcon(indicator)}
          <span class='state__value'>${indicator.value}</span>
          ${this.renderUnit(indicator.unit)}
@@ -63,6 +77,9 @@ class ClimateIndicators extends LitElement {
         display: flex;
         flex-wrap: nowrap;
         margin-right: calc(var(--mc-unit) * .1);
+     }
+     .pointer {
+        cursor: pointer
      }
      .state__value_icon {
         height: calc(var(--mc-unit) * .475);

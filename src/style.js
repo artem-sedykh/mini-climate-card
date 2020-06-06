@@ -123,6 +123,9 @@ const style = css`
   .entity__secondary_info {
     margin-top: -2px;
   }
+  .entity__secondary_info ha-relative-time {
+    color: #727272;
+  }
   .entity__secondary_info__name {
     font-size: calc(var(--mc-unit) * .35);
     font-weight: var(--mc-info-font-weight);
@@ -173,8 +176,9 @@ const style = css`
     margin-top: calc(var(--mc-unit) * .075);
   }
   .entity__info__name_wrap {
-    margin-right: calc(var(--mc-unit) * .5);
-    max-width: calc(var(--mc-unit) * 3);
+    margin-right: 10px;
+    max-width: calc(calc(var(--mc-card-width) - 191.3px) / 1.43);
+    min-width: calc(var(--mc-unit) * 2.5);
     cursor: pointer;
   }
   mc-buttons {
