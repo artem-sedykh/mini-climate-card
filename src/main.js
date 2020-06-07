@@ -74,11 +74,11 @@ class MiniClimate extends LitElement {
       force = true;
     }
 
-    this.updateIndicators(hass, force);
-    this.updateButtons(hass, force);
-    this.updateTemperature(hass, force);
-    this.updateTargetTemperature(hass, force);
-    this.updateHvacMode(hass, force);
+    this.updateIndicators(force);
+    this.updateButtons(force);
+    this.updateTemperature(force);
+    this.updateTargetTemperature(force);
+    this.updateHvacMode(force);
 
     this.climate.mode = this.hvacMode.selected;
   }
@@ -91,7 +91,7 @@ class MiniClimate extends LitElement {
     return this.config.name || this.climate.name;
   }
 
-  updateIndicators(hass, force) {
+  updateIndicators(force) {
     const indicators = { };
     let changed = false;
 
@@ -100,10 +100,10 @@ class MiniClimate extends LitElement {
       const { id } = config;
 
       const entityId = config.source.entity || this.climate.id;
-      const entity = hass.states[entityId];
+      const entity = this.hass.states[entityId];
 
       if (entity) {
-        indicators[id] = new IndicatorObject(entity, config, this.climate);
+        indicators[id] = new IndicatorObject(entity, config, this.climate, this.hass);
       }
 
       if (entity !== (this.indicators[id] && this.indicators[id].entity))
@@ -114,17 +114,17 @@ class MiniClimate extends LitElement {
       this.indicators = indicators;
   }
 
-  updateTemperature(hass, force) {
+  updateTemperature(force) {
     if (this.targetTemperatureChanging)
       return;
 
     const temperatureEntityId = this.config.temperature.source.entity || this.config.entity;
-    const temperatureEntity = hass.states[temperatureEntityId];
+    const temperatureEntity = this.hass.states[temperatureEntityId];
 
     const targetTemperatureEntityId = (this.config.target_temperature.source
       && this.config.target_temperature.source.entity) || this.config.entity;
 
-    const targetTemperatureEntity = hass.states[targetTemperatureEntityId];
+    const targetTemperatureEntity = this.hass.states[targetTemperatureEntityId];
 
     const temperature = new TemperatureObject(temperatureEntity, targetTemperatureEntity,
       this.config);
@@ -135,33 +135,33 @@ class MiniClimate extends LitElement {
     }
   }
 
-  updateTargetTemperature(hass, force) {
+  updateTargetTemperature(force) {
     if (this.targetTemperatureChanging)
       return;
 
     const entityId = (this.config.target_temperature.source
       && this.config.target_temperature.source.entity) || this.config.entity;
 
-    const entity = hass.states[entityId];
+    const entity = this.hass.states[entityId];
 
     if (this.targetTemperature.entity !== entity || force) {
-      this.targetTemperature = new TargetTemperatureObject(hass, entity, this.config);
+      this.targetTemperature = new TargetTemperatureObject(entity, this.config, this.hass);
       this.targetTemperatureValue = this.targetTemperature.value;
     }
   }
 
-  updateHvacMode(hass, force) {
+  updateHvacMode(force) {
     const config = this.config.hvac_mode;
 
     const entityId = (config.state && config.state.entity) || this.climate.id;
-    const entity = hass.states[entityId];
+    const entity = this.hass.states[entityId];
 
     if ((entity && entity !== (this.hvacMode && this.hvacMode.entity)) || force) {
       this.hvacMode = new HvacModeObject(entity, config, this.climate);
     }
   }
 
-  updateButtons(hass, force) {
+  updateButtons(force) {
     const buttons = { };
     let changed = false;
 
@@ -170,10 +170,10 @@ class MiniClimate extends LitElement {
       const { id } = config;
 
       const entityId = (config.state && config.state.entity) || this.climate.id;
-      const entity = hass.states[entityId];
+      const entity = this.hass.states[entityId];
 
       if (entity) {
-        buttons[id] = new ButtonObject(entity, config, this.climate);
+        buttons[id] = new ButtonObject(entity, config, this.climate, this.hass);
       }
 
       if (entity !== (this.buttons[id] && this.buttons[id].entity))
@@ -492,7 +492,7 @@ class MiniClimate extends LitElement {
 
   handlePopup(e) {
     e.stopPropagation();
-    handleClick(this, this._hass, this.config.tap_action, this.climate.id);
+    handleClick(this, this.hass, this.config.tap_action, this.climate.id);
   }
 
   handleToggle(e) {
@@ -533,7 +533,6 @@ class MiniClimate extends LitElement {
         <div class='bottom flex'>
           <mc-indicators
             .indicators=${this.indicators}>
-            .hass=${this.hass}
           </mc-indicators>
           ${this.renderToggleButton()}
         </div>
