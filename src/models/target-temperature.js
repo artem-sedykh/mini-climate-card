@@ -1,13 +1,18 @@
 import { getEntityValue } from '../utils/utils';
 
 export default class TargetTemperatureObject {
-  constructor(hass, entity, config) {
+  constructor(entity, config, hass) {
     this.entity = entity || {};
     this.config = config;
-    this.hass = hass;
+    this._hass = hass;
+
     this.min = this.getMin();
     this.max = this.getMax();
     this.step = this.getStep();
+  }
+
+  get hass() {
+    return this._hass;
   }
 
   get icons() {

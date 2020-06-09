@@ -14,9 +14,6 @@ const sharedStyle = css`
     height: calc(var(--mc-unit) * .6);
   }
   ha-icon-button {
-    width: calc(var(--mc-unit));
-    height: calc(var(--mc-unit));
-    --mdc-icon-button-size: calc(var(--mc-unit));
     color: var(--mc-button-color);
     transition: color .25s;
   }

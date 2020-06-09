@@ -8,17 +8,19 @@ import handleClick from './utils/handleClick';
 import getLabel from './utils/getLabel';
 import './initialize';
 import './components/indicators';
-import './components/modeMenu';
+import './components/mode-menu';
 import './components/buttons';
 import './components/temperature';
-import './components/targetTemperature';
+import './components/target-temperature';
+import './components/secondary-info';
+
 import { compileTemplate, toggleState } from './utils/utils';
 import TemperatureObject from './models/temperature';
-import TargetTemperatureObject from './models/targetTemperature';
+import TargetTemperatureObject from './models/target-temperature';
 import ButtonObject from './models/button';
 import IndicatorObject from './models/indicator';
 import ClimateObject from './models/climate';
-import HvacModeObject from './models/hvac_mode';
+import HvacModeObject from './models/hvac-mode';
 import ICON from './const';
 
 if (!customElements.get('ha-icon-button')) {
@@ -74,11 +76,11 @@ class MiniClimate extends LitElement {
       force = true;
     }
 
-    this.updateIndicators(hass, force);
-    this.updateButtons(hass, force);
-    this.updateTemperature(hass, force);
-    this.updateTargetTemperature(hass, force);
-    this.updateHvacMode(hass, force);
+    this.updateIndicators(force);
+    this.updateButtons(force);
+    this.updateTemperature(force);
+    this.updateTargetTemperature(force);
+    this.updateHvacMode(force);
 
     this.climate.mode = this.hvacMode.selected;
   }
@@ -91,7 +93,7 @@ class MiniClimate extends LitElement {
     return this.config.name || this.climate.name;
   }
 
-  updateIndicators(hass, force) {
+  updateIndicators(force) {
     const indicators = { };
     let changed = false;
 
@@ -100,10 +102,10 @@ class MiniClimate extends LitElement {
       const { id } = config;
 
       const entityId = config.source.entity || this.climate.id;
-      const entity = hass.states[entityId];
+      const entity = this.hass.states[entityId];
 
       if (entity) {
-        indicators[id] = new IndicatorObject(entity, config, this.climate);
+        indicators[id] = new IndicatorObject(entity, config, this.climate, this.hass);
       }
 
       if (entity !== (this.indicators[id] && this.indicators[id].entity))
@@ -114,17 +116,17 @@ class MiniClimate extends LitElement {
       this.indicators = indicators;
   }
 
-  updateTemperature(hass, force) {
+  updateTemperature(force) {
     if (this.targetTemperatureChanging)
       return;
 
     const temperatureEntityId = this.config.temperature.source.entity || this.config.entity;
-    const temperatureEntity = hass.states[temperatureEntityId];
+    const temperatureEntity = this.hass.states[temperatureEntityId];
 
     const targetTemperatureEntityId = (this.config.target_temperature.source
       && this.config.target_temperature.source.entity) || this.config.entity;
 
-    const targetTemperatureEntity = hass.states[targetTemperatureEntityId];
+    const targetTemperatureEntity = this.hass.states[targetTemperatureEntityId];
 
     const temperature = new TemperatureObject(temperatureEntity, targetTemperatureEntity,
       this.config);
@@ -135,33 +137,33 @@ class MiniClimate extends LitElement {
     }
   }
 
-  updateTargetTemperature(hass, force) {
+  updateTargetTemperature(force) {
     if (this.targetTemperatureChanging)
       return;
 
     const entityId = (this.config.target_temperature.source
       && this.config.target_temperature.source.entity) || this.config.entity;
 
-    const entity = hass.states[entityId];
+    const entity = this.hass.states[entityId];
 
     if (this.targetTemperature.entity !== entity || force) {
-      this.targetTemperature = new TargetTemperatureObject(hass, entity, this.config);
+      this.targetTemperature = new TargetTemperatureObject(entity, this.config, this.hass);
       this.targetTemperatureValue = this.targetTemperature.value;
     }
   }
 
-  updateHvacMode(hass, force) {
+  updateHvacMode(force) {
     const config = this.config.hvac_mode;
 
     const entityId = (config.state && config.state.entity) || this.climate.id;
-    const entity = hass.states[entityId];
+    const entity = this.hass.states[entityId];
 
     if ((entity && entity !== (this.hvacMode && this.hvacMode.entity)) || force) {
       this.hvacMode = new HvacModeObject(entity, config, this.climate);
     }
   }
 
-  updateButtons(hass, force) {
+  updateButtons(force) {
     const buttons = { };
     let changed = false;
 
@@ -170,10 +172,10 @@ class MiniClimate extends LitElement {
       const { id } = config;
 
       const entityId = (config.state && config.state.entity) || this.climate.id;
-      const entity = hass.states[entityId];
+      const entity = this.hass.states[entityId];
 
       if (entity) {
-        buttons[id] = new ButtonObject(entity, config, this.climate);
+        buttons[id] = new ButtonObject(entity, config, this.climate, this.hass);
       }
 
       if (entity !== (this.buttons[id] && this.buttons[id].entity))
@@ -429,8 +431,15 @@ class MiniClimate extends LitElement {
       `;
     }
 
+    const buttons = Object.entries(this.buttons).map(b => b[1])
+      .filter(b => b.location === 'main' && !b.hide)
+      .sort((a, b) => ((a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0)));
+
     return html`
-        <mc-mode-menu 
+        ${buttons.map(button => (button.type === 'dropdown'
+    ? html`<mc-dropdown .dropdown=${button}></mc-dropdown>`
+    : html`<mc-button .button=${button}></mc-button>`))}
+        <mc-mode-menu
           .mode=${this.hvacMode}>
         </mc-mode-menu>
         <mc-temperature
@@ -456,6 +465,7 @@ class MiniClimate extends LitElement {
   }
 
   render() {
+    const handle = this.config.secondary_info.type !== 'fan-mode-dropdown';
     return html`
       <ha-card
         class=${this.computeClasses()}
@@ -466,8 +476,7 @@ class MiniClimate extends LitElement {
             ${this.renderIcon()}
             <div class='entity__info'>
               <div class="wrap">
-                <div class="entity__info__name_wrap"
-                  @click=${e => this.handlePopup(e)}>
+                <div class="entity__info__name_wrap" @click=${e => this.handlePopup(e, handle)}>
                   ${this.renderEntityName()}
                 </div>
                 <div class="ctl-wrap ellipsis">
@@ -490,9 +499,12 @@ class MiniClimate extends LitElement {
     return this.requestUpdate('targetTemperatureChanging');
   }
 
-  handlePopup(e) {
+  handlePopup(e, handle) {
+    if (!handle)
+      return;
+
     e.stopPropagation();
-    handleClick(this, this._hass, this.config.tap_action, this.climate.id);
+    handleClick(this, this.hass, this.config.tap_action, this.climate.id);
   }
 
   handleToggle(e) {
@@ -533,7 +545,6 @@ class MiniClimate extends LitElement {
         <div class='bottom flex'>
           <mc-indicators
             .indicators=${this.indicators}>
-            .hass=${this.hass}
           </mc-indicators>
           ${this.renderToggleButton()}
         </div>
@@ -541,7 +552,7 @@ class MiniClimate extends LitElement {
   }
 
   renderToggleButton() {
-    if (this.config.buttons.filter(b => !b.hide).length === 0)
+    if (this.config.buttons.filter(b => !b.hide && b.location !== 'main').length === 0)
       return '';
 
     if (this.config.toggle.hide)
@@ -557,7 +568,7 @@ class MiniClimate extends LitElement {
 
   renderEntityName() {
     return html`
-      <div class='entity__info__name'>
+      <div class='entity__info__name' @click=${e => this.handlePopup(e, true)}>
         ${this.name}
       </div>
      ${this.renderSecondaryInfo()}
@@ -568,42 +579,15 @@ class MiniClimate extends LitElement {
     if (this.climate.isUnavailable)
       return '';
 
-    if (this.config.secondary_info.type === 'last-changed') {
-      return html`
-        <div class='entity__secondary_info ellipsis'>
-            <ha-relative-time
-              .hass=${this.hass}
-              .datetime=${this.entity.last_changed}>
-            </ha-relative-time>
-        </div>
-      `;
-    }
-
-    if (this.config.secondary_info.type === 'hvac-mode') {
-      const { hvacMode } = this;
-      const selected = hvacMode.selected || {};
-      const icon = this.config.secondary_info.icon
-        ? this.config.secondary_info.icon : selected.icon;
-
-      return html`
-        <div class='entity__secondary_info ellipsis'>
-        ${icon ? html`<ha-icon class='entity__secondary_info_icon' .icon=${icon}></ha-icon>` : ''}
-         <span class='entity__secondary_info__name'>${selected.name}</span>
-        </div>
-      `;
-    }
-
-    const fanMode = this.buttons.fan_mode;
-    const { selected } = fanMode;
-    const label = selected ? selected.name : fanMode.state;
-    const icon = this.config.secondary_info.icon ? this.config.secondary_info.icon : fanMode.icon;
-
     return html`
       <div class='entity__secondary_info ellipsis'>
-         <ha-icon class='entity__secondary_info_icon' .icon=${icon}></ha-icon>
-         <span class='entity__secondary_info__name'>${label}</span>
-      </div>
-    `;
+        <mc-secondary-info
+          .climate=${this.climate}
+          .config=${this.config}
+          .hvacMode=${this.hvacMode}
+          .fanMode=${this.buttons.fan_mode}>
+        </mc-secondary-info>
+      </div>`;
   }
 
   computeIcon() {

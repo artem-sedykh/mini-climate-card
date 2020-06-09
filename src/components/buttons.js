@@ -41,7 +41,7 @@ class ClimateButtons extends LitElement {
     const context = this;
     return html`${Object.entries(this.buttons)
       .map(b => b[1])
-      .filter(b => !b.hide)
+      .filter(b => b.location !== 'main' && !b.hide)
       .sort((a, b) => ((a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0)))
       .map(button => context.renderInternal(button))}`;
   }
@@ -58,6 +58,7 @@ class ClimateButtons extends LitElement {
         transition: background .5s;
         --paper-item-min-height: var(--mc-unit);
         --mc-dropdown-unit: var(--mc-unit);
+        --mdc-icon-button-size: calc(var(--mc-unit));
       }
       :host([color]) {
         background: var(--mc-active-color);
@@ -67,6 +68,10 @@ class ClimateButtons extends LitElement {
       :host([disabled]) {
         opacity: .25;
         pointer-events: none;
+      }
+      mc-button {
+        width: calc(var(--mc-unit));
+        height: calc(var(--mc-unit));
       }
     `];
   }

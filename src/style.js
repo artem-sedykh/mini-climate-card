@@ -21,6 +21,9 @@ const style = css`
     --mc-info-opacity: 1;
     --mc-bg-opacity: var(--mini-climate-background-opacity, 1);
     color: var(--mc-text-color);
+    --mc-dropdown-unit: calc(var(--mc-unit) * .75);
+    --paper-item-min-height: var(--mc-unit);
+    --mdc-icon-button-size: calc(var(--mc-unit) * 0.75);
   }
   ha-card.--group {
     box-shadow: none;
@@ -113,25 +116,8 @@ const style = css`
     color: var(--mc-text-color);
     font-weight: var(--mc-name-font-weight);
   }
-  .entity__secondary_info_icon {
-    color: var(--mc-icon-color);
-    height: calc(var(--mc-unit) * .475);
-    width: calc(var(--mc-unit) * .5);
-    min-width: calc(var(--mc-unit) * .5);
-    --mdc-icon-size: calc(var(--mc-unit) * 0.5);
-  }
   .entity__secondary_info {
     margin-top: -2px;
-  }
-  .entity__secondary_info ha-relative-time {
-    color: #727272;
-  }
-  .entity__secondary_info__name {
-    font-size: calc(var(--mc-unit) * .35);
-    font-weight: var(--mc-info-font-weight);
-    line-height: calc(var(--mc-unit) * .5);
-    vertical-align: middle;
-    display: inline-block;
   }
   ha-card.--initial .mc-climate {
     padding: 16px 16px 5px 16px;
@@ -180,6 +166,7 @@ const style = css`
     max-width: calc(calc(var(--mc-card-width) - 191.3px) / 1.43);
     min-width: calc(var(--mc-unit) * 2.5);
     cursor: pointer;
+    height: var(--mc-unit);
   }
   mc-buttons {
     width: 100%;
@@ -200,6 +187,13 @@ const style = css`
   }
   .mc-toggle_content {
     margin-top: calc(var(--mc-unit) * .05);
+  }
+  .ctl-wrap mc-dropdown, .ctl-wrap mc-button {
+    min-width: calc(var(--mc-unit) * .75);
+  }
+  .ctl-wrap mc-button {
+    width: calc(var(--mc-unit) * 0.75);
+    height: calc(var(--mc-unit) * 0.75);
   }
 `;
 
