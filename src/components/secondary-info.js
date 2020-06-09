@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit-element';
 import sharedStyle from '../sharedStyle';
+import './fan-mode-secondary';
 
 class SecondaryInfo extends LitElement {
   constructor() {
@@ -44,18 +45,6 @@ class SecondaryInfo extends LitElement {
       `;
   }
 
-  renderFanMode() {
-    const { selected } = this.fanMode;
-    const label = selected ? selected.name : this.fanMode.state;
-    const icon = this.config.secondary_info.icon ? this.config.secondary_info.icon
-      : this.fanMode.icon;
-
-    return html`
-       <ha-icon class='icon' .icon=${icon}></ha-icon>
-       <span class='name'>${label}</span>
-    `;
-  }
-
   render() {
     const { type } = this.config.secondary_info;
 
@@ -67,7 +56,7 @@ class SecondaryInfo extends LitElement {
       case 'last-changed':
         return html`<ha-relative-time .hass=${this.climate.hass} .datetime=${this.climate.lastChanged}></ha-relative-time>`;
       default:
-        return this.renderFanMode();
+        return html`<mc-fan-mode-secondary .fanMode=${this.fanMode} .config=${this.config}></mc-fan-mode-secondary>`;
     }
   }
 

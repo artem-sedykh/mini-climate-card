@@ -75,8 +75,8 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 | toggle: `hide` | boolean | optional | v1.0.2 | Hide button, default value `False`
 | toggle: `default` | boolean | optional | v1.0.2 | Default toggle button state, default value `off`.
 | **secondary_info** | object | optional | v1.1.0 | secondary_info config. [secondary info examples](#secondary-info)
-| secondary_info: `type` | string | optional | v1.1.0 | available types: `last-changed, fan-mode, hvac-mode, hvac-action`
-| secondary_info: `icon` | string | optional | v1.1.0 | icon for types: `fan-mode, hvac-mode`, `hvac-action`
+| secondary_info: `type` | string | optional | v1.1.0 | available types: `last-changed, fan-mode, fan-mode-dropdown, hvac-mode, hvac-action`
+| secondary_info: `icon` | string | optional | v1.1.0 | icon for types: `fan-mode, fan-mode-dropdown, hvac-mode`, `hvac-action`
 | secondary_info: `source` | object | optional | v1.2.1 | source available types: `hvac-action`
 | secondary_info: `source:{item_name}` | object | optional | v1.2.1 | source item name
 | secondary_info: `source:{item_name}:icon` | object | optional | v1.2.1 | Specify a custom icon from any of the available mdi icons.
@@ -601,6 +601,15 @@ Or you can use one permanent icon
     type: hvac-action
     icon: 'mdi:cached'
 ```
+
+##### fan-mode-dropdown
+
+```yaml
+- type: custom:mini-climate
+  entity: climate.dahatsu
+  secondary_info: fan-mode-dropdown
+```
+![image](https://user-images.githubusercontent.com/861063/84180244-d80d0a80-aa8f-11ea-8275-f4e3db85fd31.png)
 
 ### Theme variables
 The following variables are available and can be set in your theme to change the appearence of the card.

@@ -458,6 +458,7 @@ class MiniClimate extends LitElement {
   }
 
   render() {
+    const handle = this.config.secondary_info.type !== 'fan-mode-dropdown';
     return html`
       <ha-card
         class=${this.computeClasses()}
@@ -468,8 +469,7 @@ class MiniClimate extends LitElement {
             ${this.renderIcon()}
             <div class='entity__info'>
               <div class="wrap">
-                <div class="entity__info__name_wrap"
-                  @click=${e => this.handlePopup(e)}>
+                <div class="entity__info__name_wrap" @click=${e => this.handlePopup(e, handle)}>
                   ${this.renderEntityName()}
                 </div>
                 <div class="ctl-wrap ellipsis">
@@ -492,7 +492,10 @@ class MiniClimate extends LitElement {
     return this.requestUpdate('targetTemperatureChanging');
   }
 
-  handlePopup(e) {
+  handlePopup(e, handle) {
+    if (!handle)
+      return;
+
     e.stopPropagation();
     handleClick(this, this.hass, this.config.tap_action, this.climate.id);
   }
@@ -558,7 +561,7 @@ class MiniClimate extends LitElement {
 
   renderEntityName() {
     return html`
-      <div class='entity__info__name'>
+      <div class='entity__info__name' @click=${e => this.handlePopup(e, true)}>
         ${this.name}
       </div>
      ${this.renderSecondaryInfo()}
