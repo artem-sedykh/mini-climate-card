@@ -431,8 +431,15 @@ class MiniClimate extends LitElement {
       `;
     }
 
+    const buttons = Object.entries(this.buttons).map(b => b[1])
+      .filter(b => b.location === 'main' && !b.hide)
+      .sort((a, b) => ((a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0)));
+
     return html`
-        <mc-mode-menu 
+        ${buttons.map(button => (button.type === 'dropdown'
+    ? html`<mc-dropdown .dropdown=${button}></mc-dropdown>`
+    : html`<mc-button .button=${button}></mc-button>`))}
+        <mc-mode-menu
           .mode=${this.hvacMode}>
         </mc-mode-menu>
         <mc-temperature
@@ -545,7 +552,7 @@ class MiniClimate extends LitElement {
   }
 
   renderToggleButton() {
-    if (this.config.buttons.filter(b => !b.hide).length === 0)
+    if (this.config.buttons.filter(b => !b.hide && b.location !== 'main').length === 0)
       return '';
 
     if (this.config.toggle.hide)

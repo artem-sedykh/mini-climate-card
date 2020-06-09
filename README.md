@@ -115,6 +115,7 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 | **fan_mode** | object | optional | v1.0.1 | fan operation for climate device. [fan_mode examples](#fan_mode)
 | fan_mode: `icon` | string | optional | v1.0.1 | Specify a custom icon from any of the available mdi icons.
 | fan_mode: `order` | number | optional | v1.0.1 | sort order, default value `0`
+| fan_mode: `location` | string | optional | v1.0.1 | allows you to display buttons on the main panel, types `main, bottom`, default `bottom`
 | fan_mode: `hide` | number | optional | v1.0.1 | hide button, default value `False`
 | fan_mode: `style` | function | optional | v1.0.1 | style
 | fan_mode: `disabled` | function | optional | v1.0.1 | disabled function
@@ -144,6 +145,7 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 | buttons: `name:icon` | string | optional | v1.0.1 | Specify a custom icon from any of the available mdi icons.
 | buttons: `name:type` | string | optional | v1.0.1 | `dropdown` or `button` default `bitton`
 | buttons: `name:order` | number | optional | v1.0.1 | sort order
+| buttons: `name:location` | string | optional | v1.2.1 | allows you to display buttons on the main panel, types `main, bottom`, default `bottom`
 | buttons: `name:state` | object | optional | v1.0.1 | config to get button state.
 | buttons: `name:state:entity` | string | optional | v1.0.1 | button entity_id.
 | buttons: `name:state:attribute` | string | optional | v1.0.1 | entity attribute

@@ -77,8 +77,6 @@ class ClimateDropDown extends LitElement {
         margin: 0;
         overflow: hidden;
         transition: background .5s;
-        --paper-item-min-height: var(--mc-unit);
-        --mc-dropdown-unit: var(--mc-unit);
       }
       :host([color]) {
         background: var(--mc-active-color);

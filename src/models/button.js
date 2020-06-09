@@ -13,6 +13,10 @@ export default class ButtonObject {
     return this.config.id;
   }
 
+  get location() {
+    return this.config.location || 'bottom';
+  }
+
   get hass() {
     return this._hass;
   }

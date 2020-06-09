@@ -21,6 +21,9 @@ const style = css`
     --mc-info-opacity: 1;
     --mc-bg-opacity: var(--mini-climate-background-opacity, 1);
     color: var(--mc-text-color);
+    --mc-dropdown-unit: calc(var(--mc-unit) * .75);
+    --paper-item-min-height: var(--mc-unit);
+    --mdc-icon-button-size: calc(var(--mc-unit) * 0.75);
   }
   ha-card.--group {
     box-shadow: none;
@@ -184,6 +187,13 @@ const style = css`
   }
   .mc-toggle_content {
     margin-top: calc(var(--mc-unit) * .05);
+  }
+  .ctl-wrap mc-dropdown, .ctl-wrap mc-button {
+    min-width: calc(var(--mc-unit) * .75);
+  }
+  .ctl-wrap mc-button {
+    width: calc(var(--mc-unit) * 0.75);
+    height: calc(var(--mc-unit) * 0.75);
   }
 `;
 
