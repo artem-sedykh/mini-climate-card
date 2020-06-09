@@ -8,17 +8,19 @@ import handleClick from './utils/handleClick';
 import getLabel from './utils/getLabel';
 import './initialize';
 import './components/indicators';
-import './components/modeMenu';
+import './components/mode-menu';
 import './components/buttons';
 import './components/temperature';
-import './components/targetTemperature';
+import './components/target-temperature';
+import './components/secondary-info';
+
 import { compileTemplate, toggleState } from './utils/utils';
 import TemperatureObject from './models/temperature';
-import TargetTemperatureObject from './models/targetTemperature';
+import TargetTemperatureObject from './models/target-temperature';
 import ButtonObject from './models/button';
 import IndicatorObject from './models/indicator';
 import ClimateObject from './models/climate';
-import HvacModeObject from './models/hvac_mode';
+import HvacModeObject from './models/hvac-mode';
 import ICON from './const';
 
 if (!customElements.get('ha-icon-button')) {
@@ -567,42 +569,15 @@ class MiniClimate extends LitElement {
     if (this.climate.isUnavailable)
       return '';
 
-    if (this.config.secondary_info.type === 'last-changed') {
-      return html`
-        <div class='entity__secondary_info ellipsis'>
-            <ha-relative-time
-              .hass=${this.hass}
-              .datetime=${this.entity.last_changed}>
-            </ha-relative-time>
-        </div>
-      `;
-    }
-
-    if (this.config.secondary_info.type === 'hvac-mode') {
-      const { hvacMode } = this;
-      const selected = hvacMode.selected || {};
-      const icon = this.config.secondary_info.icon
-        ? this.config.secondary_info.icon : selected.icon;
-
-      return html`
-        <div class='entity__secondary_info ellipsis'>
-        ${icon ? html`<ha-icon class='entity__secondary_info_icon' .icon=${icon}></ha-icon>` : ''}
-         <span class='entity__secondary_info__name'>${selected.name}</span>
-        </div>
-      `;
-    }
-
-    const fanMode = this.buttons.fan_mode;
-    const { selected } = fanMode;
-    const label = selected ? selected.name : fanMode.state;
-    const icon = this.config.secondary_info.icon ? this.config.secondary_info.icon : fanMode.icon;
-
     return html`
       <div class='entity__secondary_info ellipsis'>
-         <ha-icon class='entity__secondary_info_icon' .icon=${icon}></ha-icon>
-         <span class='entity__secondary_info__name'>${label}</span>
-      </div>
-    `;
+        <mc-secondary-info
+          .climate=${this.climate}
+          .config=${this.config}
+          .hvacMode=${this.hvacMode}
+          .fanMode=${this.buttons.fan_mode}>
+        </mc-secondary-info>
+      </div>`;
   }
 
   computeIcon() {

@@ -21,7 +21,7 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=1.1.0
+    - url: /local/mini-climate-card-bundle.js?v=1.2.1
       type: module
   ```
 
@@ -32,14 +32,14 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 2. Grab `mini-climate-card-bundle.js`
 
   ```console
-  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v1.1.0/mini-climate-card-bundle.js
+  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v1.2.1/mini-climate-card-bundle.js
   ```
 
 3. Add a reference to `mini-climate-card-bundle.js` inside your `ui-lovelace.yaml`.
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=1.1.0
+    - url: /local/mini-climate-card-bundle.js?v=1.2.1
       type: module
   ```
 
@@ -52,7 +52,7 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=1.1.0
+    - url: /local/mini-climate-card-bundle.js?v=1.2.1
       type: module
   ```
 
@@ -75,8 +75,12 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 | toggle: `hide` | boolean | optional | v1.0.2 | Hide button, default value `False`
 | toggle: `default` | boolean | optional | v1.0.2 | Default toggle button state, default value `off`.
 | **secondary_info** | object | optional | v1.1.0 | secondary_info config. [secondary info examples](#secondary-info)
-| secondary_info: `type` | string | optional | v1.1.0 | available types: `last-changed, fan-mode, hvac-mode`
-| secondary_info: `icon` | string | optional | v1.1.0 | icon for types: `fan-mode, hvac-mode`
+| secondary_info: `type` | string | optional | v1.1.0 | available types: `last-changed, fan-mode, hvac-mode, hvac-action`
+| secondary_info: `icon` | string | optional | v1.1.0 | icon for types: `fan-mode, hvac-mode`, `hvac-action`
+| secondary_info: `source` | object | optional | v1.2.1 | source available types: `hvac-action`
+| secondary_info: `source:{item_name}` | object | optional | v1.2.1 | source item name
+| secondary_info: `source:{item_name}:icon` | object | optional | v1.2.1 | Specify a custom icon from any of the available mdi icons.
+| secondary_info: `source:{item_name}:name` | object | optional | v1.2.1 | Display name.
 | **temperature** | object | optional | v1.0.1 | current temperature configuration. [temperature examples](#temperature)
 | temperature: `unit` | string | optional | v1.0.1 | display unit, default `°C`
 | temperature: `round` | number | optional | v1.0.1 | rounding value, default `1`
@@ -549,6 +553,54 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
   secondary_info: hvac-mode
 ```
 
+##### hvac-action type
+
+By default, translations from [ha frontend](https://github.com/home-assistant/frontend/blob/master/translations/frontend/en.json#L33)
+```yaml
+- type: custom:mini-climate
+  entity: climate.dahatsu
+  secondary_info:
+    type: hvac-action
+```
+but you can customize your translations
+```yaml
+- type: custom:mini-climate
+  entity: climate.dahatsu
+  secondary_info:
+    type: hvac-action
+    source:
+      cooling: Охлаждение
+```
+You can set your own icon for each hvac-action
+```yaml
+- type: custom:mini-climate
+  entity: climate.dahatsu
+  secondary_info:
+    type: hvac-action
+    source:
+      cooling:
+        icon: 'mdi:snowflake'
+        name: Охлаждение
+```
+You can set your own icon for each hvac-action
+```yaml
+- type: custom:mini-climate
+  entity: climate.dahatsu
+  secondary_info:
+    type: hvac-action
+    source:
+      cooling:
+        icon: 'mdi:snowflake'
+        name: Охлаждение
+```
+Or you can use one permanent icon
+```yaml
+- type: custom:mini-climate
+  entity: climate.dahatsu
+  secondary_info:
+    type: hvac-action
+    icon: 'mdi:cached'
+```
 
 ### Theme variables
 The following variables are available and can be set in your theme to change the appearence of the card.

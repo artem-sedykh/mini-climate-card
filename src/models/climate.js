@@ -16,9 +16,31 @@ export default class ClimateObject {
       target_temp_step: undefined,
       min_temp: undefined,
       max_temp: undefined,
+      hvac_action: '',
       fan_modes: [],
       ...entity.attributes || {},
     };
+  }
+
+  get lastChanged() {
+    return this.entity.last_changed;
+  }
+
+  get hvacAction() {
+    const source = (this.config.secondary_info && this.config.secondary_info.source) || {};
+    const action = this.attr.hvac_action;
+    let item = { id: action };
+    const labelPrefix = 'state_attributes.climate.hvac_action';
+    item.name = getLabel(this.hass, [`${labelPrefix}.${action}`], action);
+
+    if (action in source) {
+      if (typeof source[action] === 'string')
+        item.name = source[action];
+      else
+        item = { ...item, ...source[action] };
+    }
+
+    return item;
   }
 
   get mode() {
