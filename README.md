@@ -5,7 +5,8 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
 [![buymeacoffee_badge](https://img.shields.io/badge/Donate-buymeacoffe-ff813f?style=flat)](https://www.buymeacoffee.com/anavrin72)
 
-A minimalistic yet customizable climate card for [Home Assistant](https://github.com/home-assistant/home-assistant) Lovelace UI.
+A minimalistic yet customizable climate card for [Home Assistant](https://github.com/home-assistant/home-assistant) Lovelace UI.  
+Please ⭐️ this repo if you find it useful  
 
 ![Preview Image](https://user-images.githubusercontent.com/861063/83363491-98b13080-a3a2-11ea-90e6-1ba6364c800d.png)
 
