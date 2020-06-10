@@ -439,9 +439,9 @@ class MiniClimate extends LitElement {
         ${buttons.map(button => (button.type === 'dropdown'
     ? html`<mc-dropdown .dropdown=${button}></mc-dropdown>`
     : html`<mc-button .button=${button}></mc-button>`))}
-        <mc-mode-menu
-          .mode=${this.hvacMode}>
-        </mc-mode-menu>
+        ${this.hvacMode.hide
+    ? ''
+    : html`<mc-mode-menu .mode=${this.hvacMode}></mc-mode-menu>`}
         <mc-temperature
           .temperature=${this.temperature}
           .target=${this.targetTemperatureValue}

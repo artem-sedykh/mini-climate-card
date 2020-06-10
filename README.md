@@ -21,7 +21,7 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=1.2.2
+    - url: /local/mini-climate-card-bundle.js?v=1.2.3
       type: module
   ```
 
@@ -32,14 +32,14 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 2. Grab `mini-climate-card-bundle.js`
 
   ```console
-  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v1.2.2/mini-climate-card-bundle.js
+  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v1.2.3/mini-climate-card-bundle.js
   ```
 
 3. Add a reference to `mini-climate-card-bundle.js` inside your `ui-lovelace.yaml`.
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=1.2.2
+    - url: /local/mini-climate-card-bundle.js?v=1.2.3
       type: module
   ```
 
@@ -52,7 +52,7 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=1.2.2
+    - url: /local/mini-climate-card-bundle.js?v=1.2.3
       type: module
   ```
 
@@ -103,6 +103,7 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 | hvac_mode: `style` | function | optional | v1.0.1 | custom style
 | hvac_mode: `change_action` | function | optional | v1.0.1 | custom hvac_mode change function
 | hvac_mode: `state` | object | optional | v1.0.1 | config to get hvac_mode state.
+| hvac_mode: `hide` | number | optional | v1.2.3 | hide hvac_mode, default value `False`
 | hvac_mode: `state:entity` | string | optional | v1.1.0 | hvac_mode entity_id.
 | hvac_mode: `state:attribute` | string | optional | v1.1.0 | hvac_mode attribute.
 | hvac_mode: `state:mapper` | function | optional | v1.1.0 | state processing function
