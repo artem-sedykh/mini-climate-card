@@ -90,8 +90,11 @@ class ClimateTargetTemperature extends LitElement {
       --mdc-icon-button-size: calc(var(--mc-unit) * .75);
       color: var(--mc-icon-color);
     }
+    .temp.--up {
+      margin-top: -2px;
+    }
     .temp.--down {
-      margin-top: calc(var(--mc-unit) * -.05);
+      margin-top: -2px;
     }
     .temp.--down {
       margin-top: auto;

@@ -156,7 +156,7 @@ const style = css`
     flex-direction: row;
     margin-left: auto;
     margin-top: auto;
-    margin-bottom: calc(var(--mc-unit) * -.05);
+    margin-bottom: 0;
   }
   .bottom {
     margin-top: calc(var(--mc-unit) * .075);
