@@ -1,6 +1,6 @@
 {
   "name": "mini-climate-card",
-  "version": "v1.2.1",
+  "version": "v1.2.2",
   "description": "a/c card for Home Assistant Lovelace UI",
   "keywords": [
     "home-assistant",
