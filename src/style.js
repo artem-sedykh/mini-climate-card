@@ -190,6 +190,7 @@ const style = css`
   }
   .ctl-wrap mc-dropdown, .ctl-wrap mc-button {
     min-width: calc(var(--mc-unit) * .75);
+    margin-right: 3px;
   }
   .ctl-wrap mc-button {
     width: calc(var(--mc-unit) * 0.75);
