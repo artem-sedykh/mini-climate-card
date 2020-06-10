@@ -21,7 +21,7 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=1.2.1
+    - url: /local/mini-climate-card-bundle.js?v=1.2.2
       type: module
   ```
 
@@ -32,14 +32,14 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 2. Grab `mini-climate-card-bundle.js`
 
   ```console
-  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v1.2.1/mini-climate-card-bundle.js
+  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v1.2.2/mini-climate-card-bundle.js
   ```
 
 3. Add a reference to `mini-climate-card-bundle.js` inside your `ui-lovelace.yaml`.
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=1.2.1
+    - url: /local/mini-climate-card-bundle.js?v=1.2.2
       type: module
   ```
 
@@ -52,7 +52,7 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=1.2.1
+    - url: /local/mini-climate-card-bundle.js?v=1.2.2
       type: module
   ```
 
@@ -83,7 +83,7 @@ A minimalistic yet customizable climate card for [Home Assistant](https://github
 | secondary_info: `source:{item_name}:name` | object | optional | v1.2.1 | Display name.
 | **temperature** | object | optional | v1.0.1 | current temperature configuration. [temperature examples](#temperature)
 | temperature: `unit` | string | optional | v1.0.1 | display unit, default `°C`
-| temperature: `round` | number | optional | v1.0.1 | rounding value, default `1`
+| temperature: `round or fixed` | number | optional | v1.2.2 | rounding or fixed value, default `round: 1`
 | temperature: `source` | object | optional | v1.0.1 | data source for target temperature
 | temperature: `source:entity` | string | optional | v1.0.1 | entity_id, default current climate entity_id
 | temperature: `source:attribute` | string | optional | v1.0.1 | default `current_temperature`

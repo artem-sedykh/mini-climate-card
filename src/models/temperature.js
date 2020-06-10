@@ -26,8 +26,13 @@ export default class TemperatureObject {
   get value() {
     const value = this.rawValue;
 
-    if (value !== undefined)
-      return round(value, this.config.temperature.round);
+    if (value !== undefined) {
+      if ('fixed' in this.config.temperature)
+        return parseFloat(value.toString()).toFixed(this.config.temperature.fixed);
+
+      if ('round' in this.config.temperature)
+        return round(value, this.config.temperature.round);
+    }
 
     return value;
   }
