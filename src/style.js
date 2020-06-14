@@ -159,7 +159,8 @@ const style = css`
     margin-bottom: 0;
   }
   .bottom {
-    margin-top: calc(var(--mc-unit) * .075);
+    margin-top: calc(var(--mc-unit) * .05);
+    height: calc(var(--mc-unit) * .625);;
   }
   .entity__info__name_wrap {
     margin-right: 10px;
