@@ -22,7 +22,7 @@ Please ⭐️ this repo if you find it useful
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=1.2.4
+    - url: /local/mini-climate-card-bundle.js?v=1.2.5
       type: module
   ```
 
@@ -33,14 +33,14 @@ Please ⭐️ this repo if you find it useful
 2. Grab `mini-climate-card-bundle.js`
 
   ```console
-  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v1.2.4/mini-climate-card-bundle.js
+  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v1.2.5/mini-climate-card-bundle.js
   ```
 
 3. Add a reference to `mini-climate-card-bundle.js` inside your `ui-lovelace.yaml`.
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=1.2.4
+    - url: /local/mini-climate-card-bundle.js?v=1.2.5
       type: module
   ```
 
@@ -53,7 +53,7 @@ Please ⭐️ this repo if you find it useful
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=1.2.4
+    - url: /local/mini-climate-card-bundle.js?v=1.2.5
       type: module
   ```
 
@@ -114,6 +114,7 @@ Please ⭐️ this repo if you find it useful
 | hvac_mode: `source:item` | object | optional | v1.0.1 | `item` - mode name e.g. cool, heat, off, etc.
 | hvac_mode: `source:item:icon` | string | optional | v1.0.1 | Specify a custom icon from any of the available mdi icons.
 | hvac_mode: `source:item:name` | string | optional | v1.0.1 | Display name.
+| hvac_mode: `source:item:order` | number | optional | v1.2.5 | sort order.
 | **fan_mode** | object | optional | v1.0.1 | fan operation for climate device. [fan_mode examples](#fan_mode)
 | fan_mode: `icon` | string | optional | v1.0.1 | Specify a custom icon from any of the available mdi icons.
 | fan_mode: `order` | number | optional | v1.0.1 | sort order, default value `0`
