@@ -52,14 +52,17 @@ export default class HvacModeObject {
 
   get source() {
     const { functions } = this.config;
-    const source = Object.entries(this.config.source || {})
-      .filter(s => s[0] !== '__filter')
-      .map((s) => {
-        if (typeof s[1] === 'object') {
-          return { id: s[0], ...s[1] || {} };
+    let source = Object.entries(this.config.source || {})
+      .filter(([key]) => key !== '__filter')
+      .map(([key, value]) => {
+        if (typeof value === 'object') {
+          return { id: key, ...value || {} };
         }
-        return { id: s[0], name: s[1] };
+        return { id: key, name: value };
       });
+
+    if (source.some(s => 'order' in s))
+      source = source.sort((a, b) => ((a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0)));
 
     if (functions.source && functions.source.filter) {
       return functions.source.filter(source, this.state, this.entity, this.climate.entity);
