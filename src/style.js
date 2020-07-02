@@ -58,6 +58,7 @@ const style = css`
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
     opacity: var(--mc-bg-opacity);
+    border-radius: var(--ha-card-border-radius, 0);
   }
   .mc-climate {
     align-self: flex-end;
