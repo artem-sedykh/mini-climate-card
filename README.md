@@ -22,7 +22,7 @@ Please ⭐️ this repo if you find it useful
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=1.2.5
+    - url: /local/mini-climate-card-bundle.js?v=1.2.6
       type: module
   ```
 
@@ -33,14 +33,14 @@ Please ⭐️ this repo if you find it useful
 2. Grab `mini-climate-card-bundle.js`
 
   ```console
-  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v1.2.5/mini-climate-card-bundle.js
+  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v1.2.6/mini-climate-card-bundle.js
   ```
 
 3. Add a reference to `mini-climate-card-bundle.js` inside your `ui-lovelace.yaml`.
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=1.2.5
+    - url: /local/mini-climate-card-bundle.js?v=1.2.6
       type: module
   ```
 
@@ -53,7 +53,7 @@ Please ⭐️ this repo if you find it useful
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=1.2.5
+    - url: /local/mini-climate-card-bundle.js?v=1.2.6
       type: module
   ```
 
