@@ -26,7 +26,7 @@ export default class TargetTemperatureObject {
     if (this.entity && this.entity.attributes && this.entity.attributes.target_temp_step)
       return parseFloat(this.entity.attributes.target_temp_step);
 
-    return 1;
+    return 1.0;
   }
 
   getMin() {
@@ -36,7 +36,7 @@ export default class TargetTemperatureObject {
     if (this.entity && this.entity.attributes && this.entity.attributes.min_temp)
       return parseFloat(this.entity.attributes.min_temp);
 
-    return 16;
+    return 16.0;
   }
 
   getMax() {
@@ -46,12 +46,12 @@ export default class TargetTemperatureObject {
     if (this.entity && this.entity.attributes && this.entity.attributes.max_temp)
       return parseFloat(this.entity.attributes.max_temp);
 
-    return 30;
+    return 30.0;
   }
 
   get value() {
     if (this._targetTemperature !== undefined)
-      return this._targetTemperature;
+      return parseFloat(this._targetTemperature);
 
     return parseFloat(getEntityValue(this.entity, this.config.target_temperature.source));
   }
