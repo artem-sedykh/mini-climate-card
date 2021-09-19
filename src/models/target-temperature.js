@@ -21,43 +21,43 @@ export default class TargetTemperatureObject {
 
   getStep() {
     if ('step' in this.config.target_temperature)
-      return this.config.target_temperature.step;
+      return parseFloat(this.config.target_temperature.step);
 
     if (this.entity && this.entity.attributes && this.entity.attributes.target_temp_step)
-      return this.entity.attributes.target_temp_step;
+      return parseFloat(this.entity.attributes.target_temp_step);
 
-    return 1;
+    return 1.0;
   }
 
   getMin() {
     if ('min' in this.config.target_temperature)
-      return this.config.target_temperature.min;
+      return parseFloat(this.config.target_temperature.min);
 
     if (this.entity && this.entity.attributes && this.entity.attributes.min_temp)
-      return this.entity.attributes.min_temp;
+      return parseFloat(this.entity.attributes.min_temp);
 
-    return 16;
+    return 16.0;
   }
 
   getMax() {
     if ('max' in this.config.target_temperature)
-      return this.config.target_temperature.max;
+      return parseFloat(this.config.target_temperature.max);
 
     if (this.entity && this.entity.attributes && this.entity.attributes.max_temp)
-      return this.entity.attributes.max_temp;
+      return parseFloat(this.entity.attributes.max_temp);
 
-    return 30;
+    return 30.0;
   }
 
   get value() {
     if (this._targetTemperature !== undefined)
-      return this._targetTemperature;
+      return parseFloat(this._targetTemperature);
 
-    return getEntityValue(this.entity, this.config.target_temperature.source);
+    return parseFloat(getEntityValue(this.entity, this.config.target_temperature.source));
   }
 
   set value(value) {
-    this._targetTemperature = value;
+    this._targetTemperature = parseFloat(value);
   }
 
   increment() {
