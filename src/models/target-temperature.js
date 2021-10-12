@@ -51,7 +51,7 @@ export default class TargetTemperatureObject {
   }
 
   _floatOrPlaceholder(value) {
-    if (isNaN(value)) {
+    if (Number.isNaN(value)) {
       return NO_TARGET_TEMPERATURE;
     }
     return value;
@@ -61,7 +61,8 @@ export default class TargetTemperatureObject {
     if (this._targetTemperature !== undefined)
       return this._floatOrPlaceholder(parseFloat(this._targetTemperature));
 
-    return this._floatOrPlaceholder(parseFloat(getEntityValue(this.entity, this.config.target_temperature.source)));
+    const newValue = getEntityValue(this.entity, this.config.target_temperature.source);
+    return this._floatOrPlaceholder(parseFloat(newValue));
   }
 
   set value(value) {
