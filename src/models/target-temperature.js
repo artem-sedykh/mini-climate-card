@@ -1,4 +1,5 @@
 import { getEntityValue } from '../utils/utils';
+import { NO_TARGET_TEMPERATURE } from '../const';
 
 export default class TargetTemperatureObject {
   constructor(entity, config, hass) {
@@ -49,11 +50,19 @@ export default class TargetTemperatureObject {
     return 30.0;
   }
 
+  _floatOrPlaceholder(value) {
+    if (Number.isNaN(value)) {
+      return NO_TARGET_TEMPERATURE;
+    }
+    return value;
+  }
+
   get value() {
     if (this._targetTemperature !== undefined)
-      return parseFloat(this._targetTemperature);
+      return this._floatOrPlaceholder(parseFloat(this._targetTemperature));
 
-    return parseFloat(getEntityValue(this.entity, this.config.target_temperature.source));
+    const newValue = getEntityValue(this.entity, this.config.target_temperature.source);
+    return this._floatOrPlaceholder(parseFloat(newValue));
   }
 
   set value(value) {
@@ -62,6 +71,10 @@ export default class TargetTemperatureObject {
 
   increment() {
     const oldValue = this.value;
+
+    if (oldValue === NO_TARGET_TEMPERATURE) {
+      return false;
+    }
 
     const newVal = this._round(this.value + this.step);
 
@@ -80,6 +93,10 @@ export default class TargetTemperatureObject {
 
   decrement() {
     const oldValue = this.value;
+
+    if (oldValue === NO_TARGET_TEMPERATURE) {
+      return false;
+    }
 
     const newVal = this._round(this.value - this.step);
 
