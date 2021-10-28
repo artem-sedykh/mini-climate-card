@@ -43,6 +43,7 @@ class ClimateDropdownBase extends LitElement {
           .icon=${this.icon}
           ?disabled=${this.disabled}
           ?color=${this.active}>
+            <ha-icon .icon=${this.icon}></ha-icon>
         </ha-icon-button>
         <paper-listbox slot="dropdown-content" .selected=${this.selectedId} @iron-select=${this.onChange}>
           ${this.items.map(item => html`

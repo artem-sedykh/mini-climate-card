@@ -68,10 +68,12 @@ class ClimateTargetTemperature extends LitElement {
         <ha-icon-button class='temp --up'
           .icon=${this.targetTemperature.icons.up}
           @click=${e => this.increment(e)}>
+          <ha-icon .icon=${this.targetTemperature.icons.up}></ha-icon>
         </ha-icon-button>
         <ha-icon-button class='temp --down'
           .icon=${this.targetTemperature.icons.down}
           @click=${e => this.decrement(e)}>
+           <ha-icon .icon=${this.targetTemperature.icons.down}></ha-icon>
         </ha-icon-button>
       </div>
     `;

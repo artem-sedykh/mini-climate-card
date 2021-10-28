@@ -562,6 +562,7 @@ class MiniClimate extends LitElement {
         <ha-icon-button class='toggle-button ${this.toggleButtonCls()}'
           .icon=${this.config.toggle.icon}
           @click=${e => this.handleToggle(e)}>
+            <ha-icon .icon=${this.config.toggle.icon}></ha-icon>
         </ha-icon-button>
     `;
   }
