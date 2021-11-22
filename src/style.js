@@ -140,10 +140,11 @@ const style = css`
     margin-left: auto;
     margin-top: calc(var(--mc-unit) * -.125);
     margin-right: calc(var(--mc-unit) * .05);
+    --ha-icon-display: flex;
   }
   .toggle-button.open {
      transform: rotate(180deg);
-     color: var(--mc-active-color)
+     color: var(--mc-active-color);
   }
   .wrap {
     display: flex;
@@ -161,6 +162,7 @@ const style = css`
     margin-left: auto;
     margin-top: auto;
     margin-bottom: 0;
+    --ha-icon-display: flex;
   }
   .bottom {
     margin-top: calc(var(--mc-unit) * .05);
@@ -177,6 +179,7 @@ const style = css`
     width: 100%;
     justify-content: space-evenly;
     display: flex;
+    --ha-icon-display: flex;
   }
   mc-temperature {
     min-width: 0;

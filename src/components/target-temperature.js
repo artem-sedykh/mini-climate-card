@@ -85,6 +85,7 @@ class ClimateTargetTemperature extends LitElement {
       display: flex;
       flex-direction: column;
       height: 100%;
+      --ha-icon-display: flex;
     }
     .temp {
       width: calc(var(--mc-unit) * .75);
