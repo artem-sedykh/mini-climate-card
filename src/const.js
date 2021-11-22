@@ -6,6 +6,7 @@ const ICON = {
   HEAT: 'mdi:weather-sunny',
   AUTO: 'mdi:cached',
   COOL: 'mdi:snowflake',
+  HEAT_COOL: 'mdi:sun-snowflake',
   DRY: 'mdi:water',
   FAN_ONLY: 'mdi:fan',
   TOGGLE: 'mdi:dots-horizontal',
