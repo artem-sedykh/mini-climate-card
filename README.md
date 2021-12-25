@@ -194,7 +194,7 @@ Please ⭐️ this repo if you find it useful
 
 | Name | arguments | description | return type |
 |------|-----------|-------------|-------------|
-|`toggle_state` | sate | toggle state, example: `this.toggle_state('on') => off`  | string
+|`toggle_state` | state | toggle state, example: `this.toggle_state('on') => off`  | string
 |`call_service` | domain, service, options, | call Home Assistant service | promise
 
 > Configuration example for the target_temperature:  
@@ -234,7 +234,7 @@ Please ⭐️ this repo if you find it useful
 
 | Name | arguments | description | return type |
 |------|-----------|-------------|-------------|
-|`toggle_state` | sate | toggle state, example: `this.toggle_state('on') => off`  | string
+|`toggle_state` | state | toggle state, example: `this.toggle_state('on') => off`  | string
 |`call_service` | domain, service, options, | call Home Assistant service | promise
 
 > Configuration example for the hvac_mode:  
