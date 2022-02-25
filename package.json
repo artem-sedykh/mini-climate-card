@@ -17,8 +17,15 @@
   "author": "Artem Sedykh <anavrin72@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "lit-element": "^2.2.1",
-    "lit-html": "^1.1.2",
+    "@lit-labs/scoped-registry-mixin": "^1.0.0",
+    "@material/mwc-button": "^0.25.3",
+    "@material/mwc-icon": "^0.25.3",
+    "@material/mwc-list": "^0.25.3",
+    "@material/mwc-menu": "^0.25.3",
+    "@material/mwc-ripple": "^0.25.3",
+    "lit": "^2.2.0",
+    "lit-element": "^3.2.0",
+    "lit-html": "^2.2.0",
     "resize-observer-polyfill": "^1.5.1"
   },
   "devDependencies": {

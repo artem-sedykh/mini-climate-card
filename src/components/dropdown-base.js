@@ -28,30 +28,34 @@ class ClimateDropdownBase extends LitElement {
     }
   }
 
+  onClick() {
+    this.shadowRoot.querySelector('#menu').show();
+  }
+
   render() {
     return html`
-      <paper-menu-button
-        class='mc-dropdown'
-        noink no-animations
-        .horizontalAlign=${'right'}
-        .verticalAlign=${'top'}
-        .verticalOffset=${44}
-        .dynamicAlign=${true}
-        ?disabled=${this.disabled}
-        @click=${e => e.stopPropagation()}>
-        <ha-icon-button class='mc-dropdown__button icon' slot='dropdown-trigger'
+      <div class='mc-dropdown'>
+        <ha-icon-button class='mc-dropdown__button icon'
           .icon=${this.icon}
+          @click=${this.onclick}
           ?disabled=${this.disabled}
           ?color=${this.active}>
             <ha-icon .icon=${this.icon}></ha-icon>
         </ha-icon-button>
-        <paper-listbox slot="dropdown-content" .selected=${this.selectedId} @iron-select=${this.onChange}>
+        <mwc-menu
+            id=${'menu'}
+            .menuCorner=${'END'}
+            .corner=${'TOP_START'}
+            .quick=${true}
+            .y=${44}
+            .selected=${this.selectedId}
+            @selected=${this.onChange}>
           ${this.items.map(item => html`
-            <paper-item value=${item.id || item.name}>
+            <mwc-list-item value=${item.id || item.name}>
               <span class='mc-dropdown__item__label'>${item.name}</span>
-            </paper-item>`)}
-        </paper-listbox>
-      </paper-menu-button>
+            </mwc-list-item>`)}
+        </mwc-menu>
+      </div>
     `;
   }
 
