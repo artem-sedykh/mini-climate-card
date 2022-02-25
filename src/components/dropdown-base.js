@@ -86,7 +86,6 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
     return html`
       <div class='mc-dropdown'>
         <ha-icon-button class='mc-dropdown__button icon'
-          .icon=${this.icon}
           @click=${this.onclick}
           ?disabled=${this.disabled}
           ?color=${this.active}>

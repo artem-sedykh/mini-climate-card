@@ -1,7 +1,56 @@
 import { LitElement, html, css } from 'lit';
+import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
+import { ListBase } from '@material/mwc-list/mwc-list-base';
+import { styles as listStyles } from '@material/mwc-list/mwc-list.css';
+import { ListItemBase } from '@material/mwc-list/mwc-list-item-base';
+import { styles as listItemStyles } from '@material/mwc-list/mwc-list-item.css';
+import { ButtonBase } from '@material/mwc-button/mwc-button-base';
+import { styles as buttonStyles } from '@material/mwc-button/styles.css';
+import { MenuBase } from '@material/mwc-menu/mwc-menu-base';
+import { styles as menuStyles } from '@material/mwc-menu/mwc-menu.css';
+import { RippleBase } from '@material/mwc-ripple/mwc-ripple-base';
+import { styles as rippleStyles } from '@material/mwc-ripple/mwc-ripple.css';
+import { MenuSurfaceBase } from '@material/mwc-menu/mwc-menu-surface-base';
+import { styles as menuSurfaceStyles } from '@material/mwc-menu/mwc-menu-surface.css';
 import sharedStyle from '../sharedStyle';
 
-export default class FanModeSecondary extends LitElement {
+export default class FanModeSecondary extends ScopedRegistryHost(LitElement) {
+  static get elementDefinitions() {
+    return {
+      'ha-icon': customElements.get('ha-icon'),
+      'mwc-list': class extends ListBase {
+        static get styles() {
+          return listStyles;
+        }
+      },
+      'mwc-list-item': class extends ListItemBase {
+        static get styles() {
+          return listItemStyles;
+        }
+      },
+      'mwc-button': class extends ButtonBase {
+        static get styles() {
+          return buttonStyles;
+        }
+      },
+      'mwc-menu': class extends MenuBase {
+        static get styles() {
+          return menuStyles;
+        }
+      },
+      'mwc-ripple': class extends RippleBase {
+        static get styles() {
+          return rippleStyles;
+        }
+      },
+      'mwc-menu-surface': class extends MenuSurfaceBase {
+        static get styles() {
+          return menuSurfaceStyles;
+        }
+      },
+    };
+  }
+
   constructor() {
     super();
     this.fanMode = {};
@@ -60,24 +109,27 @@ export default class FanModeSecondary extends LitElement {
 
   renderFanModeDropdown() {
     return html`
-       <paper-menu-button
-        class='mc-dropdown'
-        noink no-animations
-        .horizontalAlign=${'right'}
-        .verticalAlign=${'top'}
-        .verticalOffset=${44}
-        ?disabled=${this.fanMode.disabled}
-        .dynamicAlign=${true}>
-       <div class="wrap" slot='dropdown-trigger'>
-         ${this.renderFanMode()}
-       </div>
-        <paper-listbox slot="dropdown-content" .selected=${this.selectedIndex} @iron-select=${this.handleChange}>
+      <div class='mc-dropdown'>
+        <ha-icon-button class='mc-dropdown__button icon'
+          @click=${this.onclick}
+          ?disabled=${this.fanMode.disabled}
+        >
+          ${this.renderFanMode()}
+        </ha-icon-button>
+        <mwc-menu
+            id=${'menu'}
+            .menuCorner=${'END'}
+            .corner=${'TOP_START'}
+            .quick=${true}
+            .y=${44}
+            .selected=${this.selectedIndex}
+            @selected=${this.handleChange}>
           ${this.fanMode.source.map(item => html`
-            <paper-item value=${item.id || item.name}>
+            <mwc-list-item value=${item.id || item.name}>
               <span class='mc-dropdown__item__label'>${item.name}</span>
-            </paper-item>`)}
-        </paper-listbox>
-      </paper-menu-button>
+            </mwc-list-item>`)}
+        </mwc-menu>
+      </div>
     `;
   }
 
