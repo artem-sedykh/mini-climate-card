@@ -34,11 +34,11 @@ class ClimateDropDown extends LitElement {
         this._state = (this.dropdown.state !== undefined && this.dropdown.state !== null)
           ? this.dropdown.state.toString() : '';
 
-        return this.requestUpdate('_state');
+        this.requestUpdate('_state');
       }
     }, this.dropdown.actionTimeout);
 
-    return this.requestUpdate('_state');
+    this.requestUpdate('_state');
   }
 
   render() {
@@ -63,7 +63,7 @@ class ClimateDropDown extends LitElement {
       if (this.timer)
         clearTimeout(this.timer);
 
-      return this.requestUpdate('_state');
+      this.requestUpdate('_state');
     }
   }
 

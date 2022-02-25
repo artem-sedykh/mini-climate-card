@@ -28,10 +28,10 @@ class ClimateButton extends LitElement {
     this.timer = setTimeout(async () => {
       if (this.button.entity === entity) {
         this._isOn = this.button.isOn;
-        return this.requestUpdate('_isOn');
+        this.requestUpdate('_isOn');
       }
     }, this.button.actionTimeout);
-    return this.requestUpdate('_isOn');
+    this.requestUpdate('_isOn');
   }
 
   render() {
@@ -54,7 +54,7 @@ class ClimateButton extends LitElement {
       if (this.timer)
         clearTimeout(this.timer);
 
-      return this.requestUpdate('_isOn');
+      this.requestUpdate('_isOn');
     }
   }
 

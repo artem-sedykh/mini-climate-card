@@ -38,13 +38,13 @@ class FanModeSecondary extends LitElement {
     this.timer = setTimeout(async () => {
       if (this.fanMode.entity === entity) {
         this._selected = oldSelected;
-        return this.requestUpdate('_selected');
+        this.requestUpdate('_selected');
       }
     }, this.fanMode.actionTimeout);
 
     this.fanMode.handleChange(selected.id);
 
-    return this.requestUpdate('_selected');
+    this.requestUpdate('_selected');
   }
 
   renderFanMode() {
@@ -95,7 +95,7 @@ class FanModeSecondary extends LitElement {
     if (changedProps.has('fanMode')) {
       clearTimeout(this.timer);
       this._selected = this.fanMode.selected;
-      this.requestUpdate('_selected').then();
+      this.requestUpdate('_selected');
     }
   }
 

@@ -544,7 +544,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
   handleChangingTargetTemperature(e) {
     this.targetTemperatureValue = this.targetTemperature.value;
     this.targetTemperatureChanging = e.detail.changing;
-    return this.requestUpdate('targetTemperatureChanging');
+    this.requestUpdate('targetTemperatureChanging');
   }
 
   handlePopup(e, handle) {
@@ -688,18 +688,18 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
     if (changedProps.has('climate')) {
       this.initDefaultFanModeSource();
       this.initDefaultHvacModeSource();
-      this.requestUpdate('climate').then();
+      this.requestUpdate('climate');
     }
     if (changedProps.has('targetTemperature')) {
       this.targetTemperatureValue = this.targetTemperature.value;
-      this.requestUpdate('targetTemperatureValue').then();
+      this.requestUpdate('targetTemperatureValue');
     }
 
     const ro = new ResizeObserver((entries) => {
       const item = entries.find(e => e.target === this);
       if (item && item.contentRect && this.width !== item.contentRect.width) {
         this.width = item.contentRect.width;
-        this.requestUpdate('width').then();
+        this.requestUpdate('width');
       }
     });
 
