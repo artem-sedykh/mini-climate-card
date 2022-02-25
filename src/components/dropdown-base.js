@@ -69,12 +69,12 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
   }
 
   onChange(e) {
-    const id = e.target.selected;
-    if (id !== this.selectedId && this.items[id]) {
+    const { index } = e.detail;
+    if (index !== this.selectedId && this.items[index]) {
       this.dispatchEvent(new CustomEvent('change', {
-        detail: this.items[id],
+        detail: this.items[index],
       }));
-      e.target.selected = -1;
+      e.detail.index = -1;
     }
   }
 
@@ -91,10 +91,10 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
           ?color=${this.active}>
             <ha-icon .icon=${this.icon}></ha-icon>
         </ha-icon-button>
-        <mwc-menu
+        <mwc-menu activatable absolute
             id=${'menu'}
             .menuCorner=${'END'}
-            .corner=${'TOP_START'}
+            .corner=${'TOP_LEFT'}
             .quick=${true}
             .y=${44}
             @selected=${this.onChange}>

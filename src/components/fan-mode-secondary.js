@@ -72,7 +72,7 @@ export default class FanModeSecondary extends ScopedRegistryHost(LitElement) {
   }
 
   handleChange(e) {
-    const index = e.target.selected;
+    const { index } = e.detail;
 
     if (index === this.selectedIndex || !this.fanMode.source[index])
       return;
@@ -120,7 +120,7 @@ export default class FanModeSecondary extends ScopedRegistryHost(LitElement) {
         >
           ${this.renderFanMode()}
         </ha-icon-button>
-        <mwc-menu
+        <mwc-menu activatable absolute
             id=${'menu'}
             .menuCorner=${'END'}
             .corner=${'TOP_START'}
@@ -128,7 +128,7 @@ export default class FanModeSecondary extends ScopedRegistryHost(LitElement) {
             .y=${44}
             @selected=${this.handleChange}>
           ${this.fanMode.source.map(item => html`
-            <mwc-list-item value=${item.id || item.name} ?selected=${this._selected.id === item.id}>
+            <mwc-list-item value=${item.id || item.name} ?selected=${this._selected.id && this._selected.id === item.id}>
               <span class='mc-dropdown__item__label'>${item.name}</span>
             </mwc-list-item>`)}
         </mwc-menu>
