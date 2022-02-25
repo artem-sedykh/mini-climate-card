@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
 
-class ClimateTemperature extends LitElement {
+export default class ClimateTemperature extends LitElement {
   static get properties() {
     return {
       temperature: Object,
@@ -68,5 +68,3 @@ class ClimateTemperature extends LitElement {
     `;
   }
 }
-
-customElements.define('mc-temperature', ClimateTemperature);

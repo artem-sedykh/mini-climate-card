@@ -2,7 +2,7 @@ import { LitElement, html, css } from 'lit';
 
 import sharedStyle from '../sharedStyle';
 
-class ClimateDropdownBase extends LitElement {
+export default class ClimateDropdownBase extends LitElement {
   static get properties() {
     return {
       items: [],
@@ -106,5 +106,3 @@ class ClimateDropdownBase extends LitElement {
     ];
   }
 }
-
-customElements.define('mc-dropdown-base', ClimateDropdownBase);

@@ -1,9 +1,8 @@
 import { LitElement, html, css } from 'lit';
 import { styleMap } from 'lit/directives/style-map';
 import sharedStyle from '../sharedStyle';
-import './dropdown-base';
 
-class ClimateDropDown extends LitElement {
+export default class ClimateDropDown extends LitElement {
   constructor() {
     super();
     this.dropdown = {};
@@ -90,5 +89,3 @@ class ClimateDropDown extends LitElement {
     `];
   }
 }
-
-customElements.define('mc-dropdown', ClimateDropDown);

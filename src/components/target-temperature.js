@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
 
-class ClimateTargetTemperature extends LitElement {
+export default class ClimateTargetTemperature extends LitElement {
   constructor() {
     super();
     this.timeout = 800;
@@ -105,5 +105,3 @@ class ClimateTargetTemperature extends LitElement {
     `;
   }
 }
-
-customElements.define('mc-target-temperature', ClimateTargetTemperature);

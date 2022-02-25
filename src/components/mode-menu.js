@@ -1,9 +1,8 @@
 import { LitElement, html, css } from 'lit';
 import { styleMap } from 'lit/directives/style-map';
-import './dropdown-base';
 import ICON from '../const';
 
-class ModeMenu extends LitElement {
+export default class ModeMenu extends LitElement {
   constructor() {
     super();
     this.mode = {};
@@ -70,5 +69,3 @@ class ModeMenu extends LitElement {
     `;
   }
 }
-
-customElements.define('mc-mode-menu', ModeMenu);

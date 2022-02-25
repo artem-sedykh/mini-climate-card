@@ -1,8 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import sharedStyle from '../sharedStyle';
-import './fan-mode-secondary';
 
-class SecondaryInfo extends LitElement {
+export default class SecondaryInfo extends LitElement {
   constructor() {
     super();
     this.fanMode = {};
@@ -84,5 +83,3 @@ class SecondaryInfo extends LitElement {
     `];
   }
 }
-
-customElements.define('mc-secondary-info', SecondaryInfo);

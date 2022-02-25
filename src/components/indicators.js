@@ -4,7 +4,7 @@ import { styleMap } from 'lit/directives/style-map';
 import handleClick from '../utils/handleClick';
 import { TAP_ACTIONS } from '../const';
 
-class ClimateIndicators extends LitElement {
+export default class ClimateIndicators extends LitElement {
   static get properties() {
     return {
       indicators: { type: Object },
@@ -101,5 +101,3 @@ class ClimateIndicators extends LitElement {
     `;
   }
 }
-
-customElements.define('mc-indicators', ClimateIndicators);

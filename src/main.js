@@ -20,12 +20,6 @@ import sharedStyle from './sharedStyle';
 import handleClick from './utils/handleClick';
 import getLabel from './utils/getLabel';
 import './initialize';
-import './components/indicators';
-import './components/mode-menu';
-import './components/buttons';
-import './components/temperature';
-import './components/target-temperature';
-import './components/secondary-info';
 
 import { compileTemplate, toggleState } from './utils/utils';
 import TemperatureObject from './models/temperature';
@@ -35,6 +29,16 @@ import IndicatorObject from './models/indicator';
 import ClimateObject from './models/climate';
 import HvacModeObject from './models/hvac-mode';
 import ICON from './const';
+import ClimateTemperature from './components/temperature';
+import ClimateTargetTemperature from './components/target-temperature';
+import SecondaryInfo from './components/secondary-info';
+import ModeMenu from './components/mode-menu';
+import ClimateIndicators from './components/indicators';
+import FanModeSecondary from './components/fan-mode-secondary';
+import ClimateDropDown from './components/dropdown';
+import ClimateDropdownBase from './components/dropdown-base';
+import ClimateButtons from './components/buttons';
+import ClimateButton from './components/button';
 
 if (!customElements.get('ha-icon-button')) {
   customElements.define(
@@ -46,6 +50,16 @@ if (!customElements.get('ha-icon-button')) {
 class MiniClimate extends ScopedRegistryHost(LitElement) {
   static get elementDefinitions() {
     return {
+      'mc-button': ClimateButton,
+      'mc-buttons': ClimateButtons,
+      'mc-dropdown-base': ClimateDropdownBase,
+      'mc-dropdown': ClimateDropDown,
+      'mc-fan-mode-secondary': FanModeSecondary,
+      'mc-indicators': ClimateIndicators,
+      'mc-mode-menu': ModeMenu,
+      'mc-secondary-info': SecondaryInfo,
+      'mc-target-temperature': ClimateTargetTemperature,
+      'mc-temperature': ClimateTemperature,
       'mwc-list': class extends ListBase {
         static get styles() {
           return listStyles;

@@ -2,7 +2,7 @@ import { LitElement, html, css } from 'lit';
 import { styleMap } from 'lit/directives/style-map';
 import sharedStyle from '../sharedStyle';
 
-class ClimateButton extends LitElement {
+export default class ClimateButton extends LitElement {
   constructor() {
     super();
     this._isOn = false;
@@ -81,5 +81,3 @@ class ClimateButton extends LitElement {
     `];
   }
 }
-
-customElements.define('mc-button', ClimateButton);

@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import sharedStyle from '../sharedStyle';
 
-class FanModeSecondary extends LitElement {
+export default class FanModeSecondary extends LitElement {
   constructor() {
     super();
     this.fanMode = {};
@@ -123,5 +123,3 @@ class FanModeSecondary extends LitElement {
     `];
   }
 }
-
-customElements.define('mc-fan-mode-secondary', FanModeSecondary);

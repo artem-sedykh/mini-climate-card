@@ -1,9 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import sharedStyle from '../sharedStyle';
-import './dropdown';
-import './button';
 
-class ClimateButtons extends LitElement {
+export default class ClimateButtons extends LitElement {
   static get properties() {
     return {
       buttons: {},
@@ -76,5 +74,3 @@ class ClimateButtons extends LitElement {
     `];
   }
 }
-
-customElements.define('mc-buttons', ClimateButtons);
