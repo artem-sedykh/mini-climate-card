@@ -1,8 +1,16 @@
 import { LitElement, html, css } from 'lit';
 import { styleMap } from 'lit/directives/style-map';
+import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import ICON from '../const';
+import ClimateDropdownBase from './dropdown-base';
 
-export default class ModeMenu extends LitElement {
+export default class ModeMenu extends ScopedRegistryHost(LitElement) {
+  static get elementDefinitions() {
+    return {
+      'mc-dropdown-base': ClimateDropdownBase,
+    };
+  }
+
   constructor() {
     super();
     this.mode = {};

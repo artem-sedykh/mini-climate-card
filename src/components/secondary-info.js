@@ -1,7 +1,17 @@
 import { LitElement, html, css } from 'lit';
+import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
+import FanModeSecondary from './fan-mode-secondary';
 import sharedStyle from '../sharedStyle';
 
-export default class SecondaryInfo extends LitElement {
+export default class SecondaryInfo extends ScopedRegistryHost(LitElement) {
+  static get elementDefinitions() {
+    return {
+      'ha-icon': customElements.get('ha-icon'),
+      'ha-relative-time': customElements.get('ha-relative-time'),
+      'mc-fan-mode-secondary': FanModeSecondary,
+    };
+  }
+
   constructor() {
     super();
     this.fanMode = {};

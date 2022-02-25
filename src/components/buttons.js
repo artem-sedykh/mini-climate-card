@@ -1,7 +1,17 @@
 import { LitElement, html, css } from 'lit';
+import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import sharedStyle from '../sharedStyle';
+import ClimateButton from './button';
+import ClimateDropDown from './dropdown';
 
-export default class ClimateButtons extends LitElement {
+export default class ClimateButtons extends ScopedRegistryHost(LitElement) {
+  static get elementDefinitions() {
+    return {
+      'mc-dropdown': ClimateDropDown,
+      'mc-button': ClimateButton,
+    };
+  }
+
   static get properties() {
     return {
       buttons: {},

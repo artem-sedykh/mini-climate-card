@@ -3,18 +3,6 @@ import ResizeObserver from 'resize-observer-polyfill';
 import { classMap } from 'lit/directives/class-map';
 import { styleMap } from 'lit/directives/style-map';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
-import { MenuBase } from '@material/mwc-menu/mwc-menu-base';
-import { ListBase } from '@material/mwc-list/mwc-list-base';
-import { ListItemBase } from '@material/mwc-list/mwc-list-item-base';
-import { ButtonBase } from '@material/mwc-button/mwc-button-base';
-import { RippleBase } from '@material/mwc-ripple/mwc-ripple-base';
-import { MenuSurfaceBase } from '@material/mwc-menu/mwc-menu-surface-base';
-import { styles as listStyles } from '@material/mwc-list/mwc-list.css';
-import { styles as listItemStyles } from '@material/mwc-list/mwc-list-item.css';
-import { styles as buttonStyles } from '@material/mwc-button/styles.css';
-import { styles as menuStyles } from '@material/mwc-menu/mwc-menu.css';
-import { styles as rippleStyles } from '@material/mwc-ripple/mwc-ripple.css';
-import { styles as menuSurfaceStyles } from '@material/mwc-menu/mwc-menu-surface.css';
 import style from './style';
 import sharedStyle from './sharedStyle';
 import handleClick from './utils/handleClick';
@@ -34,9 +22,7 @@ import ClimateTargetTemperature from './components/target-temperature';
 import SecondaryInfo from './components/secondary-info';
 import ModeMenu from './components/mode-menu';
 import ClimateIndicators from './components/indicators';
-import FanModeSecondary from './components/fan-mode-secondary';
 import ClimateDropDown from './components/dropdown';
-import ClimateDropdownBase from './components/dropdown-base';
 import ClimateButtons from './components/buttons';
 import ClimateButton from './components/button';
 
@@ -52,44 +38,12 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
     return {
       'mc-button': ClimateButton,
       'mc-buttons': ClimateButtons,
-      'mc-dropdown-base': ClimateDropdownBase,
       'mc-dropdown': ClimateDropDown,
-      'mc-fan-mode-secondary': FanModeSecondary,
       'mc-indicators': ClimateIndicators,
       'mc-mode-menu': ModeMenu,
       'mc-secondary-info': SecondaryInfo,
       'mc-target-temperature': ClimateTargetTemperature,
       'mc-temperature': ClimateTemperature,
-      'mwc-list': class extends ListBase {
-        static get styles() {
-          return listStyles;
-        }
-      },
-      'mwc-list-item': class extends ListItemBase {
-        static get styles() {
-          return listItemStyles;
-        }
-      },
-      'mwc-button': class extends ButtonBase {
-        static get styles() {
-          return buttonStyles;
-        }
-      },
-      'mwc-menu': class extends MenuBase {
-        static get styles() {
-          return menuStyles;
-        }
-      },
-      'mwc-ripple': class extends RippleBase {
-        static get styles() {
-          return rippleStyles;
-        }
-      },
-      'mwc-menu-surface': class extends MenuSurfaceBase {
-        static get styles() {
-          return menuSurfaceStyles;
-        }
-      },
     };
   }
 
