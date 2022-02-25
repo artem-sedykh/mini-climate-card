@@ -107,11 +107,15 @@ export default class FanModeSecondary extends ScopedRegistryHost(LitElement) {
     `;
   }
 
+  handleClick() {
+    this.shadowRoot.querySelector('#menu').show();
+  }
+
   renderFanModeDropdown() {
     return html`
       <div class='mc-dropdown'>
         <ha-icon-button class='mc-dropdown__button icon'
-          @click=${this.onclick}
+          @click=${this.handleClick}
           ?disabled=${this.fanMode.disabled}
         >
           ${this.renderFanMode()}
@@ -122,10 +126,9 @@ export default class FanModeSecondary extends ScopedRegistryHost(LitElement) {
             .corner=${'TOP_START'}
             .quick=${true}
             .y=${44}
-            .selected=${this.selectedIndex}
             @selected=${this.handleChange}>
           ${this.fanMode.source.map(item => html`
-            <mwc-list-item value=${item.id || item.name}>
+            <mwc-list-item value=${item.id || item.name} ?selected=${this._selected.id === item.id}>
               <span class='mc-dropdown__item__label'>${item.name}</span>
             </mwc-list-item>`)}
         </mwc-menu>

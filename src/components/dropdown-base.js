@@ -78,7 +78,7 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
     }
   }
 
-  onClick() {
+  handleClick() {
     this.shadowRoot.querySelector('#menu').show();
   }
 
@@ -86,7 +86,7 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
     return html`
       <div class='mc-dropdown'>
         <ha-icon-button class='mc-dropdown__button icon'
-          @click=${this.onclick}
+          @click=${this.handleClick}
           ?disabled=${this.disabled}
           ?color=${this.active}>
             <ha-icon .icon=${this.icon}></ha-icon>
@@ -97,10 +97,9 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
             .corner=${'TOP_START'}
             .quick=${true}
             .y=${44}
-            .selected=${this.selectedId}
             @selected=${this.onChange}>
           ${this.items.map(item => html`
-            <mwc-list-item value=${item.id || item.name}>
+            <mwc-list-item value=${item.id || item.name} ?selected=${this.selected === item.id}>
               <span class='mc-dropdown__item__label'>${item.name}</span>
             </mwc-list-item>`)}
         </mwc-menu>
