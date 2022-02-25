@@ -1,7 +1,7 @@
-import { html, LitElement } from 'lit-element';
+import { html, LitElement } from 'lit';
 import ResizeObserver from 'resize-observer-polyfill';
-import { classMap } from 'lit-html/directives/class-map';
-import { styleMap } from 'lit-html/directives/style-map';
+import { classMap } from 'lit/directives/class-map';
+import { styleMap } from 'lit/directives/style-map';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import { MenuBase } from '@material/mwc-menu/mwc-menu-base';
 import { ListBase } from '@material/mwc-list/mwc-list-base';

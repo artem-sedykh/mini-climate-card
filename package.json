@@ -23,9 +23,7 @@
     "@material/mwc-list": "^0.25.3",
     "@material/mwc-menu": "^0.25.3",
     "@material/mwc-ripple": "^0.25.3",
-    "lit": "^2.2.0",
-    "lit-element": "^3.2.0",
-    "lit-html": "^2.2.0",
+    "lit": "^2.1.2",
     "resize-observer-polyfill": "^1.5.1"
   },
   "devDependencies": {
@@ -43,6 +41,12 @@
     "eslint-plugin-import": "2.16.0",
     "rollup": "^0.66.6",
     "rollup-plugin-node-resolve": "^3.4.0"
+  },
+  "resolutions": {
+    "lit": "^2.1.2",
+    "lit-html": "2.1.2",
+    "lit-element": "3.1.2",
+    "@lit/reactive-element": "1.2.1"
   },
   "scripts": {
     "build": "npm run lint && npm run rollup && npm run babel",
