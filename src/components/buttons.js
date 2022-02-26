@@ -5,10 +5,12 @@ import ClimateButton from './button';
 import ClimateDropDown from './dropdown';
 
 export default class ClimateButtons extends ScopedRegistryHost(LitElement) {
+  static get defineId() { return 'mc-buttons'; }
+
   static get elementDefinitions() {
     return {
-      'mc-dropdown': ClimateDropDown,
-      'mc-button': ClimateButton,
+      [ClimateDropDown.defineId]: ClimateDropDown,
+      [ClimateButton.defineId]: ClimateButton,
     };
   }
 

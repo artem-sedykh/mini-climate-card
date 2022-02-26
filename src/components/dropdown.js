@@ -5,9 +5,11 @@ import sharedStyle from '../sharedStyle';
 import ClimateDropdownBase from './dropdown-base';
 
 export default class ClimateDropDown extends ScopedRegistryHost(LitElement) {
+  static get defineId() { return 'mc-dropdown'; }
+
   static get elementDefinitions() {
     return {
-      'mc-dropdown-base': ClimateDropdownBase,
+      [ClimateDropdownBase.defineId]: ClimateDropdownBase,
     };
   }
 

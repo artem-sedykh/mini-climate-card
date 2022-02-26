@@ -1,10 +1,20 @@
 import { LitElement, html, css } from 'lit';
 
 import { styleMap } from 'lit/directives/style-map';
+import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import handleClick from '../utils/handleClick';
 import { TAP_ACTIONS } from '../const';
+import ClimateIcon from './ha/icon';
 
-export default class ClimateIndicators extends LitElement {
+export default class ClimateIndicators extends ScopedRegistryHost(LitElement) {
+  static get defineId() { return 'mc-indicators'; }
+
+  static get elementDefinitions() {
+    return {
+      [ClimateIcon.defineId]: ClimateIcon,
+    };
+  }
+
   static get properties() {
     return {
       indicators: { type: Object },

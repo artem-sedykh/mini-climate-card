@@ -4,10 +4,12 @@ import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import ICON from '../const';
 import ClimateDropdownBase from './dropdown-base';
 
-export default class ModeMenu extends ScopedRegistryHost(LitElement) {
+export default class ClimateModeMenu extends ScopedRegistryHost(LitElement) {
+  static get defineId() { return 'mc-mode-menu'; }
+
   static get elementDefinitions() {
     return {
-      'mc-dropdown-base': ClimateDropdownBase,
+      [ClimateDropdownBase.defineId]: ClimateDropdownBase,
     };
   }
 

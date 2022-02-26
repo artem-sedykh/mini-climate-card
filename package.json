@@ -18,8 +18,6 @@
   "license": "MIT",
   "dependencies": {
     "@lit-labs/scoped-registry-mixin": "^1.0.0",
-    "@material/mwc-button": "^0.25.3",
-    "@material/mwc-icon": "^0.25.3",
     "@material/mwc-list": "^0.25.3",
     "@material/mwc-menu": "^0.25.3",
     "@material/mwc-ripple": "^0.25.3",

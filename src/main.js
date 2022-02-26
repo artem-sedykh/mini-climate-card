@@ -19,12 +19,15 @@ import HvacModeObject from './models/hvac-mode';
 import ICON from './const';
 import ClimateTemperature from './components/temperature';
 import ClimateTargetTemperature from './components/target-temperature';
-import SecondaryInfo from './components/secondary-info';
-import ModeMenu from './components/mode-menu';
+import ClimateModeMenu from './components/mode-menu';
 import ClimateIndicators from './components/indicators';
 import ClimateDropDown from './components/dropdown';
 import ClimateButtons from './components/buttons';
 import ClimateButton from './components/button';
+import ClimateIcon from './components/ha/icon';
+import ClimateIconButton from './components/ha/icon-button';
+import ClimateCard from './components/ha/card';
+import ClimateSecondaryInfo from './components/secondary-info';
 
 if (!customElements.get('ha-icon-button')) {
   customElements.define(
@@ -36,14 +39,17 @@ if (!customElements.get('ha-icon-button')) {
 class MiniClimate extends ScopedRegistryHost(LitElement) {
   static get elementDefinitions() {
     return {
-      'mc-button': ClimateButton,
-      'mc-buttons': ClimateButtons,
-      'mc-dropdown': ClimateDropDown,
-      'mc-indicators': ClimateIndicators,
-      'mc-mode-menu': ModeMenu,
-      'mc-secondary-info': SecondaryInfo,
-      'mc-target-temperature': ClimateTargetTemperature,
-      'mc-temperature': ClimateTemperature,
+      [ClimateCard.defineId]: ClimateCard,
+      [ClimateIcon.defineId]: ClimateIcon,
+      [ClimateIconButton.defineId]: ClimateIconButton,
+      [ClimateButton.defineId]: ClimateButton,
+      [ClimateButtons.defineId]: ClimateButtons,
+      [ClimateDropDown.defineId]: ClimateDropDown,
+      [ClimateIndicators.defineId]: ClimateIndicators,
+      [ClimateModeMenu.defineId]: ClimateModeMenu,
+      [ClimateSecondaryInfo.defineId]: ClimateSecondaryInfo,
+      [ClimateTargetTemperature.defineId]: ClimateTargetTemperature,
+      [ClimateTemperature.defineId]: ClimateTemperature,
     };
   }
 

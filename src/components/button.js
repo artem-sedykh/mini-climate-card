@@ -1,8 +1,20 @@
 import { LitElement, html, css } from 'lit';
 import { styleMap } from 'lit/directives/style-map';
+import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import sharedStyle from '../sharedStyle';
+import ClimateIcon from './ha/icon';
+import ClimateIconButton from './ha/icon-button';
 
-export default class ClimateButton extends LitElement {
+export default class ClimateButton extends ScopedRegistryHost(LitElement) {
+  static get defineId() { return 'mc-button'; }
+
+  static get elementDefinitions() {
+    return {
+      [ClimateIcon.defineId]: ClimateIcon,
+      [ClimateIconButton.defineId]: ClimateIconButton,
+    };
+  }
+
   constructor() {
     super();
     this._isOn = false;

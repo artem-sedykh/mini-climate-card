@@ -1,53 +1,18 @@
 import { LitElement, html, css } from 'lit';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
-import { ListBase } from '@material/mwc-list/mwc-list-base';
-import { styles as listStyles } from '@material/mwc-list/mwc-list.css';
-import { ListItemBase } from '@material/mwc-list/mwc-list-item-base';
-import { styles as listItemStyles } from '@material/mwc-list/mwc-list-item.css';
-import { ButtonBase } from '@material/mwc-button/mwc-button-base';
-import { styles as buttonStyles } from '@material/mwc-button/styles.css';
-import { MenuBase } from '@material/mwc-menu/mwc-menu-base';
-import { styles as menuStyles } from '@material/mwc-menu/mwc-menu.css';
-import { RippleBase } from '@material/mwc-ripple/mwc-ripple-base';
-import { styles as rippleStyles } from '@material/mwc-ripple/mwc-ripple.css';
-import { MenuSurfaceBase } from '@material/mwc-menu/mwc-menu-surface-base';
-import { styles as menuSurfaceStyles } from '@material/mwc-menu/mwc-menu-surface.css';
 import sharedStyle from '../sharedStyle';
+import ClimateMenu from './mwc/menu';
+import ClimateListItem from './mwc/list-item';
+import ClimateIcon from './ha/icon';
 
-export default class FanModeSecondary extends ScopedRegistryHost(LitElement) {
+export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitElement) {
+  static get defineId() { return 'mc-fan-mode-secondary'; }
+
   static get elementDefinitions() {
     return {
-      'ha-icon': customElements.get('ha-icon'),
-      'mwc-list': class extends ListBase {
-        static get styles() {
-          return listStyles;
-        }
-      },
-      'mwc-list-item': class extends ListItemBase {
-        static get styles() {
-          return listItemStyles;
-        }
-      },
-      'mwc-button': class extends ButtonBase {
-        static get styles() {
-          return buttonStyles;
-        }
-      },
-      'mwc-menu': class extends MenuBase {
-        static get styles() {
-          return menuStyles;
-        }
-      },
-      'mwc-ripple': class extends RippleBase {
-        static get styles() {
-          return rippleStyles;
-        }
-      },
-      'mwc-menu-surface': class extends MenuSurfaceBase {
-        static get styles() {
-          return menuSurfaceStyles;
-        }
-      },
+      [ClimateIcon.defineId]: ClimateIcon,
+      [ClimateMenu.defineId]: ClimateMenu,
+      [ClimateListItem.defineId]: ClimateListItem,
     };
   }
 
