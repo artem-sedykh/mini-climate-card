@@ -3,14 +3,13 @@ import { styleMap } from 'lit/directives/style-map';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import sharedStyle from '../sharedStyle';
 import ClimateDropdownBase from './dropdown-base';
+import buildElementDefinitions from '../utils/buildElementDefinitions';
 
 export default class ClimateDropDown extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-dropdown'; }
 
   static get elementDefinitions() {
-    return {
-      [ClimateDropdownBase.defineId]: ClimateDropdownBase,
-    };
+    return buildElementDefinitions([ClimateDropdownBase]);
   }
 
   constructor() {

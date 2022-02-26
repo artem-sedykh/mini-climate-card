@@ -4,16 +4,13 @@ import sharedStyle from '../sharedStyle';
 import ClimateMenu from './mwc/menu';
 import ClimateListItem from './mwc/list-item';
 import ClimateIcon from './ha/icon';
+import buildElementDefinitions from '../utils/buildElementDefinitions';
 
 export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-fan-mode-secondary'; }
 
   static get elementDefinitions() {
-    return {
-      [ClimateIcon.defineId]: ClimateIcon,
-      [ClimateMenu.defineId]: ClimateMenu,
-      [ClimateListItem.defineId]: ClimateListItem,
-    };
+    return buildElementDefinitions([ClimateIcon, ClimateMenu, ClimateListItem]);
   }
 
   constructor() {

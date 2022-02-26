@@ -2,15 +2,13 @@ import { LitElement, html, css } from 'lit';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import ClimateIcon from './ha/icon';
 import ClimateIconButton from './ha/icon-button';
+import buildElementDefinitions from '../utils/buildElementDefinitions';
 
 export default class ClimateTargetTemperature extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-target-temperature'; }
 
   static get elementDefinitions() {
-    return {
-      [ClimateIcon.defineId]: ClimateIcon,
-      [ClimateIconButton.defineId]: ClimateIconButton,
-    };
+    return buildElementDefinitions([ClimateIcon, ClimateIconButton]);
   }
 
   constructor() {

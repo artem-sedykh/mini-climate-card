@@ -4,15 +4,13 @@ import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import sharedStyle from '../sharedStyle';
 import ClimateIcon from './ha/icon';
 import ClimateIconButton from './ha/icon-button';
+import buildElementDefinitions from '../utils/buildElementDefinitions';
 
 export default class ClimateButton extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-button'; }
 
   static get elementDefinitions() {
-    return {
-      [ClimateIcon.defineId]: ClimateIcon,
-      [ClimateIconButton.defineId]: ClimateIconButton,
-    };
+    return buildElementDefinitions([ClimateIcon, ClimateIconButton]);
   }
 
   constructor() {

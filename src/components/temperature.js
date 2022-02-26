@@ -1,11 +1,12 @@
 import { LitElement, html, css } from 'lit';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
+import buildElementDefinitions from '../utils/buildElementDefinitions';
 
 export default class ClimateTemperature extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-temperature'; }
 
   static get elementDefinitions() {
-    return { };
+    return buildElementDefinitions();
   }
 
   static get properties() {

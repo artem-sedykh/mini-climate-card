@@ -6,17 +6,13 @@ import ClimateMenu from './mwc/menu';
 import ClimateListItem from './mwc/list-item';
 import ClimateIcon from './ha/icon';
 import ClimateIconButton from './ha/icon-button';
+import buildElementDefinitions from '../utils/buildElementDefinitions';
 
 export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-dropdown-base'; }
 
   static get elementDefinitions() {
-    return {
-      [ClimateIcon.defineId]: ClimateIcon,
-      [ClimateIconButton.defineId]: ClimateIconButton,
-      [ClimateMenu.defineId]: ClimateMenu,
-      [ClimateListItem.defineId]: ClimateListItem,
-    };
+    return buildElementDefinitions([ClimateIcon, ClimateIconButton, ClimateMenu, ClimateListItem]);
   }
 
   static get properties() {

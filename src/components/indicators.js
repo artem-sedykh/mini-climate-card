@@ -5,14 +5,13 @@ import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import handleClick from '../utils/handleClick';
 import { TAP_ACTIONS } from '../const';
 import ClimateIcon from './ha/icon';
+import buildElementDefinitions from '../utils/buildElementDefinitions';
 
 export default class ClimateIndicators extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-indicators'; }
 
   static get elementDefinitions() {
-    return {
-      [ClimateIcon.defineId]: ClimateIcon,
-    };
+    return buildElementDefinitions([ClimateIcon]);
   }
 
   static get properties() {

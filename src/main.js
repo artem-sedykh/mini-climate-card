@@ -28,6 +28,7 @@ import ClimateIcon from './components/ha/icon';
 import ClimateIconButton from './components/ha/icon-button';
 import ClimateCard from './components/ha/card';
 import ClimateSecondaryInfo from './components/secondary-info';
+import buildElementDefinitions from './utils/buildElementDefinitions';
 
 if (!customElements.get('ha-icon-button')) {
   customElements.define(
@@ -38,19 +39,19 @@ if (!customElements.get('ha-icon-button')) {
 
 class MiniClimate extends ScopedRegistryHost(LitElement) {
   static get elementDefinitions() {
-    return {
-      [ClimateCard.defineId]: ClimateCard,
-      [ClimateIcon.defineId]: ClimateIcon,
-      [ClimateIconButton.defineId]: ClimateIconButton,
-      [ClimateButton.defineId]: ClimateButton,
-      [ClimateButtons.defineId]: ClimateButtons,
-      [ClimateDropDown.defineId]: ClimateDropDown,
-      [ClimateIndicators.defineId]: ClimateIndicators,
-      [ClimateModeMenu.defineId]: ClimateModeMenu,
-      [ClimateSecondaryInfo.defineId]: ClimateSecondaryInfo,
-      [ClimateTargetTemperature.defineId]: ClimateTargetTemperature,
-      [ClimateTemperature.defineId]: ClimateTemperature,
-    };
+    return buildElementDefinitions([
+      ClimateCard,
+      ClimateIcon,
+      ClimateIconButton,
+      ClimateButton,
+      ClimateButtons,
+      ClimateDropDown,
+      ClimateIndicators,
+      ClimateModeMenu,
+      ClimateSecondaryInfo,
+      ClimateTargetTemperature,
+      ClimateTemperature,
+    ]);
   }
 
   constructor() {

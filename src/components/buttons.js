@@ -3,15 +3,13 @@ import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import sharedStyle from '../sharedStyle';
 import ClimateButton from './button';
 import ClimateDropDown from './dropdown';
+import buildElementDefinitions from '../utils/buildElementDefinitions';
 
 export default class ClimateButtons extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-buttons'; }
 
   static get elementDefinitions() {
-    return {
-      [ClimateDropDown.defineId]: ClimateDropDown,
-      [ClimateButton.defineId]: ClimateButton,
-    };
+    return buildElementDefinitions([ClimateDropDown, ClimateButton]);
   }
 
   static get properties() {

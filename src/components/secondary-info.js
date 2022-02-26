@@ -4,16 +4,13 @@ import ClimateFanModeSecondary from './fan-mode-secondary';
 import sharedStyle from '../sharedStyle';
 import ClimateIcon from './ha/icon';
 import ClimateRelativeTime from './ha/relative-time';
+import buildElementDefinitions from '../utils/buildElementDefinitions';
 
 export default class ClimateSecondaryInfo extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-secondary-info'; }
 
   static get elementDefinitions() {
-    return {
-      [ClimateIcon.defineId]: ClimateIcon,
-      [ClimateRelativeTime.defineId]: ClimateRelativeTime,
-      [ClimateFanModeSecondary.defineId]: ClimateFanModeSecondary,
-    };
+    return buildElementDefinitions([ClimateIcon, ClimateRelativeTime, ClimateFanModeSecondary]);
   }
 
   constructor() {
