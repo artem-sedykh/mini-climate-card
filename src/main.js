@@ -30,13 +30,6 @@ import ClimateCard from './components/ha/card';
 import ClimateSecondaryInfo from './components/secondary-info';
 import buildElementDefinitions from './utils/buildElementDefinitions';
 
-if (!customElements.get('ha-icon-button')) {
-  customElements.define(
-    'ha-icon-button',
-    class extends customElements.get('paper-icon-button') {},
-  );
-}
-
 class MiniClimate extends ScopedRegistryHost(LitElement) {
   static get elementDefinitions() {
     return buildElementDefinitions([

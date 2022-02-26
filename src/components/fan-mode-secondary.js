@@ -70,24 +70,28 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
   }
 
   handleClick() {
-    this.shadowRoot.querySelector('#menu').show();
+    const menu = this.shadowRoot.querySelector('#menu');
+    menu.anchor = this.shadowRoot.querySelector('#button');
+    menu.show();
   }
 
   renderFanModeDropdown() {
     return html`
       <div class='mc-dropdown'>
         <ha-icon-button class='mc-dropdown__button icon'
+          id=${'button'}
           @click=${this.handleClick}
           ?disabled=${this.fanMode.disabled}
         >
           ${this.renderFanMode()}
         </ha-icon-button>
-        <mwc-menu activatable absolute
+        <mwc-menu fixed
             id=${'menu'}
+            ?quick=${true}
+            .x=${58}
+            .y=${0}
             .menuCorner=${'END'}
-            .corner=${'TOP_START'}
-            .quick=${true}
-            .y=${44}
+            .corner=${'TOP_RIGHT'}
             @selected=${this.handleChange}>
           ${this.fanMode.source.map(item => html`
             <mwc-list-item value=${item.id || item.name} ?selected=${this._selected.id && this._selected.id === item.id}>
@@ -120,7 +124,7 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
     return [
       sharedStyle,
       css`
-      paper-menu-button {
+      .mc-dropdown {
         padding: 0;
       }
       .name {

@@ -41,24 +41,28 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
   }
 
   handleClick() {
-    this.shadowRoot.querySelector('#menu').show();
+    const menu = this.shadowRoot.querySelector('#menu');
+    menu.anchor = this.shadowRoot.querySelector('#button');
+    menu.show();
   }
 
   render() {
     return html`
       <div class='mc-dropdown'>
-        <ha-icon-button class='mc-dropdown__button icon'
+        <ha-icon-button class='mc-dropdown__button icon' 
+          id=${'button'}
           @click=${this.handleClick}
           ?disabled=${this.disabled}
           ?color=${this.active}>
             <ha-icon .icon=${this.icon}></ha-icon>
         </ha-icon-button>
-        <mwc-menu activatable absolute
+        <mwc-menu fixed
             id=${'menu'}
+            ?quick=${true}
+            .x=${58}
+            .y=${0}
             .menuCorner=${'END'}
-            .corner=${'TOP_LEFT'}
-            .quick=${true}
-            .y=${44}
+            .corner=${'TOP_RIGHT'}
             @selected=${this.onChange}>
           ${this.items.map(item => html`
             <mwc-list-item value=${item.id || item.name} ?selected=${this.selected === item.id}>
@@ -76,9 +80,8 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
         :host {
           position: relative;
           overflow: hidden;
-          --paper-item-min-height: 40px;
         }
-        paper-menu-button
+        .mc-dropdown
         :host([disabled]) {
           opacity: .25;
           pointer-events: none;
@@ -88,7 +91,6 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
         }
         .mc-dropdown {
           padding: 0;
-          display: block;
         }
         ha-icon-button[disabled] {
           opacity: .25;
@@ -102,13 +104,13 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
           height: calc(var(--mc-dropdown-unit));
           --mdc-icon-button-size: calc(var(--mc-dropdown-unit));
         }
-        paper-item > *:nth-child(2) {
+        mwc-item > *:nth-child(2) {
           margin-left: 4px;
         }
-        paper-menu-button[focused] ha-icon-button {
+        .mc-dropdown[focused] ha-icon-button {
           color: var(--mc-accent-color);
         }
-        paper-menu-button[focused] ha-icon-button[focused] {
+        .mc-dropdown[focused] ha-icon-button[focused] {
           color: var(--mc-text-color);
           transform: rotate(0deg);
         }
