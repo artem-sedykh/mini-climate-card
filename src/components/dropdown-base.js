@@ -59,8 +59,6 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
         <mwc-menu fixed
             id=${'menu'}
             ?quick=${true}
-            .x=${58}
-            .y=${0}
             .menuCorner=${'END'}
             .corner=${'TOP_RIGHT'}
             @selected=${this.onChange}>
