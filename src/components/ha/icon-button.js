@@ -1,10 +1,10 @@
-import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
-import buildElementDefinitions from '../../utils/buildElementDefinitions';
+if (!customElements.get('ha-icon-button')) {
+  customElements.define(
+    'ha-icon-button',
+    class extends customElements.get('paper-icon-button') {},
+  );
+}
 
-export default class ClimateIconButton extends ScopedRegistryHost(customElements.get('ha-icon-button')) {
+export default class HumidifierIconButton extends customElements.get('ha-icon-button') {
   static get defineId() { return 'ha-icon-button'; }
-
-  static get elementDefinitions() {
-    return buildElementDefinitions();
-  }
 }
