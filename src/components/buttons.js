@@ -9,7 +9,7 @@ export default class ClimateButtons extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-buttons'; }
 
   static get elementDefinitions() {
-    return buildElementDefinitions([ClimateDropDown, ClimateButton]);
+    return buildElementDefinitions([ClimateDropDown, ClimateButton], ClimateButtons);
   }
 
   static get properties() {

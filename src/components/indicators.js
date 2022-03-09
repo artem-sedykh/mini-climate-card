@@ -4,14 +4,14 @@ import { styleMap } from 'lit/directives/style-map';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import handleClick from '../utils/handleClick';
 import { TAP_ACTIONS } from '../const';
-import ClimateIcon from './ha/icon';
 import buildElementDefinitions from '../utils/buildElementDefinitions';
+import globalElementLoader from '../utils/globalElementLoader';
 
 export default class ClimateIndicators extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-indicators'; }
 
   static get elementDefinitions() {
-    return buildElementDefinitions([ClimateIcon]);
+    return buildElementDefinitions([globalElementLoader('ha-icon')], ClimateIndicators);
   }
 
   static get properties() {

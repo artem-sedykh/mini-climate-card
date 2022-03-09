@@ -6,7 +6,7 @@ export default class ClimateTemperature extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-temperature'; }
 
   static get elementDefinitions() {
-    return buildElementDefinitions();
+    return buildElementDefinitions([], ClimateTemperature);
   }
 
   static get properties() {

@@ -9,7 +9,7 @@ export default class ClimateMenu extends ScopedRegistryHost(MenuBase) {
   static get defineId() { return 'mwc-menu'; }
 
   static get elementDefinitions() {
-    return buildElementDefinitions([ClimateMenuSurface, ClimateList]);
+    return buildElementDefinitions([ClimateMenuSurface, ClimateList], ClimateMenu);
   }
 
   static get styles() {

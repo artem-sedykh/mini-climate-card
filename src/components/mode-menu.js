@@ -9,7 +9,7 @@ export default class ClimateModeMenu extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-mode-menu'; }
 
   static get elementDefinitions() {
-    return buildElementDefinitions([ClimateDropdownBase]);
+    return buildElementDefinitions([ClimateDropdownBase], ClimateModeMenu);
   }
 
   constructor() {

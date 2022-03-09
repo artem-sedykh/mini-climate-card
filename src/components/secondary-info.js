@@ -2,15 +2,18 @@ import { LitElement, html, css } from 'lit';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import ClimateFanModeSecondary from './fan-mode-secondary';
 import sharedStyle from '../sharedStyle';
-import ClimateIcon from './ha/icon';
-import ClimateRelativeTime from './ha/relative-time';
 import buildElementDefinitions from '../utils/buildElementDefinitions';
+import globalElementLoader from '../utils/globalElementLoader';
 
 export default class ClimateSecondaryInfo extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-secondary-info'; }
 
   static get elementDefinitions() {
-    return buildElementDefinitions([ClimateIcon, ClimateRelativeTime, ClimateFanModeSecondary]);
+    return buildElementDefinitions([
+      globalElementLoader('ha-icon'),
+      globalElementLoader('ha-relative-time'),
+      ClimateFanModeSecondary,
+    ], ClimateSecondaryInfo);
   }
 
   constructor() {

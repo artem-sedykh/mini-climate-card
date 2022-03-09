@@ -7,7 +7,7 @@ export default class ClimateRipple extends ScopedRegistryHost(RippleBase) {
   static get defineId() { return 'mwc-ripple'; }
 
   static get elementDefinitions() {
-    return buildElementDefinitions();
+    return buildElementDefinitions([], ClimateRipple);
   }
 
   static get styles() {

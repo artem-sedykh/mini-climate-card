@@ -8,7 +8,7 @@ export default class ClimateList extends ScopedRegistryHost(ListBase) {
   static get defineId() { return 'mwc-list'; }
 
   static get elementDefinitions() {
-    return buildElementDefinitions([ClimateListItem]);
+    return buildElementDefinitions([ClimateListItem], ClimateList);
   }
 
   static get styles() {

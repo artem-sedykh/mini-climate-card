@@ -9,7 +9,7 @@ export default class ClimateDropDown extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-dropdown'; }
 
   static get elementDefinitions() {
-    return buildElementDefinitions([ClimateDropdownBase]);
+    return buildElementDefinitions([ClimateDropdownBase], ClimateDropDown);
   }
 
   constructor() {

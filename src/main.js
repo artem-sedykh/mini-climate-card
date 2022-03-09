@@ -24,18 +24,16 @@ import ClimateIndicators from './components/indicators';
 import ClimateDropDown from './components/dropdown';
 import ClimateButtons from './components/buttons';
 import ClimateButton from './components/button';
-import ClimateIcon from './components/ha/icon';
-import ClimateIconButton from './components/ha/icon-button';
-import ClimateCard from './components/ha/card';
 import ClimateSecondaryInfo from './components/secondary-info';
 import buildElementDefinitions from './utils/buildElementDefinitions';
+import globalElementLoader from './utils/globalElementLoader';
 
 class MiniClimate extends ScopedRegistryHost(LitElement) {
   static get elementDefinitions() {
     return buildElementDefinitions([
-      ClimateCard,
-      ClimateIcon,
-      ClimateIconButton,
+      globalElementLoader('ha-card'),
+      globalElementLoader('ha-icon'),
+      globalElementLoader('ha-icon-button'),
       ClimateButton,
       ClimateButtons,
       ClimateDropDown,
@@ -44,7 +42,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
       ClimateSecondaryInfo,
       ClimateTargetTemperature,
       ClimateTemperature,
-    ]);
+    ], MiniClimate);
   }
 
   constructor() {

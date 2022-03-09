@@ -3,14 +3,18 @@ import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import sharedStyle from '../sharedStyle';
 import ClimateMenu from './mwc/menu';
 import ClimateListItem from './mwc/list-item';
-import ClimateIcon from './ha/icon';
 import buildElementDefinitions from '../utils/buildElementDefinitions';
+import globalElementLoader from '../utils/globalElementLoader';
 
 export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-fan-mode-secondary'; }
 
   static get elementDefinitions() {
-    return buildElementDefinitions([ClimateIcon, ClimateMenu, ClimateListItem]);
+    return buildElementDefinitions([
+      globalElementLoader('ha-icon'),
+      ClimateMenu,
+      ClimateListItem,
+    ], ClimateFanModeSecondary);
   }
 
   constructor() {

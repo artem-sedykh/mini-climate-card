@@ -7,7 +7,7 @@ export default class ClimateMenuSurface extends ScopedRegistryHost(MenuSurfaceBa
   static get defineId() { return 'mwc-menu-surface'; }
 
   static get elementDefinitions() {
-    return buildElementDefinitions();
+    return buildElementDefinitions([], ClimateMenuSurface);
   }
 
   static get styles() {
