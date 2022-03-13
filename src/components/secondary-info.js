@@ -1,8 +1,21 @@
-import { LitElement, html, css } from 'lit-element';
+import { LitElement, html, css } from 'lit';
+import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
+import ClimateFanModeSecondary from './fan-mode-secondary';
 import sharedStyle from '../sharedStyle';
-import './fan-mode-secondary';
+import buildElementDefinitions from '../utils/buildElementDefinitions';
+import globalElementLoader from '../utils/globalElementLoader';
 
-class SecondaryInfo extends LitElement {
+export default class ClimateSecondaryInfo extends ScopedRegistryHost(LitElement) {
+  static get defineId() { return 'mc-secondary-info'; }
+
+  static get elementDefinitions() {
+    return buildElementDefinitions([
+      globalElementLoader('ha-icon'),
+      globalElementLoader('ha-relative-time'),
+      ClimateFanModeSecondary,
+    ], ClimateSecondaryInfo);
+  }
+
   constructor() {
     super();
     this.fanMode = {};
@@ -84,5 +97,3 @@ class SecondaryInfo extends LitElement {
     `];
   }
 }
-
-customElements.define('mc-secondary-info', SecondaryInfo);

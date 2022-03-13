@@ -1,6 +1,14 @@
-import { LitElement, html, css } from 'lit-element';
+import { LitElement, html, css } from 'lit';
+import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
+import buildElementDefinitions from '../utils/buildElementDefinitions';
 
-class ClimateTemperature extends LitElement {
+export default class ClimateTemperature extends ScopedRegistryHost(LitElement) {
+  static get defineId() { return 'mc-temperature'; }
+
+  static get elementDefinitions() {
+    return buildElementDefinitions([], ClimateTemperature);
+  }
+
   static get properties() {
     return {
       temperature: Object,
@@ -68,5 +76,3 @@ class ClimateTemperature extends LitElement {
     `;
   }
 }
-
-customElements.define('mc-temperature', ClimateTemperature);

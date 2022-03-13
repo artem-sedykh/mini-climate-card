@@ -1,9 +1,17 @@
-import { LitElement, html, css } from 'lit-element';
+import { LitElement, html, css } from 'lit';
+import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import sharedStyle from '../sharedStyle';
-import './dropdown';
-import './button';
+import ClimateButton from './button';
+import ClimateDropDown from './dropdown';
+import buildElementDefinitions from '../utils/buildElementDefinitions';
 
-class ClimateButtons extends LitElement {
+export default class ClimateButtons extends ScopedRegistryHost(LitElement) {
+  static get defineId() { return 'mc-buttons'; }
+
+  static get elementDefinitions() {
+    return buildElementDefinitions([ClimateDropDown, ClimateButton], ClimateButtons);
+  }
+
   static get properties() {
     return {
       buttons: {},
@@ -76,5 +84,3 @@ class ClimateButtons extends LitElement {
     `];
   }
 }
-
-customElements.define('mc-buttons', ClimateButtons);

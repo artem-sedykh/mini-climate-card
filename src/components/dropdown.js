@@ -1,9 +1,17 @@
-import { LitElement, html, css } from 'lit-element';
-import { styleMap } from 'lit-html/directives/style-map';
+import { LitElement, html, css } from 'lit';
+import { styleMap } from 'lit/directives/style-map';
+import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import sharedStyle from '../sharedStyle';
-import './dropdown-base';
+import ClimateDropdownBase from './dropdown-base';
+import buildElementDefinitions from '../utils/buildElementDefinitions';
 
-class ClimateDropDown extends LitElement {
+export default class ClimateDropDown extends ScopedRegistryHost(LitElement) {
+  static get defineId() { return 'mc-dropdown'; }
+
+  static get elementDefinitions() {
+    return buildElementDefinitions([ClimateDropdownBase], ClimateDropDown);
+  }
+
   constructor() {
     super();
     this.dropdown = {};
@@ -34,11 +42,11 @@ class ClimateDropDown extends LitElement {
         this._state = (this.dropdown.state !== undefined && this.dropdown.state !== null)
           ? this.dropdown.state.toString() : '';
 
-        return this.requestUpdate('_state');
+        this.requestUpdate('_state');
       }
     }, this.dropdown.actionTimeout);
 
-    return this.requestUpdate('_state');
+    this.requestUpdate('_state');
   }
 
   render() {
@@ -63,7 +71,7 @@ class ClimateDropDown extends LitElement {
       if (this.timer)
         clearTimeout(this.timer);
 
-      return this.requestUpdate('_state');
+      this.requestUpdate('_state');
     }
   }
 
@@ -90,5 +98,3 @@ class ClimateDropDown extends LitElement {
     `];
   }
 }
-
-customElements.define('mc-dropdown', ClimateDropDown);

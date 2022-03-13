@@ -1,7 +1,22 @@
-import { LitElement, html, css } from 'lit-element';
+import { LitElement, html, css } from 'lit';
+import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import sharedStyle from '../sharedStyle';
+import ClimateMenu from './mwc/menu';
+import ClimateListItem from './mwc/list-item';
+import buildElementDefinitions from '../utils/buildElementDefinitions';
+import globalElementLoader from '../utils/globalElementLoader';
 
-class FanModeSecondary extends LitElement {
+export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitElement) {
+  static get defineId() { return 'mc-fan-mode-secondary'; }
+
+  static get elementDefinitions() {
+    return buildElementDefinitions([
+      globalElementLoader('ha-icon'),
+      ClimateMenu,
+      ClimateListItem,
+    ], ClimateFanModeSecondary);
+  }
+
   constructor() {
     super();
     this.fanMode = {};
@@ -23,7 +38,7 @@ class FanModeSecondary extends LitElement {
   }
 
   handleChange(e) {
-    const index = e.target.selected;
+    const { index } = e.detail;
 
     if (index === this.selectedIndex || !this.fanMode.source[index])
       return;
@@ -38,13 +53,13 @@ class FanModeSecondary extends LitElement {
     this.timer = setTimeout(async () => {
       if (this.fanMode.entity === entity) {
         this._selected = oldSelected;
-        return this.requestUpdate('_selected');
+        this.requestUpdate('_selected');
       }
     }, this.fanMode.actionTimeout);
 
     this.fanMode.handleChange(selected.id);
 
-    return this.requestUpdate('_selected');
+    this.requestUpdate('_selected');
   }
 
   renderFanMode() {
@@ -58,26 +73,34 @@ class FanModeSecondary extends LitElement {
     `;
   }
 
+  handleClick() {
+    const menu = this.shadowRoot.querySelector('#menu');
+    menu.anchor = this.shadowRoot.querySelector('#button');
+    menu.show();
+  }
+
   renderFanModeDropdown() {
     return html`
-       <paper-menu-button
-        class='mc-dropdown'
-        noink no-animations
-        .horizontalAlign=${'right'}
-        .verticalAlign=${'top'}
-        .verticalOffset=${44}
-        ?disabled=${this.fanMode.disabled}
-        .dynamicAlign=${true}>
-       <div class="wrap" slot='dropdown-trigger'>
-         ${this.renderFanMode()}
-       </div>
-        <paper-listbox slot="dropdown-content" .selected=${this.selectedIndex} @iron-select=${this.handleChange}>
+      <div class='mc-dropdown'>
+        <ha-icon-button class='mc-dropdown__button icon'
+          id=${'button'}
+          @click=${this.handleClick}
+          ?disabled=${this.fanMode.disabled}
+        >
+          ${this.renderFanMode()}
+        </ha-icon-button>
+        <mwc-menu fixed
+            id=${'menu'}
+            ?quick=${true}
+            .menuCorner=${'END'}
+            .corner=${'TOP_RIGHT'}
+            @selected=${this.handleChange}>
           ${this.fanMode.source.map(item => html`
-            <paper-item value=${item.id || item.name}>
+            <mwc-list-item value=${item.id || item.name} ?selected=${this._selected.id && this._selected.id === item.id}>
               <span class='mc-dropdown__item__label'>${item.name}</span>
-            </paper-item>`)}
-        </paper-listbox>
-      </paper-menu-button>
+            </mwc-list-item>`)}
+        </mwc-menu>
+      </div>
     `;
   }
 
@@ -95,7 +118,7 @@ class FanModeSecondary extends LitElement {
     if (changedProps.has('fanMode')) {
       clearTimeout(this.timer);
       this._selected = this.fanMode.selected;
-      this.requestUpdate('_selected').then();
+      this.requestUpdate('_selected');
     }
   }
 
@@ -103,7 +126,7 @@ class FanModeSecondary extends LitElement {
     return [
       sharedStyle,
       css`
-      paper-menu-button {
+      .mc-dropdown {
         padding: 0;
       }
       .name {
@@ -123,5 +146,3 @@ class FanModeSecondary extends LitElement {
     `];
   }
 }
-
-customElements.define('mc-fan-mode-secondary', FanModeSecondary);

@@ -10,6 +10,9 @@ Please ⭐️ this repo if you find it useful
 
 ![Preview Image](https://user-images.githubusercontent.com/861063/83363491-98b13080-a3a2-11ea-90e6-1ba6364c800d.png)
 
+## Notice
+v2 is only compatible from version 2022.3 onwards 
+
 ## Install
 
 *This card is available in [HACS](https://github.com/custom-components/hacs) (Home Assistant Community Store)*

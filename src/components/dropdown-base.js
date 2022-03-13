@@ -1,8 +1,24 @@
-import { LitElement, html, css } from 'lit-element';
+import { LitElement, html, css } from 'lit';
 
+import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import sharedStyle from '../sharedStyle';
+import ClimateMenu from './mwc/menu';
+import ClimateListItem from './mwc/list-item';
+import buildElementDefinitions from '../utils/buildElementDefinitions';
+import globalElementLoader from '../utils/globalElementLoader';
 
-class ClimateDropdownBase extends LitElement {
+export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) {
+  static get defineId() { return 'mc-dropdown-base'; }
+
+  static get elementDefinitions() {
+    return buildElementDefinitions([
+      globalElementLoader('ha-icon'),
+      globalElementLoader('ha-icon-button'),
+      ClimateMenu,
+      ClimateListItem,
+    ], ClimateDropdownBase);
+  }
+
   static get properties() {
     return {
       items: [],
@@ -19,39 +35,43 @@ class ClimateDropdownBase extends LitElement {
   }
 
   onChange(e) {
-    const id = e.target.selected;
-    if (id !== this.selectedId && this.items[id]) {
+    const { index } = e.detail;
+    if (index !== this.selectedId && this.items[index]) {
       this.dispatchEvent(new CustomEvent('change', {
-        detail: this.items[id],
+        detail: this.items[index],
       }));
-      e.target.selected = -1;
+      e.detail.index = -1;
     }
+  }
+
+  handleClick() {
+    const menu = this.shadowRoot.querySelector('#menu');
+    menu.anchor = this.shadowRoot.querySelector('#button');
+    menu.show();
   }
 
   render() {
     return html`
-      <paper-menu-button
-        class='mc-dropdown'
-        noink no-animations
-        .horizontalAlign=${'right'}
-        .verticalAlign=${'top'}
-        .verticalOffset=${44}
-        .dynamicAlign=${true}
-        ?disabled=${this.disabled}
-        @click=${e => e.stopPropagation()}>
-        <ha-icon-button class='mc-dropdown__button icon' slot='dropdown-trigger'
-          .icon=${this.icon}
+      <div class='mc-dropdown'>
+        <ha-icon-button class='mc-dropdown__button icon' 
+          id=${'button'}
+          @click=${this.handleClick}
           ?disabled=${this.disabled}
           ?color=${this.active}>
             <ha-icon .icon=${this.icon}></ha-icon>
         </ha-icon-button>
-        <paper-listbox slot="dropdown-content" .selected=${this.selectedId} @iron-select=${this.onChange}>
+        <mwc-menu fixed
+            id=${'menu'}
+            ?quick=${true}
+            .menuCorner=${'END'}
+            .corner=${'TOP_RIGHT'}
+            @selected=${this.onChange}>
           ${this.items.map(item => html`
-            <paper-item value=${item.id || item.name}>
+            <mwc-list-item value=${item.id || item.name} ?selected=${this.selected === item.id}>
               <span class='mc-dropdown__item__label'>${item.name}</span>
-            </paper-item>`)}
-        </paper-listbox>
-      </paper-menu-button>
+            </mwc-list-item>`)}
+        </mwc-menu>
+      </div>
     `;
   }
 
@@ -62,9 +82,8 @@ class ClimateDropdownBase extends LitElement {
         :host {
           position: relative;
           overflow: hidden;
-          --paper-item-min-height: 40px;
         }
-        paper-menu-button
+        .mc-dropdown
         :host([disabled]) {
           opacity: .25;
           pointer-events: none;
@@ -74,7 +93,6 @@ class ClimateDropdownBase extends LitElement {
         }
         .mc-dropdown {
           padding: 0;
-          display: block;
         }
         ha-icon-button[disabled] {
           opacity: .25;
@@ -88,13 +106,13 @@ class ClimateDropdownBase extends LitElement {
           height: calc(var(--mc-dropdown-unit));
           --mdc-icon-button-size: calc(var(--mc-dropdown-unit));
         }
-        paper-item > *:nth-child(2) {
+        mwc-item > *:nth-child(2) {
           margin-left: 4px;
         }
-        paper-menu-button[focused] ha-icon-button {
+        .mc-dropdown[focused] ha-icon-button {
           color: var(--mc-accent-color);
         }
-        paper-menu-button[focused] ha-icon-button[focused] {
+        .mc-dropdown[focused] ha-icon-button[focused] {
           color: var(--mc-text-color);
           transform: rotate(0deg);
         }
@@ -102,5 +120,3 @@ class ClimateDropdownBase extends LitElement {
     ];
   }
 }
-
-customElements.define('mc-dropdown-base', ClimateDropdownBase);

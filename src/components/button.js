@@ -1,8 +1,20 @@
-import { LitElement, html, css } from 'lit-element';
-import { styleMap } from 'lit-html/directives/style-map';
+import { LitElement, html, css } from 'lit';
+import { styleMap } from 'lit/directives/style-map';
+import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import sharedStyle from '../sharedStyle';
+import buildElementDefinitions from '../utils/buildElementDefinitions';
+import globalElementLoader from '../utils/globalElementLoader';
 
-class ClimateButton extends LitElement {
+export default class ClimateButton extends ScopedRegistryHost(LitElement) {
+  static get defineId() { return 'mc-button'; }
+
+  static get elementDefinitions() {
+    return buildElementDefinitions([
+      globalElementLoader('ha-icon'),
+      globalElementLoader('ha-icon-button'),
+    ], ClimateButton);
+  }
+
   constructor() {
     super();
     this._isOn = false;
@@ -28,10 +40,10 @@ class ClimateButton extends LitElement {
     this.timer = setTimeout(async () => {
       if (this.button.entity === entity) {
         this._isOn = this.button.isOn;
-        return this.requestUpdate('_isOn');
+        this.requestUpdate('_isOn');
       }
     }, this.button.actionTimeout);
-    return this.requestUpdate('_isOn');
+    this.requestUpdate('_isOn');
   }
 
   render() {
@@ -54,7 +66,7 @@ class ClimateButton extends LitElement {
       if (this.timer)
         clearTimeout(this.timer);
 
-      return this.requestUpdate('_isOn');
+      this.requestUpdate('_isOn');
     }
   }
 
@@ -81,5 +93,3 @@ class ClimateButton extends LitElement {
     `];
   }
 }
-
-customElements.define('mc-button', ClimateButton);

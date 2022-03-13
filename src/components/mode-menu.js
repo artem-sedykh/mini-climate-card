@@ -1,9 +1,17 @@
-import { LitElement, html, css } from 'lit-element';
-import { styleMap } from 'lit-html/directives/style-map';
-import './dropdown-base';
+import { LitElement, html, css } from 'lit';
+import { styleMap } from 'lit/directives/style-map';
+import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import ICON from '../const';
+import ClimateDropdownBase from './dropdown-base';
+import buildElementDefinitions from '../utils/buildElementDefinitions';
 
-class ModeMenu extends LitElement {
+export default class ClimateModeMenu extends ScopedRegistryHost(LitElement) {
+  static get defineId() { return 'mc-mode-menu'; }
+
+  static get elementDefinitions() {
+    return buildElementDefinitions([ClimateDropdownBase], ClimateModeMenu);
+  }
+
   constructor() {
     super();
     this.mode = {};
@@ -70,5 +78,3 @@ class ModeMenu extends LitElement {
     `;
   }
 }
-
-customElements.define('mc-mode-menu', ModeMenu);

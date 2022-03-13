@@ -1,18 +1,13 @@
-import { html, LitElement } from 'lit-element';
+import { html, LitElement } from 'lit';
 import ResizeObserver from 'resize-observer-polyfill';
-import { classMap } from 'lit-html/directives/class-map';
-import { styleMap } from 'lit-html/directives/style-map';
+import { classMap } from 'lit/directives/class-map';
+import { styleMap } from 'lit/directives/style-map';
+import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import style from './style';
 import sharedStyle from './sharedStyle';
 import handleClick from './utils/handleClick';
 import getLabel from './utils/getLabel';
 import './initialize';
-import './components/indicators';
-import './components/mode-menu';
-import './components/buttons';
-import './components/temperature';
-import './components/target-temperature';
-import './components/secondary-info';
 
 import { compileTemplate, toggleState } from './utils/utils';
 import TemperatureObject from './models/temperature';
@@ -22,15 +17,34 @@ import IndicatorObject from './models/indicator';
 import ClimateObject from './models/climate';
 import HvacModeObject from './models/hvac-mode';
 import ICON from './const';
+import ClimateTemperature from './components/temperature';
+import ClimateTargetTemperature from './components/target-temperature';
+import ClimateModeMenu from './components/mode-menu';
+import ClimateIndicators from './components/indicators';
+import ClimateDropDown from './components/dropdown';
+import ClimateButtons from './components/buttons';
+import ClimateButton from './components/button';
+import ClimateSecondaryInfo from './components/secondary-info';
+import buildElementDefinitions from './utils/buildElementDefinitions';
+import globalElementLoader from './utils/globalElementLoader';
 
-if (!customElements.get('ha-icon-button')) {
-  customElements.define(
-    'ha-icon-button',
-    class extends customElements.get('paper-icon-button') {},
-  );
-}
+class MiniClimate extends ScopedRegistryHost(LitElement) {
+  static get elementDefinitions() {
+    return buildElementDefinitions([
+      globalElementLoader('ha-card'),
+      globalElementLoader('ha-icon'),
+      globalElementLoader('ha-icon-button'),
+      ClimateButton,
+      ClimateButtons,
+      ClimateDropDown,
+      ClimateIndicators,
+      ClimateModeMenu,
+      ClimateSecondaryInfo,
+      ClimateTargetTemperature,
+      ClimateTemperature,
+    ], MiniClimate);
+  }
 
-class MiniClimate extends LitElement {
   constructor() {
     super();
     this.initial = true;
@@ -496,7 +510,7 @@ class MiniClimate extends LitElement {
   handleChangingTargetTemperature(e) {
     this.targetTemperatureValue = this.targetTemperature.value;
     this.targetTemperatureChanging = e.detail.changing;
-    return this.requestUpdate('targetTemperatureChanging');
+    this.requestUpdate('targetTemperatureChanging');
   }
 
   handlePopup(e, handle) {
@@ -640,18 +654,18 @@ class MiniClimate extends LitElement {
     if (changedProps.has('climate')) {
       this.initDefaultFanModeSource();
       this.initDefaultHvacModeSource();
-      this.requestUpdate('climate').then();
+      this.requestUpdate('climate');
     }
     if (changedProps.has('targetTemperature')) {
       this.targetTemperatureValue = this.targetTemperature.value;
-      this.requestUpdate('targetTemperatureValue').then();
+      this.requestUpdate('targetTemperatureValue');
     }
 
     const ro = new ResizeObserver((entries) => {
       const item = entries.find(e => e.target === this);
       if (item && item.contentRect && this.width !== item.contentRect.width) {
         this.width = item.contentRect.width;
-        this.requestUpdate('width').then();
+        this.requestUpdate('width');
       }
     });
 
