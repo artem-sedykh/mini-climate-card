@@ -89,14 +89,14 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
         >
           ${this.renderFanMode()}
         </ha-icon-button>
-        <mwc-menu absolute
+        <mwc-menu absolute activatable
             id=${'menu'}
             ?quick=${true}
             .menuCorner=${'END'}
             .corner=${'TOP_RIGHT'}
             @selected=${this.handleChange}>
           ${this.fanMode.source.map(item => html`
-            <mwc-list-item value=${item.id || item.name} ?selected=${this._selected.id && this._selected.id === item.id}>
+            <mwc-list-item value=${item.id || item.name} ?selected=${this._selected.id && this._selected.id === item.id} .activated=${this._selected.id && this._selected.id === item.id}>
               <span class='mc-dropdown__item__label'>${item.name}</span>
             </mwc-list-item>`)}
         </mwc-menu>

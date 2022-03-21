@@ -60,14 +60,14 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
           ?color=${this.active}>
             <ha-icon .icon=${this.icon}></ha-icon>
         </ha-icon-button>
-        <mwc-menu absolute
+        <mwc-menu absolute activatable
             id=${'menu'}
             ?quick=${true}
             .menuCorner=${'END'}
             .corner=${'TOP_RIGHT'}
             @selected=${this.onChange}>
           ${this.items.map(item => html`
-            <mwc-list-item value=${item.id || item.name} ?selected=${this.selected === item.id}>
+            <mwc-list-item value=${item.id || item.name} ?selected=${this.selected === item.id} .activated=${this.selected === item.id}>
               <span class='mc-dropdown__item__label'>${item.name}</span>
             </mwc-list-item>`)}
         </mwc-menu>
