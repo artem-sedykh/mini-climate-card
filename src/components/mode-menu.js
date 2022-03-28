@@ -1,5 +1,4 @@
 import { LitElement, html, css } from 'lit';
-import { styleMap } from 'lit/directives/style-map';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import ICON from '../const';
 import ClimateDropdownBase from './dropdown-base';
@@ -61,7 +60,7 @@ export default class ClimateModeMenu extends ScopedRegistryHost(LitElement) {
         @change=${this.handleChange}
         .items=${this.sources}
         .icon=${this.calcIcon}
-        style=${styleMap(this.mode.style)}
+        .iconStyle=${this.mode.style}
         .active=${this.mode.isActive(this.mode.state)}
         .selected=${this.selected.id}>
       </mc-dropdown-base>

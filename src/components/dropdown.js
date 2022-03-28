@@ -1,5 +1,4 @@
 import { LitElement, html, css } from 'lit';
-import { styleMap } from 'lit/directives/style-map';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import sharedStyle from '../sharedStyle';
 import ClimateDropdownBase from './dropdown-base';
@@ -52,7 +51,7 @@ export default class ClimateDropDown extends ScopedRegistryHost(LitElement) {
   render() {
     return html`
       <mc-dropdown-base
-        style=${styleMap(this.dropdown.style)}
+        .iconStyle=${this.dropdown.style}
         @change=${e => this.handleChange(e)}
         .items=${this.dropdown.source}
         .icon=${this.dropdown.icon}

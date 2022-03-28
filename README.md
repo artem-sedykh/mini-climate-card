@@ -24,7 +24,7 @@ v2 is only compatible from version 2022.3 onwards
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=2.0.2
+    - url: /local/mini-climate-card-bundle.js?v=2.0.3
       type: module
   ```
 
@@ -35,14 +35,14 @@ v2 is only compatible from version 2022.3 onwards
 2. Grab `mini-climate-card-bundle.js`
 
   ```console
-  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v2.0.2/mini-climate-card-bundle.js
+  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v2.0.3/mini-climate-card-bundle.js
   ```
 
 3. Add a reference to `mini-climate-card-bundle.js` inside your `ui-lovelace.yaml`.
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=2.0.2
+    - url: /local/mini-climate-card-bundle.js?v=2.0.3
       type: module
   ```
 
@@ -55,7 +55,7 @@ v2 is only compatible from version 2022.3 onwards
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=2.0.2
+    - url: /local/mini-climate-card-bundle.js?v=2.0.3
       type: module
   ```
 
@@ -148,7 +148,7 @@ v2 is only compatible from version 2022.3 onwards
 | **buttons** | object | optional | v1.0.1 | any buttons, [example](#buttons).
 | buttons: `name` | object | optional | v1.0.1 | the name of your button see examples
 | buttons: `name:icon` | string | optional | v1.0.1 | Specify a custom icon from any of the available mdi icons.
-| buttons: `name:type` | string | optional | v1.0.1 | `dropdown` or `button` default `bitton`
+| buttons: `name:type` | string | optional | v1.0.1 | `dropdown` or `button` default `button`
 | buttons: `name:order` | number | optional | v1.0.1 | sort order
 | buttons: `name:location` | string | optional | v1.2.1 | allows you to display buttons on the main panel, types `main, bottom`, default `bottom`
 | buttons: `name:state` | object | optional | v1.0.1 | config to get button state.

@@ -1,4 +1,5 @@
 import { LitElement, html, css } from 'lit';
+import { styleMap } from 'lit/directives/style-map';
 
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import sharedStyle from '../sharedStyle';
@@ -27,7 +28,13 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
       icon: String,
       active: Boolean,
       disabled: Boolean,
+      iconStyle: { type: Object },
     };
+  }
+
+  constructor() {
+    super();
+    this.iconStyle = {};
   }
 
   get selectedId() {
@@ -53,7 +60,8 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
   render() {
     return html`
       <div class='mc-dropdown'>
-        <ha-icon-button class='mc-dropdown__button icon' 
+        <ha-icon-button class='mc-dropdown__button icon'
+          style=${styleMap(this.iconStyle)}
           id=${'button'}
           @click=${this.handleClick}
           ?disabled=${this.disabled}

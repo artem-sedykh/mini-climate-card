@@ -207,8 +207,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
     const buttons = [];
 
     for (let i = 0; i < data.length; i += 1) {
-      const key = data[i][0];
-      const value = data[i][1];
+      const [key, value] = data[i];
       const button = this.getButtonConfig(value, config);
       button.id = key;
 
