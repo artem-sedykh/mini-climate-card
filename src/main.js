@@ -51,6 +51,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
     this.toggle = false;
     this.temperature = {};
     this.targetTemperature = {};
+    this.swapTemperatures = false;
     this.buttons = {};
     this.indicators = {};
     this.hvacMode = {};
@@ -433,6 +434,8 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
     }
 
     this.toggle = this.config.toggle.default;
+
+    this.swapTemperatures = !!this.config.swap_temperatures;
   }
 
   renderCtlWrap() {
@@ -458,7 +461,8 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
         <mc-temperature
           .temperature=${this.temperature}
           .target=${this.targetTemperatureValue}
-          .changing=${this.targetTemperatureChanging}>
+          .changing=${this.targetTemperatureChanging}
+          .swapTemperatures=${this.swapTemperatures}>
         </mc-temperature>
     `;
   }

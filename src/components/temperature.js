@@ -14,6 +14,7 @@ export default class ClimateTemperature extends ScopedRegistryHost(LitElement) {
       temperature: Object,
       changing: Boolean,
       target: Number,
+      swapTemperatures: Boolean,
     };
   }
 
@@ -28,6 +29,12 @@ export default class ClimateTemperature extends ScopedRegistryHost(LitElement) {
     if (this.temperature.value === undefined)
       return '';
 
+    if (this.swapTemperatures) {
+      return html`
+        <span class='state__value'>${this.temperature.value}</span>
+        <span class='state__value'>/</span>`;
+    }
+
     return html`
       <span class='state__value'>/</span>
       <span class='state__value'>${this.temperature.value}</span>`;
@@ -39,6 +46,14 @@ export default class ClimateTemperature extends ScopedRegistryHost(LitElement) {
 
     const cls = this.changing ? 'changing' : '';
     const { unit } = this.temperature;
+    if (this.swapTemperatures) {
+      return html`
+      <div class='state ellipsis'>
+        ${this.renderTemperature()}
+        <span class='state__value ${cls}'>${this.targetStr}</span>
+        <span class='state__uom'>${unit}</span>
+      </div>`;
+    }
 
     return html`
     <div class='state ellipsis'>
