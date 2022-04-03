@@ -68,6 +68,8 @@ export default class ClimateSecondaryInfo extends ScopedRegistryHost(LitElement)
         return this.renderHvacAction();
       case 'last-changed':
         return html`<ha-relative-time .hass=${this.climate.hass} .datetime=${this.climate.lastChanged}></ha-relative-time>`;
+      case 'last-updated':
+        return html`<ha-relative-time .hass=${this.climate.hass} .datetime=${this.climate.lastUpdated}></ha-relative-time>`;
       default:
         return html`<mc-fan-mode-secondary .fanMode=${this.fanMode} .config=${this.config}></mc-fan-mode-secondary>`;
     }
