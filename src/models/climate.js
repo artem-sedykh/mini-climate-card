@@ -26,6 +26,10 @@ export default class ClimateObject {
     return this.entity.last_changed;
   }
 
+  get lastUpdated() {
+    return this.entity.last_updated;
+  }
+
   get hvacAction() {
     const source = (this.config.secondary_info && this.config.secondary_info.source) || {};
     const action = this.attr.hvac_action;
