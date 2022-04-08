@@ -79,7 +79,7 @@ v2 is only compatible from version 2022.3 onwards
 | toggle: `hide` | boolean | optional | v1.0.2 | Hide button, default value `False`
 | toggle: `default` | boolean | optional | v1.0.2 | Default toggle button state, default value `off`.
 | **secondary_info** | object | optional | v1.1.0 | secondary_info config. [secondary info examples](#secondary-info)
-| secondary_info: `type` | string | optional | v1.1.0 | available types: `last-changed, fan-mode, fan-mode-dropdown, hvac-mode, hvac-action`
+| secondary_info: `type` | string | optional | v1.1.0 | available types: `last-changed, last-updated (v2.2.0), fan-mode, fan-mode-dropdown, hvac-mode, hvac-action`
 | secondary_info: `icon` | string | optional | v1.1.0 | icon for types: `fan-mode, fan-mode-dropdown, hvac-mode`, `hvac-action`
 | secondary_info: `source` | object | optional | v1.2.1 | source available types: `hvac-action`
 | secondary_info: `source:{item_name}` | object | optional | v1.2.1 | source item name
