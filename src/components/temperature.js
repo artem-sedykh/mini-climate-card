@@ -15,6 +15,7 @@ export default class ClimateTemperature extends ScopedRegistryHost(LitElement) {
       changing: Boolean,
       target: Number,
       swapTemperatures: Boolean,
+      hideCurrentTemperature: Boolean,
     };
   }
 
@@ -26,7 +27,7 @@ export default class ClimateTemperature extends ScopedRegistryHost(LitElement) {
   }
 
   renderTemperature() {
-    if (this.temperature.value === undefined)
+    if ((this.temperature.value === undefined) || (this.hideCurrentTemperature))
       return '';
 
     if (this.swapTemperatures) {

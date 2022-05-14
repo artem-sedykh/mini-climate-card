@@ -74,6 +74,7 @@ v2 is only compatible from version 2022.3 onwards
 | group | boolean | optional | v1.0.2 | Removes paddings, background color and box-shadow.
 | icon | string | optional | v1.0.1 | Specify a custom icon from any of the available mdi icons.
 | swap_temperatures | boolean | optional | V2.1.1 | Swap the current and the target temperature in the card.
+| hide_current_temperature | boolean | optional | V2.1.2 | Hide the current temperature in the card.
 | **toggle** | object | optional | v1.0.2 | Toggle button.
 | toggle: `icon` | string | optional | v1.0.2 | Custom icon, default value `mdi:dots-horizontal`
 | toggle: `hide` | boolean | optional | v1.0.2 | Hide button, default value `False`
