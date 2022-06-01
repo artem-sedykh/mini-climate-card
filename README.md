@@ -2,9 +2,9 @@
 
 [![Last Version](https://img.shields.io/github/package-json/v/artem-sedykh/mini-climate-card?label.svg=release)](https://github.com/artem-sedykh/mini-climate-card/releases/latest)
 [![Build Status](https://travis-ci.com/artem-sedykh/mini-climate-card.svg?branch=master)](https://travis-ci.com/artem-sedykh/mini-climate-card)
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/hacs/integration)
 
-A minimalistic yet customizable climate card for [Home Assistant](https://github.com/home-assistant/home-assistant) Lovelace UI.  
+A minimalistic yet customizable climate card for [Home Assistant](https://home-assistant.io/) Lovelace UI.  
 Please ⭐️ this repo if you find it useful  
 
 ![Preview Image](https://user-images.githubusercontent.com/861063/83363491-98b13080-a3a2-11ea-90e6-1ba6364c800d.png)
@@ -14,7 +14,7 @@ v2 is only compatible from version 2022.3 onwards
 
 ## Install
 
-*This card is available in [HACS](https://github.com/custom-components/hacs) (Home Assistant Community Store)*
+*This card is available in [HACS](https://github.com/hacs/integration) (Home Assistant Community Store)*
 
 ### Simple install
 
