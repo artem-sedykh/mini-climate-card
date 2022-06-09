@@ -6,15 +6,14 @@ import sharedStyle from '../sharedStyle';
 import ClimateMenu from './mwc/menu';
 import ClimateListItem from './mwc/list-item';
 import buildElementDefinitions from '../utils/buildElementDefinitions';
-import globalElementLoader from '../utils/globalElementLoader';
 
 export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-dropdown-base'; }
 
   static get elementDefinitions() {
     return buildElementDefinitions([
-      globalElementLoader('ha-icon'),
-      globalElementLoader('ha-icon-button'),
+      'ha-icon',
+      'ha-icon-button',
       ClimateMenu,
       ClimateListItem,
     ], ClimateDropdownBase);
@@ -58,6 +57,9 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
   }
 
   render() {
+    if (!ClimateDropdownBase.elementDefinitionsLoaded) {
+      return html``;
+    }
     return html`
       <div class='mc-dropdown'>
         <ha-icon-button class='mc-dropdown__button icon'

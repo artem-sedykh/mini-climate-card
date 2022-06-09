@@ -55,6 +55,10 @@ export default class ClimateModeMenu extends ScopedRegistryHost(LitElement) {
   }
 
   render() {
+    if (!ClimateModeMenu.elementDefinitionsLoaded) {
+      return html``;
+    }
+
     return html`
       <mc-dropdown-base
         @change=${this.handleChange}

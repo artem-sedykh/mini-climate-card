@@ -26,14 +26,13 @@ import ClimateButtons from './components/buttons';
 import ClimateButton from './components/button';
 import ClimateSecondaryInfo from './components/secondary-info';
 import buildElementDefinitions from './utils/buildElementDefinitions';
-import globalElementLoader from './utils/globalElementLoader';
 
 class MiniClimate extends ScopedRegistryHost(LitElement) {
   static get elementDefinitions() {
     return buildElementDefinitions([
-      globalElementLoader('ha-card'),
-      globalElementLoader('ha-icon'),
-      globalElementLoader('ha-icon-button'),
+      'ha-card',
+      'ha-icon',
+      'ha-icon-button',
       ClimateButton,
       ClimateButtons,
       ClimateDropDown,
@@ -485,6 +484,10 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
   }
 
   render() {
+    if (!MiniClimate.elementDefinitionsLoaded) {
+      return html``;
+    }
+
     const handle = this.config.secondary_info.type !== 'fan-mode-dropdown';
     return html`
       <ha-card

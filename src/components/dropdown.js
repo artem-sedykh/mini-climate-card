@@ -49,6 +49,10 @@ export default class ClimateDropDown extends ScopedRegistryHost(LitElement) {
   }
 
   render() {
+    if (!ClimateDropDown.elementDefinitionsLoaded) {
+      return html``;
+    }
+
     return html`
       <mc-dropdown-base
         .iconStyle=${this.dropdown.style}

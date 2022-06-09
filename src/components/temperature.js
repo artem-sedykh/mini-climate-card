@@ -42,8 +42,13 @@ export default class ClimateTemperature extends ScopedRegistryHost(LitElement) {
   }
 
   render() {
-    if (!this.temperature)
-      return '';
+    if (!ClimateTemperature.elementDefinitionsLoaded) {
+      return html``;
+    }
+
+    if (!this.temperature) {
+      return html``;
+    }
 
     const cls = this.changing ? 'changing' : '';
     const { unit } = this.temperature;

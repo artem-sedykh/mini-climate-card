@@ -46,6 +46,10 @@ export default class ClimateButtons extends ScopedRegistryHost(LitElement) {
   }
 
   render() {
+    if (!ClimateButtons.elementDefinitionsLoaded) {
+      return html``;
+    }
+
     const context = this;
     return html`${Object.entries(this.buttons)
       .map(b => b[1])
