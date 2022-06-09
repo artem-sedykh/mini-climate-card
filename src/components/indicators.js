@@ -5,13 +5,12 @@ import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import handleClick from '../utils/handleClick';
 import { TAP_ACTIONS } from '../const';
 import buildElementDefinitions from '../utils/buildElementDefinitions';
-import globalElementLoader from '../utils/globalElementLoader';
 
 export default class ClimateIndicators extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-indicators'; }
 
   static get elementDefinitions() {
-    return buildElementDefinitions([globalElementLoader('ha-icon')], ClimateIndicators);
+    return buildElementDefinitions(['ha-icon'], ClimateIndicators);
   }
 
   static get properties() {
@@ -58,6 +57,9 @@ export default class ClimateIndicators extends ScopedRegistryHost(LitElement) {
   }
 
   render() {
+    if (!ClimateIndicators.elementDefinitionsLoaded) {
+      return html``;
+    }
     const context = this;
 
     return html`

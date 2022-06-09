@@ -1,15 +1,14 @@
 import { LitElement, html, css } from 'lit';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import buildElementDefinitions from '../utils/buildElementDefinitions';
-import globalElementLoader from '../utils/globalElementLoader';
 
 export default class ClimateTargetTemperature extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-target-temperature'; }
 
   static get elementDefinitions() {
     return buildElementDefinitions([
-      globalElementLoader('ha-icon'),
-      globalElementLoader('ha-icon-button'),
+      'ha-icon',
+      'ha-icon-button',
     ], ClimateTargetTemperature);
   }
 
@@ -72,6 +71,9 @@ export default class ClimateTargetTemperature extends ScopedRegistryHost(LitElem
   }
 
   render() {
+    if (!ClimateTargetTemperature.elementDefinitionsLoaded) {
+      return html``;
+    }
     if (!this.targetTemperature)
       return '';
 

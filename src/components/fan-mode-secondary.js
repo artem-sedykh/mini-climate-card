@@ -4,14 +4,13 @@ import sharedStyle from '../sharedStyle';
 import ClimateMenu from './mwc/menu';
 import ClimateListItem from './mwc/list-item';
 import buildElementDefinitions from '../utils/buildElementDefinitions';
-import globalElementLoader from '../utils/globalElementLoader';
 
 export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-fan-mode-secondary'; }
 
   static get elementDefinitions() {
     return buildElementDefinitions([
-      globalElementLoader('ha-icon'),
+      'ha-icon',
       ClimateMenu,
       ClimateListItem,
     ], ClimateFanModeSecondary);
@@ -105,6 +104,10 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
   }
 
   render() {
+    if (!ClimateFanModeSecondary.elementDefinitionsLoaded) {
+      return html``;
+    }
+
     const { type } = this.config.secondary_info;
 
     if (type === 'fan-mode-dropdown') {
