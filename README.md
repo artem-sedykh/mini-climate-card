@@ -26,7 +26,7 @@ v2 is only compatible from version 2022.3 onwards
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=2.2.0
+    - url: /local/mini-climate-card-bundle.js?v=2.21
       type: module
   ```
 
@@ -37,14 +37,14 @@ v2 is only compatible from version 2022.3 onwards
 2. Grab `mini-climate-card-bundle.js`
 
   ```console
-  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v2.2.0/mini-climate-card-bundle.js
+  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v2.2.1/mini-climate-card-bundle.js
   ```
 
 3. Add a reference to `mini-climate-card-bundle.js` inside your `ui-lovelace.yaml`.
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=2.2.0
+    - url: /local/mini-climate-card-bundle.js?v=2.2.1
       type: module
   ```
 
@@ -57,7 +57,7 @@ v2 is only compatible from version 2022.3 onwards
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=2.2.0
+    - url: /local/mini-climate-card-bundle.js?v=2.2.1
       type: module
   ```
 

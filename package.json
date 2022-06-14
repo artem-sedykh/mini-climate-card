@@ -1,6 +1,6 @@
 {
   "name": "mini-climate-card",
-  "version": "v2.2.0",
+  "version": "v2.2.1",
   "description": "a/c card for Home Assistant Lovelace UI",
   "keywords": [
     "home-assistant",
@@ -37,7 +37,7 @@
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.26.0",
-    "rollup": "^0.66.6",
+    "rollup": "^2.10.5",
     "rollup-plugin-node-resolve": "^3.4.0"
   },
   "resolutions": {
