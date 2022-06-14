@@ -24,7 +24,7 @@ v2 is only compatible from version 2022.3 onwards
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=2.1.3
+    - url: /local/mini-climate-card-bundle.js?v=2.2.0
       type: module
   ```
 
@@ -35,14 +35,14 @@ v2 is only compatible from version 2022.3 onwards
 2. Grab `mini-climate-card-bundle.js`
 
   ```console
-  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v2.1.3/mini-climate-card-bundle.js
+  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v2.2.0/mini-climate-card-bundle.js
   ```
 
 3. Add a reference to `mini-climate-card-bundle.js` inside your `ui-lovelace.yaml`.
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=2.1.3
+    - url: /local/mini-climate-card-bundle.js?v=2.2.0
       type: module
   ```
 
@@ -55,7 +55,7 @@ v2 is only compatible from version 2022.3 onwards
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=2.1.3
+    - url: /local/mini-climate-card-bundle.js?v=2.2.0
       type: module
   ```
 
@@ -172,14 +172,14 @@ v2 is only compatible from version 2022.3 onwards
 
 > Configuration example for the temperature:  
 ```yaml
-- type: custom:mini-climate
-  entity: climate.my_ac
-  temperature:
-    unit: '°C'
-    round: 1
-    # use an external temperature sensor
-    source:
-      entity: sensor.temperature
+type: custom:mini-climate
+entity: climate.my_ac
+temperature:
+  unit: '°C'
+  round: 1
+  # use an external temperature sensor
+  source:
+    entity: sensor.temperature
 ``` 
 
 #### target_temperature
@@ -203,18 +203,18 @@ v2 is only compatible from version 2022.3 onwards
 
 > Configuration example for the target_temperature:  
 ```yaml
-- type: custom:mini-climate
-  entity: climate.my_ac
-  target_temperature:
-    icons:
-      up: mdi:chevron-up
-      down: mdi:chevron-down
-    unit: '°C'
-    min: 16
-    max: 31
-    step: 0.5
-    change_action: >
-      (value, entity) => this.call_service('climate', 'set_temperature', { entity_id: entity.entity_id, temperature: value })
+type: custom:mini-climate
+entity: climate.my_ac
+target_temperature:
+  icons:
+    up: mdi:chevron-up
+    down: mdi:chevron-down
+  unit: '°C'
+  min: 16
+  max: 31
+  step: 0.5
+  change_action: >
+    (value, entity) => this.call_service('climate', 'set_temperature', { entity_id: entity.entity_id, temperature: value })
 ``` 
 
 #### hvac_mode
@@ -243,31 +243,31 @@ v2 is only compatible from version 2022.3 onwards
 
 > Configuration example for the hvac_mode:  
 ```yaml
-- type: custom:mini-climate
-  entity: climate.my_ac
-  hvac_mode:
-    style: "(value, entity) => ({ color: 'black' })"
-    source:
-      'off':
-        icon: mdi:power
-        name: 'off'
-      heat:
-        icon: mdi:weather-sunny
-        name: heat
-      auto:
-        icon: mdi:cached
-        name: auto
-      cool:
-        icon: mdi:snowflake
-        name: cool
-      dry:
-        icon: mdi:water
-        name: dry
-      fan_only:
-        icon: mdi:fan
-        name: fan
-    change_action: >
-      (selected, entity) => this.call_service('climate', 'set_hvac_mode', { entity_id: entity.entity_id, hvac_mode: selected })
+type: custom:mini-climate
+entity: climate.my_ac
+hvac_mode:
+  style: "(value, entity) => ({ color: 'black' })"
+  source:
+    'off':
+      icon: mdi:power
+      name: 'off'
+    heat:
+      icon: mdi:weather-sunny
+      name: heat
+    auto:
+      icon: mdi:cached
+      name: auto
+    cool:
+      icon: mdi:snowflake
+      name: cool
+    dry:
+      icon: mdi:water
+      name: dry
+    fan_only:
+      icon: mdi:fan
+      name: fan
+  change_action: >
+    (selected, entity) => this.call_service('climate', 'set_hvac_mode', { entity_id: entity.entity_id, hvac_mode: selected })
 ``` 
 
 #### fan_mode
@@ -299,40 +299,40 @@ v2 is only compatible from version 2022.3 onwards
 
 > Configuration example for the fan_mode:  
 ```yaml
-- type: custom:mini-climate
-  entity: climate.my_ac
-  fan_mode:
-    hide: off
-    icon: mdi:fan
-    order: 0
-    active: (state, entity) => entity.state !== 'off'
-    source:
-      auto: auto
-      low: low
-      medium: medium
-      high: high
-      # filter usage example
-      __filter: >
-        (source, state, entity) => entity.attributes
-          .fan_modes_al.map(fan_mode => source.find(s => s.id === fan_mode))
-          .filter(fan_mode=>fan_mode)
-    change_action: >
-      (selected, state, entity) => this.call_service('climate', 'set_fan_mode', { entity_id: entity.entity_id, fan_mode: selected })
+type: custom:mini-climate
+entity: climate.my_ac
+fan_mode:
+  hide: off
+  icon: mdi:fan
+  order: 0
+  active: (state, entity) => entity.state !== 'off'
+  source:
+    auto: auto
+    low: low
+    medium: medium
+    high: high
+    # filter usage example
+    __filter: >
+      (source, state, entity) => entity.attributes
+        .fan_modes_al.map(fan_mode => source.find(s => s.id === fan_mode))
+        .filter(fan_mode=>fan_mode)
+  change_action: >
+    (selected, state, entity) => this.call_service('climate', 'set_fan_mode', { entity_id: entity.entity_id, fan_mode: selected })
 ``` 
 #### Indicators
 
 > The indicators display additional information on the card, for example, you can display humidity, consumption, etc.  
 > Adding a simple indicator:
 ```yaml
-- type: custom:mini-climate
-  entity: climate.my_ac
-  indicators:
-    humidity:
-      icon: mdi:water
-      unit: '%'
-      round: 1
-      source:
-        entity: sensor.humidity
+type: custom:mini-climate
+entity: climate.my_ac
+indicators:
+  humidity:
+    icon: mdi:water
+    unit: '%'
+    round: 1
+    source:
+      entity: sensor.humidity
 ```
 ##### indicator functions
 
@@ -354,28 +354,28 @@ v2 is only compatible from version 2022.3 onwards
 
 > Using the mapper function, you can change the indicator value:
 ```yaml
-- type: custom:mini-climate
-  entity: climate.my_ac
-  indicators:
-    power:
-      icon: mdi:power-plug
-      source:
-        values:
-          'on': 'power is on!'
-          'off': 'power is off!'
-        entity: switch.ac_power
-        # since the current execution context is an indicator config, we can use this.source.values to get values
-        mapper: value => this.source.values[value]
-        # example of using all function arguments
-        # mapper: >
-        #   (value, entity, climate_entity, hvac_mode) => {
-        #     console.log(value);
-        #     console.log(entity);
-        #     console.log(climate_entity);
-        #     console.log(hvac_mode);
-        #     console.log(this);
-        #     return ...
-        #   }
+type: custom:mini-climate
+entity: climate.my_ac
+indicators:
+  power:
+    icon: mdi:power-plug
+    source:
+      values:
+        'on': 'power is on!'
+        'off': 'power is off!'
+      entity: switch.ac_power
+      # since the current execution context is an indicator config, we can use this.source.values to get values
+      mapper: value => this.source.values[value]
+      # example of using all function arguments
+      # mapper: >
+      #   (value, entity, climate_entity, hvac_mode) => {
+      #     console.log(value);
+      #     console.log(entity);
+      #     console.log(climate_entity);
+      #     console.log(hvac_mode);
+      #     console.log(this);
+      #     return ...
+      #   }
 ```
 
 ##### icon template
@@ -383,17 +383,17 @@ v2 is only compatible from version 2022.3 onwards
 > The indicator icon can be calculated dynamically
   for example:
 ```yaml
-- type: custom:mini-climate
-  entity: climate.my_ac
-  indicators:
-    humidity:
-      icon:
-        template: >
-          (value) => (value > 30 ? 'mdi:weather-rainy' : 'mdi:water')
-      unit: '%'
-      round: 1
-      source:
-        entity: sensor.humidity
+type: custom:mini-climate
+entity: climate.my_ac
+indicators:
+  humidity:
+    icon:
+      template: >
+        (value) => (value > 30 ? 'mdi:weather-rainy' : 'mdi:water')
+    unit: '%'
+    round: 1
+    source:
+      entity: sensor.humidity
 ```
 
 ##### icon template
@@ -401,18 +401,18 @@ v2 is only compatible from version 2022.3 onwards
 > You can also set custom styles.
   for example:
 ```yaml
-- type: custom:mini-climate
-  entity: climate.my_ac
-  indicators:
-    humidity:
-      icon:
-        template: () => 'mdi:water'
-        style: >
-          (value) => (value > 30 ? { color: 'red'} : {})
-      unit: '%'
-      round: 1
-      source:
-        entity: sensor.humidity
+type: custom:mini-climate
+entity: climate.my_ac
+indicators:
+  humidity:
+    icon:
+      template: () => 'mdi:water'
+      style: >
+        (value) => (value > 30 ? { color: 'red'} : {})
+    unit: '%'
+    round: 1
+    source:
+      entity: sensor.humidity
 ```
 
 #### Buttons
@@ -450,47 +450,47 @@ v2 is only compatible from version 2022.3 onwards
 > Consider an example swing_mode configuration:
 
 ```yaml
-- type: custom:mini-climate
-  entity: climate.my_ac
-  buttons:
-    swing_mode:
-      type: dropdown
-      icon: mdi:approximately-equal
-      state:
-        attribute: swing_mode
-      active: state => state !== 'off'
-      source:
-        'off': Off
-        horizontal: On
-      change_action: >
-        (selected, state, entity) => this.call_service('climate', 'set_swing_mode', { entity_id: entity.entity_id, swing_mode: selected })
+type: custom:mini-climate
+entity: climate.my_ac
+buttons:
+  swing_mode:
+    type: dropdown
+    icon: mdi:approximately-equal
+    state:
+      attribute: swing_mode
+    active: state => state !== 'off'
+    source:
+      'off': Off
+      horizontal: On
+    change_action: >
+      (selected, state, entity) => this.call_service('climate', 'set_swing_mode', { entity_id: entity.entity_id, swing_mode: selected })
 ```
 
 ##### button
 > Consider the example of adding buttons:
 ```yaml
-- type: custom:mini-climate
-  entity: climate.my_ac
-  buttons:
-    power:
-      icon: mdi:power-plug
-      state:
-        entity: switch.ac_power
+type: custom:mini-climate
+entity: climate.my_ac
+buttons:
+  power:
+    icon: mdi:power-plug
+    state:
+      entity: switch.ac_power
 # for the button type, if no toggle_action is specified, the switch.toggle method is called
 ```
 
 ```yaml
-- type: custom:mini-climate
-  entity: climate.my_ac
-  buttons:
-    turbo:
-      icon: mdi:weather-hurricane
-      state:
-        attribute: turbo
-        mapper: "state => (state ? 'on': 'off')"
-      disabled: (state, entity) => !entity.attributes.turbo_al
-      toggle_action: >
-        (state) => this.call_service('mqtt', 'publish', { payload: this.toggle_state(state), topic: 'my_ac/turbo/set', retain: false, qos: 1 })
+type: custom:mini-climate
+entity: climate.my_ac
+buttons:
+  turbo:
+    icon: mdi:weather-hurricane
+    state:
+      attribute: turbo
+      mapper: "state => (state ? 'on': 'off')"
+    disabled: (state, entity) => !entity.attributes.turbo_al
+    toggle_action: >
+      (state) => this.call_service('mqtt', 'publish', { payload: this.toggle_state(state), topic: 'my_ac/turbo/set', retain: false, qos: 1 })
 ```
 
 #### tap action object
@@ -508,115 +508,115 @@ v2 is only compatible from version 2022.3 onwards
 ```yaml
 # toggle example
 # call-service example
-- type: custom:mini-climate
-  entity: climate.my_ac
-  tap_action:
-    action: call-service
-    service: climate.set_hvac_mode
-    service_data:
-      entity_id: climate.my_ac
-      hvac_mode: 'off'
+type: custom:mini-climate
+entity: climate.my_ac
+tap_action:
+  action: call-service
+  service: climate.set_hvac_mode
+  service_data:
+    entity_id: climate.my_ac
+    hvac_mode: 'off'
 
 # navigate example
-- type: custom:mini-climate
-  entity: climate.my_ac
-  tap_action:
-    action: navigate
-    navigation_path: '/lovelace/4'
+type: custom:mini-climate
+entity: climate.my_ac
+tap_action:
+  action: navigate
+  navigation_path: '/lovelace/4'
 
 # navigate example
-- type: custom:mini-climate
-  entity: climate.my_ac
-  tap_action:
-    action: url
-    url: 'https://www.google.com/'
+type: custom:mini-climate
+entity: climate.my_ac
+tap_action:
+  action: url
+  url: 'https://www.google.com/'
 
 # none example
-- type: custom:mini-climate
-  entity: climate.my_ac
-  tap_action: none
+type: custom:mini-climate
+entity: climate.my_ac
+tap_action: none
 
 # more-info for custom entity example
-- type: custom:mini-climate
-  entity: climate.my_ac
-  tap_action:
-    action: more-info
-    entity: sensor.humidity
+type: custom:mini-climate
+entity: climate.my_ac
+tap_action:
+  action: more-info
+  entity: sensor.humidity
 ```
 
 #### secondary info
 
 ```yaml
-- type: custom:mini-climate
-  entity: climate.dahatsu
-  secondary_info: last-changed
+type: custom:mini-climate
+entity: climate.dahatsu
+secondary_info: last-changed
 
-- type: custom:mini-climate
-  entity: climate.dahatsu
-  secondary_info:
-    type: fan-mode
-    icon: 'mdi:fan'
+type: custom:mini-climate
+entity: climate.dahatsu
+secondary_info:
+  type: fan-mode
+  icon: 'mdi:fan'
 
-- type: custom:mini-climate
-  entity: climate.dahatsu
-  secondary_info: hvac-mode
+type: custom:mini-climate
+entity: climate.dahatsu
+secondary_info: hvac-mode
 ```
 
 ##### hvac-action type
 
 By default, translations from [ha frontend](https://github.com/home-assistant/frontend/blob/master/translations/frontend/en.json#L33)
 ```yaml
-- type: custom:mini-climate
-  entity: climate.dahatsu
-  secondary_info:
-    type: hvac-action
+type: custom:mini-climate
+entity: climate.dahatsu
+secondary_info:
+  type: hvac-action
 ```
 but you can customize your translations
 ```yaml
-- type: custom:mini-climate
-  entity: climate.dahatsu
-  secondary_info:
-    type: hvac-action
-    source:
-      cooling: Охлаждение
+type: custom:mini-climate
+entity: climate.dahatsu
+secondary_info:
+  type: hvac-action
+  source:
+    cooling: Охлаждение
 ```
 You can set your own icon for each hvac-action
 ```yaml
-- type: custom:mini-climate
-  entity: climate.dahatsu
-  secondary_info:
-    type: hvac-action
-    source:
-      cooling:
-        icon: 'mdi:snowflake'
-        name: Охлаждение
+type: custom:mini-climate
+entity: climate.dahatsu
+secondary_info:
+  type: hvac-action
+  source:
+    cooling:
+      icon: 'mdi:snowflake'
+      name: Охлаждение
 ```
 You can set your own icon for each hvac-action
 ```yaml
-- type: custom:mini-climate
-  entity: climate.dahatsu
-  secondary_info:
-    type: hvac-action
-    source:
-      cooling:
-        icon: 'mdi:snowflake'
-        name: Охлаждение
+type: custom:mini-climate
+entity: climate.dahatsu
+secondary_info:
+  type: hvac-action
+  source:
+    cooling:
+      icon: 'mdi:snowflake'
+      name: Охлаждение
 ```
 Or you can use one permanent icon
 ```yaml
-- type: custom:mini-climate
-  entity: climate.dahatsu
-  secondary_info:
-    type: hvac-action
-    icon: 'mdi:cached'
+type: custom:mini-climate
+entity: climate.dahatsu
+secondary_info:
+  type: hvac-action
+  icon: 'mdi:cached'
 ```
 
 ##### fan-mode-dropdown
 
 ```yaml
-- type: custom:mini-climate
-  entity: climate.dahatsu
-  secondary_info: fan-mode-dropdown
+type: custom:mini-climate
+entity: climate.dahatsu
+secondary_info: fan-mode-dropdown
 ```
 ![image](https://user-images.githubusercontent.com/861063/84180244-d80d0a80-aa8f-11ea-8275-f4e3db85fd31.png)
 
@@ -642,97 +642,97 @@ Can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically any
 > the following is a configuration example for my air conditioner
 
 ```yaml
-- type: custom:mini-climate
-  entity: climate.dahatsu
-  name: Кондиционер
-  fan_mode:
+type: custom:mini-climate
+entity: climate.dahatsu
+name: Кондиционер
+fan_mode:
+  source:
+    auto: Авто
+    low: Слабый
+    medium: Средний
+    high: Сильный
+    # for my implementation fan_modes_al is an array of available fan modes of the selected hvac mode
+    __filter: >
+      (source, state, entity) => entity.attributes
+        .fan_modes_al.map(fan_mode => source.find(s => s.id === fan_mode))
+        .filter(fan_mode => fan_mode)
+buttons:
+  swing_mode:
+    type: dropdown
+    icon: mdi:approximately-equal
+    state:
+      attribute: swing_mode
+    # the drop-down list will remain active until swing_mode is off
+    active: state => state !== 'off'
     source:
-      auto: Авто
-      low: Слабый
-      medium: Средний
-      high: Сильный
-      # for my implementation fan_modes_al is an array of available fan modes of the selected hvac mode
-      __filter: >
-        (source, state, entity) => entity.attributes
-          .fan_modes_al.map(fan_mode => source.find(s => s.id === fan_mode))
-          .filter(fan_mode => fan_mode)
-  buttons:
-    swing_mode:
-      type: dropdown
-      icon: mdi:approximately-equal
-      state:
-        attribute: swing_mode
-      # the drop-down list will remain active until swing_mode is off
-      active: state => state !== 'off'
-      source:
-        'off': Выкл
-        horizontal: Вкл
-      change_action: >
-        (selected, state, entity) => this.call_service('climate', 'set_swing_mode', { entity_id: entity.entity_id, swing_mode: selected })
-    # turbo air conditioning button
-    turbo:
-      icon: mdi:weather-hurricane
-      # control topic
-      topic: 'dahatsu/turbo/set'
-      state:
-        attribute: turbo
-        # for my device, the turbo attribute returns boolean type, convert it to on or off
-        mapper: "(state, entity) => state ? 'on': 'off'"
-      # turbo button is not available for all modes, block it when it is not available
-      disabled: (state, entity) => !entity.attributes.turbo_al
-      # when you click on the button, send the event to mqtt
-      toggle_action: >
-        (state) => this.call_service('mqtt', 'publish', { payload: this.toggle_state(state), topic: this.topic, retain: false, qos: 1 })
-    # eco button configuration is the same as for turbo button
-    eco:
-      icon: mdi:leaf
-      topic: 'dahatsu/eco/set'
-      state:
-        attribute: eco
-        mapper: "(state, entity) => state ? 'on': 'off'"
-      disabled: (state, entity) => !entity.attributes.eco_al
-      toggle_action: >
-        (state) => this.call_service('mqtt', 'publish', { payload: this.toggle_state(state), topic: this.topic, retain: false, qos: 1 })
-    # health button configuration is the same as for turbo button
-    health:
-      icon: mdi:emoticon-happy-outline
-      topic: 'dahatsu/health/set'
-      state:
-        attribute: health
-        mapper: "(state, entity) => state ? 'on': 'off'"
-      disabled: (state, entity) => !entity.attributes.health_al
-      toggle_action: >
-        (state) => this.call_service('mqtt', 'publish', { payload: this.toggle_state(state), topic: this.topic, retain: false, qos: 1  })
-    # power off button
-    power_switch:
-      icon: mdi:power-plug
-      state:
-        entity: switch.air_conditioner_kitchen_switch_l1
-  indicators:
-    # humidity indicator
-    humidity:
-      icon: mdi:water
-      unit: '%'
-      round: 1
-      source:
-        entity: sensor.sensor_temp_hum_pre_kitchen_humidity
-    # power consumption indicator
-    power_consumption:
-      icon: mdi:flash
-      unit: 'W'
-      round: 1
-      source:
-        entity: sensor.dahatsu_power
-    # power indicator
-    power:
-      icon: mdi:power-plug
-      source:
-        entity: switch.air_conditioner_kitchen_switch_l1
-        values:
-          'on': 'вкл'
-          'off': 'выкл'
-      # localization of values
-      mapper: value => this.source.values[value]
+      'off': Выкл
+      horizontal: Вкл
+    change_action: >
+      (selected, state, entity) => this.call_service('climate', 'set_swing_mode', { entity_id: entity.entity_id, swing_mode: selected })
+  # turbo air conditioning button
+  turbo:
+    icon: mdi:weather-hurricane
+    # control topic
+    topic: 'dahatsu/turbo/set'
+    state:
+      attribute: turbo
+      # for my device, the turbo attribute returns boolean type, convert it to on or off
+      mapper: "(state, entity) => state ? 'on': 'off'"
+    # turbo button is not available for all modes, block it when it is not available
+    disabled: (state, entity) => !entity.attributes.turbo_al
+    # when you click on the button, send the event to mqtt
+    toggle_action: >
+      (state) => this.call_service('mqtt', 'publish', { payload: this.toggle_state(state), topic: this.topic, retain: false, qos: 1 })
+  # eco button configuration is the same as for turbo button
+  eco:
+    icon: mdi:leaf
+    topic: 'dahatsu/eco/set'
+    state:
+      attribute: eco
+      mapper: "(state, entity) => state ? 'on': 'off'"
+    disabled: (state, entity) => !entity.attributes.eco_al
+    toggle_action: >
+      (state) => this.call_service('mqtt', 'publish', { payload: this.toggle_state(state), topic: this.topic, retain: false, qos: 1 })
+  # health button configuration is the same as for turbo button
+  health:
+    icon: mdi:emoticon-happy-outline
+    topic: 'dahatsu/health/set'
+    state:
+      attribute: health
+      mapper: "(state, entity) => state ? 'on': 'off'"
+    disabled: (state, entity) => !entity.attributes.health_al
+    toggle_action: >
+      (state) => this.call_service('mqtt', 'publish', { payload: this.toggle_state(state), topic: this.topic, retain: false, qos: 1  })
+  # power off button
+  power_switch:
+    icon: mdi:power-plug
+    state:
+      entity: switch.air_conditioner_kitchen_switch_l1
+indicators:
+  # humidity indicator
+  humidity:
+    icon: mdi:water
+    unit: '%'
+    round: 1
+    source:
+      entity: sensor.sensor_temp_hum_pre_kitchen_humidity
+  # power consumption indicator
+  power_consumption:
+    icon: mdi:flash
+    unit: 'W'
+    round: 1
+    source:
+      entity: sensor.dahatsu_power
+  # power indicator
+  power:
+    icon: mdi:power-plug
+    source:
+      entity: switch.air_conditioner_kitchen_switch_l1
+      values:
+        'on': 'вкл'
+        'off': 'выкл'
+    # localization of values
+    mapper: value => this.source.values[value]
 ```
 
 ## Development

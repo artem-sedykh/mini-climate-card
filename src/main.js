@@ -44,6 +44,14 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
     ], MiniClimate);
   }
 
+  static getStubConfig(hass, unusedEntities, allEntities) {
+    let entity = unusedEntities.find(eid => eid.split('.')[0] === 'climate');
+    if (!entity) {
+      entity = allEntities.find(eid => eid.split('.')[0] === 'climate');
+    }
+    return { entity };
+  }
+
   constructor() {
     super();
     this.initial = true;
@@ -683,3 +691,11 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
 }
 
 customElements.define('mini-climate', MiniClimate);
+window.customCards = window.customCards || [];
+window.customCards.push({
+  type: 'mini-climate',
+  name: 'Mini Climate',
+  preview: true,
+  description: 'A custom climate card',
+  documentationURL: 'https://github.com/artem-sedykh/mini-climate-card',
+});
