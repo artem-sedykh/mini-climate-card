@@ -1,0 +1,20 @@
+name: Hacs Validation
+
+on:
+  push:
+    branches: ['*']
+  pull_request:
+    branches: ['*']
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: HACS validation
+        uses: hacs/action@main
+        with:
+          category: plugin
