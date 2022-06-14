@@ -3,6 +3,8 @@
 
 A minimalistic yet customizable climate card for [Home Assistant](https://github.com/home-assistant/home-assistant) Lovelace UI.
 
-![Preview Image](https://user-images.githubusercontent.com/861063/83363491-98b13080-a3a2-11ea-90e6-1ba6364c800d.png)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/preview.png" />
+</p>
 
-**Check the repository for card options & example configurations**  
+**Check the [repository](https://github.com/artem-sedykh/mini-climate-card) for card options & example configurations**  

@@ -1,0 +1,34 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: ['*']
+  pull_request:
+    branches: ['*']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+      - name: Cahce dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+          key: ${{ runner.OS }}-node-16.x-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-node-16.x
+            ${{ runner.OS }}-
+      - name: Install dependencies
+        run: |
+          npm install
+      - name: Lint and build
+        run: |
+          npm run lint
+          npm run rollup
+          npm run babel

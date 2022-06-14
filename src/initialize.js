@@ -1,4 +1,4 @@
-import { version } from '../package';
+import { version } from '../package.json';
 
 // eslint-disable-next-line no-console
 console.info(

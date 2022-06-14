@@ -7,7 +7,9 @@
 A minimalistic yet customizable climate card for [Home Assistant](https://home-assistant.io/) Lovelace UI.  
 Please ⭐️ this repo if you find it useful  
 
-![Preview Image](https://user-images.githubusercontent.com/861063/83363491-98b13080-a3a2-11ea-90e6-1ba6364c800d.png)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/preview.png" />
+</p>
 
 ## Notice
 v2 is only compatible from version 2022.3 onwards 
@@ -24,7 +26,7 @@ v2 is only compatible from version 2022.3 onwards
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=2.2.0
+    - url: /local/mini-climate-card-bundle.js?v=2.21
       type: module
   ```
 
@@ -35,14 +37,14 @@ v2 is only compatible from version 2022.3 onwards
 2. Grab `mini-climate-card-bundle.js`
 
   ```console
-  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v2.2.0/mini-climate-card-bundle.js
+  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v2.2.1/mini-climate-card-bundle.js
   ```
 
 3. Add a reference to `mini-climate-card-bundle.js` inside your `ui-lovelace.yaml`.
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=2.2.0
+    - url: /local/mini-climate-card-bundle.js?v=2.2.1
       type: module
   ```
 
@@ -55,7 +57,7 @@ v2 is only compatible from version 2022.3 onwards
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=2.2.0
+    - url: /local/mini-climate-card-bundle.js?v=2.2.1
       type: module
   ```
 
