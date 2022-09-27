@@ -1,6 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import buildElementDefinitions from '../utils/buildElementDefinitions';
+import { NO_TARGET_TEMPERATURE } from '../const';
 
 export default class ClimateTemperature extends ScopedRegistryHost(LitElement) {
   static get defineId() { return 'mc-temperature'; }
@@ -20,10 +21,15 @@ export default class ClimateTemperature extends ScopedRegistryHost(LitElement) {
   }
 
   get targetStr() {
+    const targetStr = this.target.toString();
+    const targetNum = parseFloat(targetStr);
+    if (Number.isNaN(targetNum) || targetStr === NO_TARGET_TEMPERATURE) {
+      return NO_TARGET_TEMPERATURE;
+    }
     const parts = this.temperature.step.toString().split('.');
     return parts[1]
-      ? parseFloat(this.target.toString()).toFixed(parts[1].length)
-      : this.target;
+      ? targetNum.toFixed(parts[1].length)
+      : targetStr;
   }
 
   renderTemperature() {
