@@ -608,8 +608,8 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
   }
 
   renderSecondaryInfo() {
-    if (this.climate.isUnavailable)
-      return '';
+    if (this.climate.isUnavailable || this.config.secondary_info.hide)
+      return html``;
 
     return html`
       <div class='entity__secondary_info ellipsis'>

@@ -84,6 +84,7 @@ v2 is only compatible from version 2022.3 onwards
 | **secondary_info** | object | optional | v1.1.0 | secondary_info config. [secondary info examples](#secondary-info)
 | secondary_info: `type` | string | optional | v1.1.0 | available types: `last-changed, last-updated (v2.2.0), fan-mode, fan-mode-dropdown, hvac-mode, hvac-action`
 | secondary_info: `icon` | string | optional | v1.1.0 | icon for types: `fan-mode, fan-mode-dropdown, hvac-mode`, `hvac-action`
+| secondary_info: `hide` | boolean | optional | v2.3.0 | hide secondary_info, default value `False`
 | secondary_info: `source` | object | optional | v1.2.1 | source available types: `hvac-action`
 | secondary_info: `source:{item_name}` | object | optional | v1.2.1 | source item name
 | secondary_info: `source:{item_name}:icon` | object | optional | v1.2.1 | Specify a custom icon from any of the available mdi icons.
@@ -110,7 +111,7 @@ v2 is only compatible from version 2022.3 onwards
 | hvac_mode: `style` | function | optional | v1.0.1 | custom style
 | hvac_mode: `change_action` | function | optional | v1.0.1 | custom hvac_mode change function
 | hvac_mode: `state` | object | optional | v1.0.1 | config to get hvac_mode state.
-| hvac_mode: `hide` | number | optional | v1.2.3 | hide hvac_mode, default value `False`
+| hvac_mode: `hide` | boolean | optional | v1.2.3 | hide hvac_mode, default value `False`
 | hvac_mode: `state:entity` | string | optional | v1.1.0 | hvac_mode entity_id.
 | hvac_mode: `state:attribute` | string | optional | v1.1.0 | hvac_mode attribute.
 | hvac_mode: `state:mapper` | function | optional | v1.1.0 | state processing function
