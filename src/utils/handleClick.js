@@ -28,6 +28,13 @@ export default (node, hass, config, entityId) => {
       hass.callService(domain, service, serviceData);
       break;
     }
+    case 'fire-dom-event': {
+      if (!config.browser_mod) return;
+      e = new Event('ll-custom', { composed: true, bubbles: true });
+      e.detail = { ...config.browser_mod };
+      node.dispatchEvent(e);
+      break;
+    }
     case 'url': {
       if (!config.url) return;
       window.location.href = config.url;

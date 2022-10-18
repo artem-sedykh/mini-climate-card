@@ -20,5 +20,5 @@ export const UNAVAILABLE = 'unavailable';
 export const UNKNOWN = 'unknown';
 export const UNAVAILABLE_STATES = [UNAVAILABLE, UNKNOWN];
 export const ACTION_TIMEOUT = 2000;
-export const TAP_ACTIONS = ['more-info', 'navigate', 'call-service', 'url'];
+export const TAP_ACTIONS = ['more-info', 'navigate', 'call-service', 'url', 'fire-dom-event'];
 export const NO_TARGET_TEMPERATURE = '-';
