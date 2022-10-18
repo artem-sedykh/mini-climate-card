@@ -504,7 +504,6 @@ buttons:
 | entity | string |  | Any entity id | Override default entity of `more-info`, when  `action` is defined as `more-info`.
 | service | string |  | Any service | Service to call (e.g. `fan.turn_on`) when `action` is defined as `call-service`
 | service_data | object |  | Any service data | Service data to include with the service call.
-| browser_mod | object |  | Any browser mod data | Browser mod data to include with the fire dom event.
 | navigation_path | string |  | Any path | Path to navigate to (e.g. `/lovelace/0/`) when `action` is defined as `navigate`.
 | url | string |  | Any URL | URL to open when `action` is defined as `url`.
 
@@ -521,14 +520,16 @@ tap_action:
     entity_id: climate.my_ac
     hvac_mode: 'off'
 
-# fire-dom-event example
+# fire-dom-event + browser mod example
 type: custom:mini-climate
 entity: climate.my_ac
 tap_action:
   action: fire-dom-event
   browser_mod:
-    command: toast
-    message: Hello, world!
+    service: browser_mod.popup
+    data:
+      title: My title
+      content: test
 
 # navigate example
 type: custom:mini-climate
