@@ -29,9 +29,8 @@ export default (node, hass, config, entityId) => {
       break;
     }
     case 'fire-dom-event': {
-      if (!config.browser_mod) return;
       e = new Event('ll-custom', { composed: true, bubbles: true });
-      e.detail = { ...config.browser_mod };
+      e.detail = { ...config };
       node.dispatchEvent(e);
       break;
     }
