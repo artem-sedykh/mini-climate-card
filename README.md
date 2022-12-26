@@ -12,7 +12,7 @@ Please ⭐️ this repo if you find it useful
 </p>
 
 ## Notice
-v2 is only compatible from version 2022.3 onwards 
+v2 is only compatible from version 2022.11 onwards 
 
 ## Install
 
