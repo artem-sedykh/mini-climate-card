@@ -17,7 +17,7 @@ const style = css`
       var(--mini-climate-icon-color,
         var(--mini-climate-base-color,
           var(--paper-item-icon-color, #44739e)));
-    --mc-icon-active-color: var(--paper-item-icon-active-color, --mc-active-color);
+    --mc-icon-active-color: var(--rgb-state-binary-sensor-color);
     --mc-info-opacity: 1;
     --mc-bg-opacity: var(--mini-climate-background-opacity, 1);
     color: var(--mc-text-color);
@@ -40,6 +40,7 @@ const style = css`
     position: relative;
     color: inherit;
     font-size: calc(var(--mc-unit) * 0.35);
+    border: none;
   }
   ha-card:before {
     content: '';
@@ -94,7 +95,7 @@ const style = css`
     white-space: nowrap;
   }
   .entity__icon[color] {
-    color: var(--mc-icon-active-color);
+    color: rgb(var(--mc-icon-active-color));
   }
   .entity__icon {
     animation: fade-in .25s ease-out;
