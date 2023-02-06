@@ -20,7 +20,7 @@ const getEntityValue = (entity, config) => {
   if (!config)
     return entity.state;
 
-  if (config.attribute)
+  if (config.attribute && entity.attributes)
     return entity.attributes[config.attribute];
 
   return entity.state;
