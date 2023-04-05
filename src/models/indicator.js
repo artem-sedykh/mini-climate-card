@@ -56,4 +56,13 @@ export default class IndicatorObject {
 
     return {};
   }
+
+  get disabled() {
+    if (this.config.functions.disabled) {
+      return this.config.functions.disabled(this.value, this.entity,
+        this.climate.entity, this.climate.mode);
+    }
+
+    return false;
+  }
 }

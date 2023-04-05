@@ -33,7 +33,7 @@ class ClimateIndicators extends LitElement {
   }
 
   renderIndicator(indicator) {
-    if (!indicator)
+    if (!indicator || indicator.disabled)
       return '';
     const action = indicator.config && indicator.config.tap_action
       && indicator.config.tap_action.action;

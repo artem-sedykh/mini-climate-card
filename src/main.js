@@ -308,6 +308,9 @@ class MiniClimate extends LitElement {
         item.functions.icon.style = compileTemplate(item.icon.style, context);
     }
 
+    if (item.disabled)
+      item.functions.disabled = compileTemplate(item.disabled, context);
+
     return item;
   }
 
