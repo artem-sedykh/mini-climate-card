@@ -143,7 +143,7 @@ Please ⭐️ this repo if you find it useful
 | indicators: `name:source:attribute` | string | optional | v1.0.1 | entity attribute
 | indicators: `name:source:mapper` | function | optional | v1.0.1 | value processing function
 | indicators: `name:tap_action` | [action object](#tap-action-object) | true | v1.1.0 | Action on click/tap.
-| indicators: `name:disabled` | function | optional | v1.2.8 | disabled/enabled rendering of indicators
+| indicators: `name:disabled` | function | optional | v2.4.5 | disabled/enabled rendering of indicators
 | **buttons** | object | optional | v1.0.1 | any buttons, [example](#buttons).
 | buttons: `name` | object | optional | v1.0.1 | the name of your button see examples
 | buttons: `name:icon` | string | optional | v1.0.1 | Specify a custom icon from any of the available mdi icons.
