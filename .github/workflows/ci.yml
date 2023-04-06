@@ -15,14 +15,14 @@ jobs:
       - name: Node
         uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 18.x
       - name: Cahce dependencies
         uses: actions/cache@v3
         with:
           path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-          key: ${{ runner.OS }}-node-16.x-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.OS }}-node-18.x-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.OS }}-node-16.x
+            ${{ runner.OS }}-node-18.x
             ${{ runner.OS }}-
       - name: Install dependencies
         run: |

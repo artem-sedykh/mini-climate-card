@@ -1,6 +1,6 @@
 {
   "name": "mini-climate-card",
-  "version": "v2.4.4",
+  "version": "v2.4.5",
   "description": "a/c card for Home Assistant Lovelace UI",
   "keywords": [
     "home-assistant",
@@ -17,11 +17,11 @@
   "author": "Artem Sedykh <anavrin72@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@lit-labs/scoped-registry-mixin": "^1.0.0",
+    "@lit-labs/scoped-registry-mixin": "^1.0.1",
     "@material/mwc-list": "^0.26.1",
     "@material/mwc-menu": "^0.26.1",
     "@material/mwc-ripple": "^0.26.1",
-    "lit": "^2.2.3",
+    "lit": "^2.7.2",
     "resize-observer-polyfill": "^1.5.1"
   },
   "devDependencies": {
@@ -40,17 +40,12 @@
     "rollup": "^2.10.5",
     "rollup-plugin-node-resolve": "^3.4.0"
   },
-  "resolutions": {
-    "lit": "^2.2.3",
-    "lit-html": "2.2.3",
-    "lit-element": "3.1.2",
-    "@lit/reactive-element": "1.2.1"
-  },
   "scripts": {
     "build": "npm run lint && npm run rollup && npm run babel",
     "rollup": "rollup -c",
     "babel": "babel dist/mini-climate-card-bundle.js --out-file dist/mini-climate-card-bundle.js",
     "lint": "eslint src/* --ext .js",
+    "lint:fix": "eslint src/* --ext .js --fix",
     "watch": "rollup -c --watch"
   }
 }
