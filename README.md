@@ -78,11 +78,11 @@ v2 is only compatible from version 2022.11 onwards
 | swap_temperatures                         | boolean                             | optional     | V2.1.1 | Swap the current and the target temperature in the card                                                       |
 | hide_current_temperature                  | boolean                             | optional     | V2.1.2 | Hide the current temperature in the card                                                                      |
 | hide_current_temperature                  | function                            | optional     | V2.5.0 | Custom hide the current temperature in the card function                                                      |
-| **toggle**                                | object                              | optional     | v1.0.2 | Toggle button                                                                                                 |
+| **toggle**                                | object                              | optional     | v1.0.2 | Show/hide bottom buttons toggle button                                                                        |
 | toggle: `icon`                            | string                              | optional     | v1.0.2 | Custom icon, default value `mdi:dots-horizontal`                                                              |
 | toggle: `hide`                            | boolean                             | optional     | v1.0.2 | Hide toggle button, default value `False`                                                                     |
 | toggle: `hide`                            | function                            | optional     | v2.5.0 | Custom hide toggle button function                                                                            |
-| toggle: `default`                         | boolean                             | optional     | v1.0.2 | Default toggle button state, default value `off`                                                              |
+| toggle: `default`                         | boolean                             | optional     | v1.0.2 | Default toggle button state, default value `False`                                                            |
 | **secondary_info**                        | object                              | optional     | v1.1.0 | secondary_info config. [secondary info examples](#secondary-info)                                             |
 | secondary_info: `type`                    | string                              | optional     | v1.1.0 | Available types: `last-changed, last-updated (v2.2.0), fan-mode, fan-mode-dropdown, hvac-mode, hvac-action`   |
 | secondary_info: `icon`                    | string                              | optional     | v1.1.0 | Icon for types: `fan-mode, fan-mode-dropdown, hvac-mode`, `hvac-action`                                       |
@@ -183,10 +183,24 @@ v2 is only compatible from version 2022.11 onwards
 
 #### temperature
 
+> Functions available:
+
+| Name                       | Type     | execution context | arguments                                               | return type |
+|----------------------------|----------|-------------------|---------------------------------------------------------|-------------|
+| `hide_current_temperature` | function |                   | value, entity, target_entity, climate_entity, hvac_mode | boolean     |
+
+`value` - temperature value  
+`entity` - temperature entity  
+`target_entity` - target temperature entity  
+`climate_entity` - climate entity
+`hvac_mode` - current hvac_mode
+
 > Configuration example for the temperature:  
 ```yaml
 type: custom:mini-climate
 entity: climate.my_ac
+hide_current_temperature: >
+  (value) => value < 20
 temperature:
   unit: '°C'
   round: 1
@@ -241,6 +255,7 @@ target_temperature:
 | `change_action`   | function | hvac_mode config  | selected, entity, climate_entity      | any                                  |
 | `style`           | function | hvac_mode config  | value, entity, climate_entity         | object                               |
 | `source:__filter` | function | hvac_mode config  | source, state, entity, climate_entity | object({ id..., name...,... }) array |
+| `hide`            | function | hvac_mode config  | state, entity, climate_entity         | boolean                              |
 
 `state` - current hvac state  
 `selected` - selected value  
@@ -260,6 +275,8 @@ type: custom:mini-climate
 entity: climate.my_ac
 hvac_mode:
   style: "(value, entity) => ({ color: 'black' })"
+  hide: >
+    (state) => state === 'dry'
   source:
     'off':
       icon: mdi:power
@@ -295,6 +312,7 @@ hvac_mode:
 | `disabled`        | function | button config     | value, entity, climate_entity, hvac_mode          | boolean                          |
 | `style`           | function | button config     | value, entity, climate_entity, hvac_mode          | object                           |
 | `change_action`   | function | button config     | selected_value, entity, climate_entity, hvac_mode | promise                          |
+| `hide`            | function | button config     | state, entity, climate_entity, hvac_mode          | boolean                          |
 
 `state` - current button state value  
 `entity` - button entity  
@@ -315,7 +333,8 @@ hvac_mode:
 type: custom:mini-climate
 entity: climate.my_ac
 fan_mode:
-  hide: off
+  hide: >
+    (state) => state === 'low'
   icon: mdi:fan
   order: 0
   active: (state, entity) => entity.state !== 'off'
@@ -347,6 +366,7 @@ indicators:
     source:
       entity: sensor.humidity
 ```
+
 ##### indicator functions
 
 > Consider configuring an indicator using javascript
@@ -357,6 +377,7 @@ indicators:
 | `source:mapper` | function | indicator config  | value, entity, climate_entity, hvac_mode | any         |
 | `icon:template` | function | indicator config  | value, entity, climate_entity, hvac_mode | string      |
 | `icon:style`    | function | indicator config  | value, entity, climate_entity, hvac_mode | object      |
+| `hide`          | function | indicator config  | value, entity, climate_entity, hvac_mode | boolean     |
 
 `value` - current indicator value  
 `entity` - indicator entity  
@@ -428,6 +449,23 @@ indicators:
       entity: sensor.humidity
 ```
 
+##### Hide
+
+> You can also hide based on state.
+  for example:
+```yaml
+type: custom:mini-climate
+entity: climate.my_ac
+indicators:
+  humidity:
+    hide: >
+      (value) => value < 20
+    unit: '%'
+    round: 1
+    source:
+      entity: sensor.humidity
+```
+
 #### Buttons
 
 > You can add various buttons, supported types: button and dropdown
@@ -443,6 +481,7 @@ indicators:
 | `style`           | function | button config     | value, entity, climate_entity, hvac_mode          | object                           |
 | `toggle_action`   | function | button config     | state, entity, climate_entity, hvac_mode          | promise                          |
 | `change_action`   | function | button config     | selected_value, entity, climate_entity, hvac_mode | promise                          |
+| `hide`            | function | button config     | state, entity, climate_entity, hvac_mode          | boolean                          |
 
 `state` - current button state value  
 `entity` - button entity  
@@ -497,6 +536,8 @@ entity: climate.my_ac
 buttons:
   turbo:
     icon: mdi:weather-hurricane
+    hide: >
+      (state, entity) => !entity.attributes.turbo_al
     state:
       attribute: turbo
       mapper: "state => (state ? 'on': 'off')"
@@ -569,6 +610,15 @@ tap_action:
 
 #### secondary info
 
+##### secondary info functions
+
+| Name   | Type     | execution context     | arguments                 | return type |
+|--------|----------|-----------------------|---------------------------|-------------|
+| `hide` | function | secondary info config | climate_entity, hvac_mode | boolean     |
+
+`climate_entity` - climate entity  
+`hvac_mode` - current hvac_mode
+
 ```yaml
 type: custom:mini-climate
 entity: climate.dahatsu
@@ -579,10 +629,33 @@ entity: climate.dahatsu
 secondary_info:
   type: fan-mode
   icon: 'mdi:fan'
+  hide: >
+    (climate_entity) => !climate_entity.attributes.turbo_al
 
 type: custom:mini-climate
 entity: climate.dahatsu
 secondary_info: hvac-mode
+```
+
+#### toggle
+
+##### toggle functions
+
+| Name   | Type     | execution context | arguments                 | return type |
+|--------|----------|-------------------|---------------------------|-------------|
+| `hide` | function | toggle config     | climate_entity, hvac_mode | boolean     |
+
+`climate_entity` - climate entity  
+`hvac_mode` - current hvac_mode
+
+```yaml
+type: custom:mini-climate
+entity: climate.dahatsu
+toggle:
+  default: true
+  icon: 'mdi:fan'
+  hide: >
+    (climate_entity) => !climate_entity.attributes.turbo_al
 ```
 
 ##### hvac-action type
