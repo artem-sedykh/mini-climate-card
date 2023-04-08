@@ -59,7 +59,6 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
     this.temperature = {};
     this.targetTemperature = {};
     this.swapTemperatures = false;
-    this.hideCurrentTemperature = false;
     this.buttons = {};
     this.indicators = {};
     this.hvacMode = {};
@@ -152,7 +151,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
     const targetTemperatureEntity = this.hass.states[targetTemperatureEntityId];
 
     const temperature = new TemperatureObject(temperatureEntity, targetTemperatureEntity,
-      this.config);
+      this.config, this.climate);
 
     if (this.temperature.rawValue !== temperature.rawValue
       || this.temperature.target !== temperature.target || force) {
@@ -273,6 +272,14 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
     if (item.style)
       item.functions.style = compileTemplate(item.style, context);
 
+    if (item.hide) {
+      if (typeof item.hide === 'boolean') {
+        item.functions.hide = () => true;
+      } else {
+        item.functions.hide = compileTemplate(item.hide, context);
+      }
+    }
+
     return item;
   }
 
@@ -330,13 +337,58 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
         item.functions.icon.style = compileTemplate(item.icon.style, context);
     }
 
+    if (item.hide) {
+      if (typeof item.hide === 'boolean') {
+        item.functions.hide = () => true;
+      } else {
+        item.functions.hide = compileTemplate(item.hide, context);
+      }
+    }
+
+    return item;
+  }
+
+  getSecondaryInfoConfig(config) {
+    const item = {
+      ...config,
+    };
+
+    item.functions = item.functions || {};
+    const context = { ...config };
+
+    if (item.hide) {
+      if (typeof item.hide === 'boolean') {
+        item.functions.hide = () => true;
+      } else {
+        item.functions.hide = compileTemplate(item.hide, context);
+      }
+    }
+
+    return item;
+  }
+
+  getToggleConfig(config) {
+    const item = {
+      ...config,
+    };
+
+    item.functions = item.functions || {};
+    const context = { ...config };
+
+    if (item.hide) {
+      if (typeof item.hide === 'boolean') {
+        item.functions.hide = () => true;
+      } else {
+        item.functions.hide = compileTemplate(item.hide, context);
+      }
+    }
+
     return item;
   }
 
   getIndicatorsConfig(config) {
     return Object.entries(config.indicators || {})
-      .map(i => this.getIndicatorConfig(i[0], i[1] || {}, config))
-      .filter(i => !i.hide);
+      .map(i => this.getIndicatorConfig(i[0], i[1] || {}, config));
   }
 
   getTargetTemperatureConfig(config) {
@@ -425,12 +477,12 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
 
     this.config.hvac_mode = this.getHvacModeConfig(this.config);
 
-    this.config.toggle = {
+    this.config.toggle = this.getToggleConfig({
       icon: ICON.TOGGLE,
       hide: false,
       default: false,
       ...config.toggle || {},
-    };
+    });
 
     if (typeof config.secondary_info === 'string') {
       this.config.secondary_info = { type: config.secondary_info };
@@ -440,11 +492,11 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
         ...config.secondary_info || {},
       };
     }
+    this.config.secondary_info = this.getSecondaryInfoConfig(this.config.secondary_info);
 
     this.toggle = this.config.toggle.default;
 
     this.swapTemperatures = !!this.config.swap_temperatures;
-    this.hideCurrentTemperature = !!this.config.hide_current_temperature;
   }
 
   renderCtlWrap() {
@@ -471,8 +523,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
           .temperature=${this.temperature}
           .target=${this.targetTemperatureValue}
           .changing=${this.targetTemperatureChanging}
-          .swapTemperatures=${this.swapTemperatures}
-          .hideCurrentTemperature=${this.hideCurrentTemperature}>
+          .swapTemperatures=${this.swapTemperatures}>
         </mc-temperature>
     `;
   }
@@ -583,11 +634,16 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
   }
 
   renderToggleButton() {
-    if (this.config.buttons.filter(b => !b.hide && b.location !== 'main').length === 0)
-      return '';
+    if (Object.entries(this.buttons)
+      .map(entry => entry[1])
+      .filter(button => !button.hide && button.location !== 'main')
+      .length === 0)
+      return html``;
 
-    if (this.config.toggle.hide)
-      return '';
+    if (this.config.toggle.functions.hide
+      && this.config.toggle.functions.hide(this.climate.entity, this.climate.mode)) {
+      return html``;
+    }
 
     return html`
         <ha-icon-button class='toggle-button ${this.toggleButtonCls()}'
@@ -608,8 +664,13 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
   }
 
   renderSecondaryInfo() {
-    if (this.climate.isUnavailable || this.config.secondary_info.hide)
+    if (this.climate.isUnavailable)
       return html``;
+
+    if (this.config.secondary_info.functions.hide
+      && this.config.secondary_info.functions.hide(this.climate.entity, this.climate.mode)) {
+      return html``;
+    }
 
     return html`
       <div class='entity__secondary_info ellipsis'>

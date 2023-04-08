@@ -1,10 +1,20 @@
-import { getEntityValue, round } from '../utils/utils';
+import { compileTemplate, getEntityValue, round } from '../utils/utils';
 
 export default class TemperatureObject {
-  constructor(temperatureEntity, targetTemperatureEntity, config) {
+  constructor(temperatureEntity, targetTemperatureEntity, config, climate) {
+    this.climate = climate || {};
     this.temperatureEntity = temperatureEntity || {};
     this.targetTemperatureEntity = targetTemperatureEntity || {};
     this.config = config;
+    if (this.config.hide_current_temperature) {
+      if (typeof this.config.hide_current_temperature === 'boolean') {
+        this.shouldHideCurrentTemperature = () => true;
+      } else {
+        this.shouldHideCurrentTemperature = compileTemplate(this.config.hide_current_temperature);
+      }
+    } else {
+      this.shouldHideCurrentTemperature = () => false;
+    }
   }
 
   get unit() {
@@ -39,5 +49,10 @@ export default class TemperatureObject {
 
   get rawValue() {
     return getEntityValue(this.temperatureEntity, this.config.temperature.source);
+  }
+
+  get hide() {
+    return this.shouldHideCurrentTemperature(this.value, this.temperatureEntity,
+      this.targetTemperatureEntity, this.climate.entity, this.climate.mode);
   }
 }

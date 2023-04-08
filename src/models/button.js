@@ -30,7 +30,12 @@ export default class ButtonObject {
   }
 
   get hide() {
-    return this.config.hide;
+    if (this.config.functions.hide) {
+      return this.config.functions.hide(this.state, this.entity,
+        this.climate.entity, this.climate.mode);
+    }
+
+    return false;
   }
 
   get icon() {

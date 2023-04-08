@@ -60,11 +60,16 @@ export default class ClimateIndicators extends ScopedRegistryHost(LitElement) {
     if (!ClimateIndicators.elementDefinitionsLoaded) {
       return html``;
     }
+
+    const indicatorsToShow = Object.entries(this.indicators)
+      .map(entry => entry[1])
+      .filter(indicator => !indicator.hide);
+
     const context = this;
 
     return html`
      <div class='mc-indicators__container'>
-       ${Object.entries(this.indicators).map(i => context.renderIndicator(i[1]))}
+       ${indicatorsToShow.map(i => context.renderIndicator(i))}
      </div>
     `;
   }
