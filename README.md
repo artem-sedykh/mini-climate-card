@@ -7,8 +7,8 @@
 A minimalistic yet customizable climate card for [Home Assistant](https://home-assistant.io/) Lovelace UI.  
 Please ⭐️ this repo if you find it useful  
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/preview.png" />
+<p style="align-content: center">
+  <img alt="card preview" src="https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/preview.png" />
 </p>
 
 ## Notice
@@ -68,108 +68,118 @@ v2 is only compatible from version 2022.11 onwards
 ### Options
 
 #### Card options
-| Name | Type | Default | Since | Description |
-|------|------|---------|-------|-------------|
-| type | string | **required** | v1.0.1 | `custom:mini-climate`
-| entity | string | **required** | v1.0.1 | An entity_id from an entity within the `climate` domain.
-| name | string | optional | v1.0.1 | Override the entities friendly name.
-| group | boolean | optional | v1.0.2 | Removes paddings, background color and box-shadow.
-| icon | string | optional | v1.0.1 | Specify a custom icon from any of the available mdi icons.
-| swap_temperatures | boolean | optional | V2.1.1 | Swap the current and the target temperature in the card.
-| hide_current_temperature | boolean | optional | V2.1.2 | Hide the current temperature in the card.
-| **toggle** | object | optional | v1.0.2 | Toggle button.
-| toggle: `icon` | string | optional | v1.0.2 | Custom icon, default value `mdi:dots-horizontal`
-| toggle: `hide` | boolean | optional | v1.0.2 | Hide button, default value `False`
-| toggle: `default` | boolean | optional | v1.0.2 | Default toggle button state, default value `off`.
-| **secondary_info** | object | optional | v1.1.0 | secondary_info config. [secondary info examples](#secondary-info)
-| secondary_info: `type` | string | optional | v1.1.0 | available types: `last-changed, last-updated (v2.2.0), fan-mode, fan-mode-dropdown, hvac-mode, hvac-action`
-| secondary_info: `icon` | string | optional | v1.1.0 | icon for types: `fan-mode, fan-mode-dropdown, hvac-mode`, `hvac-action`
-| secondary_info: `hide` | boolean | optional | v2.3.0 | hide secondary_info, default value `False`
-| secondary_info: `source` | object | optional | v1.2.1 | source available types: `hvac-action`
-| secondary_info: `source:{item_name}` | object | optional | v1.2.1 | source item name
-| secondary_info: `source:{item_name}:icon` | object | optional | v1.2.1 | Specify a custom icon from any of the available mdi icons.
-| secondary_info: `source:{item_name}:name` | object | optional | v1.2.1 | Display name.
-| **temperature** | object | optional | v1.0.1 | current temperature configuration. [temperature examples](#temperature)
-| temperature: `unit` | string | optional | v1.0.1 | display unit, default `°C`
-| temperature: `round or fixed` | number | optional | v1.2.2 | rounding or fixed value, default `round: 1`
-| temperature: `source` | object | optional | v1.0.1 | data source for target temperature
-| temperature: `source:entity` | string | optional | v1.0.1 | entity_id, default current climate entity_id
-| temperature: `source:attribute` | string | optional | v1.0.1 | default `current_temperature`
-| **target_temperature** | object | optional | v1.0.1 | target temperature configuration. [target_temperature examples](#target_temperature)
-| target_temperature: `icons` | object | optional | v1.0.1 | Icons for temperature change buttons
-| target_temperature: `icons:up` | string | optional | v1.0.1 | up icon, default `mdi:chevron-up`
-| target_temperature: `icons:down` | string | optional | v1.0.1 | down icon, default `mdi:chevron-down`
-| target_temperature: `unit` | string | optional | v1.0.1 | display unit, default `°C`
-| target_temperature: `min` | number | optional | v1.0.1 | minimum temperature, the default value is taken from the attribute `min_temp` of the given entity
-| target_temperature: `max` | number | optional | v1.0.1 | maximum temperature, the default value is taken from the attribute `max_temp` of the given entity
-| target_temperature: `step` | number | optional | v1.0.1 | temperature change step, the default value is taken from the attribute `target_temp_step` of the given entity
-| target_temperature: `source` | object | optional | v1.0.1 | data source for target temperature
-| target_temperature: `source:entity` | string | optional | v1.0.1 | entity_id, default current climate entity_id
-| target_temperature: `source:attribute` | string | optional | v1.0.1 | default `temperature`
-| target_temperature: `change_action` | function | optional | v1.0.1 | custom temperature change function
-| **hvac_mode** | object | optional | v1.0.1 | HVAC mode. [hvac_mode examples](#hvac_mode)
-| hvac_mode: `style` | function | optional | v1.0.1 | custom style
-| hvac_mode: `change_action` | function | optional | v1.0.1 | custom hvac_mode change function
-| hvac_mode: `state` | object | optional | v1.0.1 | config to get hvac_mode state.
-| hvac_mode: `hide` | boolean | optional | v1.2.3 | hide hvac_mode, default value `False`
-| hvac_mode: `state:entity` | string | optional | v1.1.0 | hvac_mode entity_id.
-| hvac_mode: `state:attribute` | string | optional | v1.1.0 | hvac_mode attribute.
-| hvac_mode: `state:mapper` | function | optional | v1.1.0 | state processing function
-| hvac_mode: `active` | function | optional | v1.1.0 | active function
-| hvac_mode: `source` | object | optional | v1.0.1 | data
-| hvac_mode: `source:__filter` | function | optional | v1.1.0 | filter function
-| hvac_mode: `source:item` | object | optional | v1.0.1 | `item` - mode name e.g. cool, heat, off, etc.
-| hvac_mode: `source:item:icon` | string | optional | v1.0.1 | Specify a custom icon from any of the available mdi icons.
-| hvac_mode: `source:item:name` | string | optional | v1.0.1 | Display name.
-| hvac_mode: `source:item:order` | number | optional | v1.2.5 | sort order.
-| **fan_mode** | object | optional | v1.0.1 | fan operation for climate device. [fan_mode examples](#fan_mode)
-| fan_mode: `icon` | string | optional | v1.0.1 | Specify a custom icon from any of the available mdi icons.
-| fan_mode: `order` | number | optional | v1.0.1 | sort order, default value `0`
-| fan_mode: `location` | string | optional | v1.0.1 | allows you to display buttons on the main panel, types `main, bottom`, default `bottom`
-| fan_mode: `hide` | number | optional | v1.0.1 | hide button, default value `False`
-| fan_mode: `style` | function | optional | v1.0.1 | style
-| fan_mode: `disabled` | function | optional | v1.0.1 | disabled function
-| fan_mode: `active` | function | optional | v1.0.1 | active
-| fan_mode: `change_action` | function | optional | v1.0.1 | custom fan_mode change function
-| fan_mode: `state` | object | optional | v1.0.1 | config to get fan_mode state.
-| fan_mode: `state:entity` | string | optional | v1.0.1 | fan_mode entity_id.
-| fan_mode: `state:attribute` | string | optional | v1.0.1 | fan_mode attribute, default `fan_mode`
-| fan_mode: `source` | object | optional | v1.0.1 | Source for drop down list
-| fan_mode: `source:item` | string | optional | v1.0.1 | `item` - mode name e.g. auto, low, medium ...
-| fan_mode: `source:__filter` | function | optional | v1.0.1 | source filter
-| **indicators** | object | optional | v1.0.1 | any indicators, [examples](#indicators).
-| indicators: `name` | object | optional | v1.0.1 | the name of your indicator see [examples](#indicators).
-| indicators: `name:icon` | string | optional | v1.0.1 | Specify a custom icon from any of the available mdi icons.
-| indicators: `name:icon` | object | optional | v1.0.1 | icon object
-| indicators: `name:icon:template` | function | optional | v1.0.1 | icon template function
-| indicators: `name:icon:style` | function | optional | v1.0.1 | styles
-| indicators: `name:unit` | string | optional | v1.0.1 | display unit.
-| indicators: `name:round` | number | optional | v1.0.1 | rounding number value.
-| indicators: `name:source` | number | optional | v1.0.1 | data source.
-| indicators: `name:source:entity` | string | optional | v1.0.1 | indicator entity_id
-| indicators: `name:source:attribute` | string | optional | v1.0.1 | entity attribute
-| indicators: `name:source:mapper` | function | optional | v1.0.1 | value processing function
-| indicators: `name:tap_action` | [action object](#tap-action-object) | true | v1.1.0 | Action on click/tap.
-| **buttons** | object | optional | v1.0.1 | any buttons, [example](#buttons).
-| buttons: `name` | object | optional | v1.0.1 | the name of your button see examples
-| buttons: `name:icon` | string | optional | v1.0.1 | Specify a custom icon from any of the available mdi icons.
-| buttons: `name:type` | string | optional | v1.0.1 | `dropdown` or `button` default `button`
-| buttons: `name:order` | number | optional | v1.0.1 | sort order
-| buttons: `name:location` | string | optional | v1.2.1 | allows you to display buttons on the main panel, types `main, bottom`, default `bottom`
-| buttons: `name:state` | object | optional | v1.0.1 | config to get button state.
-| buttons: `name:state:entity` | string | optional | v1.0.1 | button entity_id.
-| buttons: `name:state:attribute` | string | optional | v1.0.1 | entity attribute
-| buttons: `name:state:mapper` | function | optional | v1.0.1 | state processing function
-| buttons: `name:disabled` | function | optional | v1.0.1 | calc disabled button
-| buttons: `name:active` | function | optional | v1.0.1 | for type `dropdown`
-| buttons: `name:source` | object | optional | v1.0.1 | for type `dropdown`
-| buttons: `name:source:item` | string | optional | v1.0.1 | source item, format horizontal: horizontal
-| buttons: `name:source:__filter` | function | optional | v1.0.1 | filter function
-| buttons: `name:change_action` | function | optional | v1.0.1 | for type `dropdown`
-| buttons: `name:toggle_action` | function | optional | v1.0.1 | for type `button`
-| buttons: `name:style` | function | optional | v1.0.1 | styles
-| tap_action | [action object](#tap-action-object) | true | v1.0.4 | Action on click/tap, [tap_action](#tap-action-example).
-| scale | number | optional | v1.0.1 | UI scale modifier, default is `1`.
+| Name                                      | Type                                | Default      | Since  | Description                                                                                                   |
+|-------------------------------------------|-------------------------------------|--------------|--------|---------------------------------------------------------------------------------------------------------------|
+| type                                      | string                              | **required** | v1.0.1 | `custom:mini-climate`                                                                                         |
+| entity                                    | string                              | **required** | v1.0.1 | An entity_id from an entity within the `climate` domain                                                       |
+| name                                      | string                              | optional     | v1.0.1 | Override the entities friendly name                                                                           |
+| group                                     | boolean                             | optional     | v1.0.2 | Removes paddings, background color and box-shadow                                                             |
+| icon                                      | string                              | optional     | v1.0.1 | Specify a custom icon from any of the available mdi icons                                                     |
+| swap_temperatures                         | boolean                             | optional     | V2.1.1 | Swap the current and the target temperature in the card                                                       |
+| hide_current_temperature                  | boolean                             | optional     | V2.1.2 | Hide the current temperature in the card                                                                      |
+| hide_current_temperature                  | function                            | optional     | V2.5.0 | Custom hide the current temperature in the card function                                                      |
+| **toggle**                                | object                              | optional     | v1.0.2 | Toggle button                                                                                                 |
+| toggle: `icon`                            | string                              | optional     | v1.0.2 | Custom icon, default value `mdi:dots-horizontal`                                                              |
+| toggle: `hide`                            | boolean                             | optional     | v1.0.2 | Hide toggle button, default value `False`                                                                     |
+| toggle: `hide`                            | function                            | optional     | v2.5.0 | Custom hide toggle button function                                                                            |
+| toggle: `default`                         | boolean                             | optional     | v1.0.2 | Default toggle button state, default value `off`                                                              |
+| **secondary_info**                        | object                              | optional     | v1.1.0 | secondary_info config. [secondary info examples](#secondary-info)                                             |
+| secondary_info: `type`                    | string                              | optional     | v1.1.0 | Available types: `last-changed, last-updated (v2.2.0), fan-mode, fan-mode-dropdown, hvac-mode, hvac-action`   |
+| secondary_info: `icon`                    | string                              | optional     | v1.1.0 | Icon for types: `fan-mode, fan-mode-dropdown, hvac-mode`, `hvac-action`                                       |
+| secondary_info: `hide`                    | boolean                             | optional     | v2.3.0 | Hide secondary_info, default value `False`                                                                    |
+| secondary_info: `hide`                    | function                            | optional     | v2.5.0 | Custom hide secondary_info function.                                                                          |
+| secondary_info: `source`                  | object                              | optional     | v1.2.1 | Source available types: `hvac-action`                                                                         |
+| secondary_info: `source:{item_name}`      | object                              | optional     | v1.2.1 | Source item name                                                                                              |
+| secondary_info: `source:{item_name}:icon` | object                              | optional     | v1.2.1 | Specify a custom icon from any of the available mdi icons                                                     |
+| secondary_info: `source:{item_name}:name` | object                              | optional     | v1.2.1 | Display name                                                                                                  |
+| **temperature**                           | object                              | optional     | v1.0.1 | Current temperature configuration. [temperature examples](#temperature)                                       |
+| temperature: `unit`                       | string                              | optional     | v1.0.1 | Display unit, default `°C`                                                                                    |
+| temperature: `round or fixed`             | number                              | optional     | v1.2.2 | Rounding or fixed value, default `round: 1`                                                                   |
+| temperature: `source`                     | object                              | optional     | v1.0.1 | Data source for target temperature                                                                            |
+| temperature: `source:entity`              | string                              | optional     | v1.0.1 | entity_id, default current climate entity_id                                                                  |
+| temperature: `source:attribute`           | string                              | optional     | v1.0.1 | Default `current_temperature`                                                                                 |
+| **target_temperature**                    | object                              | optional     | v1.0.1 | Target temperature configuration. [target_temperature examples](#target_temperature)                          |
+| target_temperature: `icons`               | object                              | optional     | v1.0.1 | Icons for temperature change buttons                                                                          |
+| target_temperature: `icons:up`            | string                              | optional     | v1.0.1 | Up icon, default `mdi:chevron-up`                                                                             |
+| target_temperature: `icons:down`          | string                              | optional     | v1.0.1 | Down icon, default `mdi:chevron-down`                                                                         |
+| target_temperature: `unit`                | string                              | optional     | v1.0.1 | Display unit, default `°C`                                                                                    |
+| target_temperature: `min`                 | number                              | optional     | v1.0.1 | Minimum temperature, the default value is taken from the attribute `min_temp` of the given entity             |
+| target_temperature: `max`                 | number                              | optional     | v1.0.1 | Maximum temperature, the default value is taken from the attribute `max_temp` of the given entity             |
+| target_temperature: `step`                | number                              | optional     | v1.0.1 | Temperature change step, the default value is taken from the attribute `target_temp_step` of the given entity |
+| target_temperature: `source`              | object                              | optional     | v1.0.1 | Data source for target temperature                                                                            |
+| target_temperature: `source:entity`       | string                              | optional     | v1.0.1 | entity_id, default current climate entity_id                                                                  |
+| target_temperature: `source:attribute`    | string                              | optional     | v1.0.1 | Default `temperature`                                                                                         |
+| target_temperature: `change_action`       | function                            | optional     | v1.0.1 | Custom temperature change function                                                                            |
+| **hvac_mode**                             | object                              | optional     | v1.0.1 | HVAC mode. [hvac_mode examples](#hvac_mode)                                                                   |
+| hvac_mode: `style`                        | function                            | optional     | v1.0.1 | Custom style                                                                                                  |
+| hvac_mode: `change_action`                | function                            | optional     | v1.0.1 | Custom hvac_mode change function                                                                              |
+| hvac_mode: `state`                        | object                              | optional     | v1.0.1 | Config to get hvac_mode state                                                                                 |
+| hvac_mode: `hide`                         | boolean                             | optional     | v1.2.3 | Hide hvac_mode, default value `False`                                                                         |
+| hvac_mode: `hide`                         | function                            | optional     | v2.5.0 | Custom hide hvac_mode function                                                                                |
+| hvac_mode: `state:entity`                 | string                              | optional     | v1.1.0 | hvac_mode entity_id                                                                                           |
+| hvac_mode: `state:attribute`              | string                              | optional     | v1.1.0 | hvac_mode attribute                                                                                           |
+| hvac_mode: `state:mapper`                 | function                            | optional     | v1.1.0 | State processing function                                                                                     |
+| hvac_mode: `active`                       | function                            | optional     | v1.1.0 | Active function                                                                                               |
+| hvac_mode: `source`                       | object                              | optional     | v1.0.1 | Data                                                                                                          |
+| hvac_mode: `source:__filter`              | function                            | optional     | v1.1.0 | Filter function                                                                                               |
+| hvac_mode: `source:item`                  | object                              | optional     | v1.0.1 | `item` - mode name e.g. cool, heat, off, etc.                                                                 |
+| hvac_mode: `source:item:icon`             | string                              | optional     | v1.0.1 | Specify a custom icon from any of the available mdi icons                                                     |
+| hvac_mode: `source:item:name`             | string                              | optional     | v1.0.1 | Display name                                                                                                  |
+| hvac_mode: `source:item:hide`             | boolean                             | optional     | v2.5.0 | Hide source, default value `False`                                                                            |
+| hvac_mode: `source:item:order`            | number                              | optional     | v1.2.5 | Sort order                                                                                                    |
+| **fan_mode**                              | object                              | optional     | v1.0.1 | Fan operation for climate device. [fan_mode examples](#fan_mode)                                              |
+| fan_mode: `icon`                          | string                              | optional     | v1.0.1 | Specify a custom icon from any of the available mdi icons                                                     |
+| fan_mode: `order`                         | number                              | optional     | v1.0.1 | Sort order, default value `0`                                                                                 |
+| fan_mode: `location`                      | string                              | optional     | v1.0.1 | Allows you to display buttons on the main panel, types `main, bottom`, default `bottom`                       |
+| fan_mode: `hide`                          | number                              | optional     | v1.0.1 | Hide button, default value `False`                                                                            |
+| fan_mode: `hide`                          | function                            | optional     | v2.5.0 | Custom hide button function                                                                                   |
+| fan_mode: `style`                         | function                            | optional     | v1.0.1 | Style                                                                                                         |
+| fan_mode: `disabled`                      | function                            | optional     | v1.0.1 | Disabled function                                                                                             |
+| fan_mode: `active`                        | function                            | optional     | v1.0.1 | Active                                                                                                        |
+| fan_mode: `change_action`                 | function                            | optional     | v1.0.1 | Custom fan_mode change function                                                                               |
+| fan_mode: `state`                         | object                              | optional     | v1.0.1 | Config to get fan_mode state                                                                                  |
+| fan_mode: `state:entity`                  | string                              | optional     | v1.0.1 | fan_mode entity_id                                                                                            |
+| fan_mode: `state:attribute`               | string                              | optional     | v1.0.1 | fan_mode attribute, default `fan_mode`                                                                        |
+| fan_mode: `source`                        | object                              | optional     | v1.0.1 | Source for drop down list                                                                                     |
+| fan_mode: `source:item`                   | string                              | optional     | v1.0.1 | `item` - mode name e.g. auto, low, medium...                                                                  |
+| fan_mode: `source:__filter`               | function                            | optional     | v1.0.1 | Source filter                                                                                                 |
+| **indicators**                            | object                              | optional     | v1.0.1 | Any indicators, [examples](#indicators)                                                                       |
+| indicators: `name`                        | object                              | optional     | v1.0.1 | The name of your indicator see [examples](#indicators)                                                        |
+| indicators: `name:icon`                   | string                              | optional     | v1.0.1 | Specify a custom icon from any of the available mdi icons                                                     |
+| indicators: `name:icon`                   | object                              | optional     | v1.0.1 | Icon object                                                                                                   |
+| indicators: `name:icon:template`          | function                            | optional     | v1.0.1 | Icon template function                                                                                        |
+| indicators: `name:icon:style`             | function                            | optional     | v1.0.1 | Styles                                                                                                        |
+| indicators: `name:unit`                   | string                              | optional     | v1.0.1 | Display unit                                                                                                  |
+| indicators: `name:round`                  | number                              | optional     | v1.0.1 | Rounding number value                                                                                         |
+| indicators: `name:hide`                   | boolean                             | optional     | v2.5.0 | Hide indicator, default value `False`                                                                         |
+| indicators: `name:hide`                   | function                            | optional     | v2.5.0 | Custom hide indicator function                                                                                |
+| indicators: `name:source`                 | number                              | optional     | v1.0.1 | Data source                                                                                                   |
+| indicators: `name:source:entity`          | string                              | optional     | v1.0.1 | Indicator entity_id                                                                                           |
+| indicators: `name:source:attribute`       | string                              | optional     | v1.0.1 | Entity attribute                                                                                              |
+| indicators: `name:source:mapper`          | function                            | optional     | v1.0.1 | Value processing function                                                                                     |
+| indicators: `name:tap_action`             | [action object](#tap-action-object) | true         | v1.1.0 | Action on click/tap                                                                                           |
+| **buttons**                               | object                              | optional     | v1.0.1 | Any buttons, [example](#buttons)                                                                              |
+| buttons: `name`                           | object                              | optional     | v1.0.1 | The name of your button see examples                                                                          |
+| buttons: `name:icon`                      | string                              | optional     | v1.0.1 | Specify a custom icon from any of the available mdi icons                                                     |
+| buttons: `name:type`                      | string                              | optional     | v1.0.1 | `dropdown` or `button` default `button`                                                                       |
+| buttons: `name:order`                     | number                              | optional     | v1.0.1 | Sort order                                                                                                    |
+| buttons: `name:location`                  | string                              | optional     | v1.2.1 | Allows you to display buttons on the main panel, types `main, bottom`, default `bottom`                       |
+| buttons: `name:state`                     | object                              | optional     | v1.0.1 | Config to get button state                                                                                    |
+| buttons: `name:state:entity`              | string                              | optional     | v1.0.1 | Button entity_id                                                                                              |
+| buttons: `name:state:attribute`           | string                              | optional     | v1.0.1 | Entity attribute                                                                                              |
+| buttons: `name:state:mapper`              | function                            | optional     | v1.0.1 | State processing function                                                                                     |
+| buttons: `name:disabled`                  | function                            | optional     | v1.0.1 | Calc disabled button                                                                                          |
+| buttons: `name:hide`                      | boolean                             | optional     | v2.5.0 | Hide button, default value `False`                                                                            |
+| buttons: `name:hide`                      | function                            | optional     | v2.5.0 | Custom hide button function                                                                                   |
+| buttons: `name:active`                    | function                            | optional     | v1.0.1 | For type `dropdown`                                                                                           |
+| buttons: `name:source`                    | object                              | optional     | v1.0.1 | For type `dropdown`                                                                                           |
+| buttons: `name:source:item`               | string                              | optional     | v1.0.1 | Source item, format horizontal: horizontal                                                                    |
+| buttons: `name:source:__filter`           | function                            | optional     | v1.0.1 | Filter function                                                                                               |
+| buttons: `name:change_action`             | function                            | optional     | v1.0.1 | For type `dropdown`                                                                                           |
+| buttons: `name:toggle_action`             | function                            | optional     | v1.0.1 | For type `button`                                                                                             |
+| buttons: `name:style`                     | function                            | optional     | v1.0.1 | Styles                                                                                                        |
+| tap_action                                | [action object](#tap-action-object) | true         | v1.0.4 | Action on click/tap, [tap_action](#tap-action-example)                                                        |
+| scale                                     | number                              | optional     | v1.0.1 | UI scale modifier, default is `1`                                                                             |
 
 #### temperature
 
@@ -189,9 +199,9 @@ temperature:
 
 > Functions available for the target_temperature:  
 
-| Name | Type | execution context | arguments | return type |
-|------|------|-------------------|-----------|-------------|
-|`change_action` | function | target_temperature config | value, entity, climate_entity | promise
+| Name            | Type     | execution context         | arguments                     | return type |
+|-----------------|----------|---------------------------|-------------------------------|-------------|
+| `change_action` | function | target_temperature config | value, entity, climate_entity | promise     |
 
 `value` - target_temperature value  
 `entity` - target_temperature entity  
@@ -199,10 +209,10 @@ temperature:
 
 **execution context methods:**  
 
-| Name | arguments | description | return type |
-|------|-----------|-------------|-------------|
-|`toggle_state` | state | toggle state, example: `this.toggle_state('on') => off`  | string
-|`call_service` | domain, service, options, | call Home Assistant service | promise
+| Name           | arguments                 | description                                             | return type |
+|----------------|---------------------------|---------------------------------------------------------|-------------|
+| `toggle_state` | state                     | toggle state, example: `this.toggle_state('on') => off` | string      |
+| `call_service` | domain, service, options, | call Home Assistant service                             | promise     |
 
 > Configuration example for the target_temperature:  
 ```yaml
@@ -224,13 +234,13 @@ target_temperature:
 
 > Functions available for the hvac_mode:  
 
-| Name | Type | execution context | arguments | return type |
-|------|------|-------------------|-----------|-------------|
-|`state:mapper` | function | hvac_mode config | state, entity, climate_entity | any
-|`active` | function | hvac_mode config | state, entity, climate_entity | boolean
-|`change_action` | function | hvac_mode config | selected, entity, climate_entity | any
-|`style` | function | hvac_mode config | value, entity, climate_entity | object
-|`source:__filter` | function | hvac_mode config | source, state, entity, climate_entity | object({ id..., name...,... }) array
+| Name              | Type     | execution context | arguments                             | return type                          |
+|-------------------|----------|-------------------|---------------------------------------|--------------------------------------|
+| `state:mapper`    | function | hvac_mode config  | state, entity, climate_entity         | any                                  |
+| `active`          | function | hvac_mode config  | state, entity, climate_entity         | boolean                              |
+| `change_action`   | function | hvac_mode config  | selected, entity, climate_entity      | any                                  |
+| `style`           | function | hvac_mode config  | value, entity, climate_entity         | object                               |
+| `source:__filter` | function | hvac_mode config  | source, state, entity, climate_entity | object({ id..., name...,... }) array |
 
 `state` - current hvac state  
 `selected` - selected value  
@@ -239,10 +249,10 @@ target_temperature:
 
 **execution context methods:**  
 
-| Name | arguments | description | return type |
-|------|-----------|-------------|-------------|
-|`toggle_state` | state | toggle state, example: `this.toggle_state('on') => off`  | string
-|`call_service` | domain, service, options, | call Home Assistant service | promise
+| Name           | arguments                 | description                                             | return type |
+|----------------|---------------------------|---------------------------------------------------------|-------------|
+| `toggle_state` | state                     | toggle state, example: `this.toggle_state('on') => off` | string      |
+| `call_service` | domain, service, options, | call Home Assistant service                             | promise     |
 
 > Configuration example for the hvac_mode:  
 ```yaml
@@ -277,14 +287,14 @@ hvac_mode:
 
 > Functions available for the fan_mode:  
 
-| Name | Type | execution context | arguments | return type |
-|------|------|-------------------|-----------|-------------|
-|`state:mapper` | function | button config | state, entity, climate_entity, hvac_mode | any
-|`source:__filter` | function | button config | source, state, entity, climate_entity, hvac_mode | object({ id..., name... }) array
-|`active` | function | button config | value, entity, climate_entity, hvac_mode | boolean
-|`disabled` | function | button config | value, entity, climate_entity, hvac_mode | boolean
-|`style` | function | button config | value, entity, climate_entity, hvac_mode | object
-|`change_action` | function | button config | selected_value, entity, climate_entity, hvac_mode | promise
+| Name              | Type     | execution context | arguments                                         | return type                      |
+|-------------------|----------|-------------------|---------------------------------------------------|----------------------------------|
+| `state:mapper`    | function | button config     | state, entity, climate_entity, hvac_mode          | any                              |
+| `source:__filter` | function | button config     | source, state, entity, climate_entity, hvac_mode  | object({ id..., name... }) array |
+| `active`          | function | button config     | value, entity, climate_entity, hvac_mode          | boolean                          |
+| `disabled`        | function | button config     | value, entity, climate_entity, hvac_mode          | boolean                          |
+| `style`           | function | button config     | value, entity, climate_entity, hvac_mode          | object                           |
+| `change_action`   | function | button config     | selected_value, entity, climate_entity, hvac_mode | promise                          |
 
 `state` - current button state value  
 `entity` - button entity  
@@ -295,10 +305,10 @@ hvac_mode:
 
 **execution context methods:**  
 
-| Name | arguments | description | return type |
-|------|-----------|-------------|-------------|
-|`toggle_state` | sate | toggle state, example: `this.toggle_state('on') => off`  | string
-|`call_service` | domain, service, options, | call Home Assistant service | promise 
+| Name           | arguments                 | description                                             | return type |
+|----------------|---------------------------|---------------------------------------------------------|-------------|
+| `toggle_state` | sate                      | toggle state, example: `this.toggle_state('on') => off` | string      |
+| `call_service` | domain, service, options, | call Home Assistant service                             | promise     |
 
 > Configuration example for the fan_mode:  
 ```yaml
@@ -342,11 +352,11 @@ indicators:
 > Consider configuring an indicator using javascript
 > Functions available for the indicator:  
 
-| Name | Type | execution context | arguments | return type |
-|------|------|-------------------|-----------|-------------|
-|`source:mapper` | function | indicator config | value, entity, climate_entity, hvac_mode | any
-|`icon:template` | function | indicator config | value, entity, climate_entity, hvac_mode | string
-|`icon:style` | function | indicator config | value, entity, climate_entity, hvac_mode | object
+| Name            | Type     | execution context | arguments                                | return type |
+|-----------------|----------|-------------------|------------------------------------------|-------------|
+| `source:mapper` | function | indicator config  | value, entity, climate_entity, hvac_mode | any         |
+| `icon:template` | function | indicator config  | value, entity, climate_entity, hvac_mode | string      |
+| `icon:style`    | function | indicator config  | value, entity, climate_entity, hvac_mode | object      |
 
 `value` - current indicator value  
 `entity` - indicator entity  
@@ -424,15 +434,15 @@ indicators:
 
 ##### buttons functions
 
-| Name | Type | execution context | arguments | return type |
-|------|------|-------------------|-----------|-------------|
-|`state:mapper` | function | button config | state, entity, climate_entity, hvac_mode | any
-|`source:__filter` | function | button config | source, state, entity, climate_entity, hvac_mode | object({ id..., name... }) array
-|`active` | function | button config | value, entity, climate_entity, hvac_mode | boolean
-|`disabled` | function | button config | value, entity, climate_entity, hvac_mode | boolean
-|`style` | function | button config | value, entity, climate_entity, hvac_mode | object
-|`toggle_action` | function | button config | state, entity, climate_entity, hvac_mode | promise
-|`change_action` | function | button config | selected_value, entity, climate_entity, hvac_mode | promise
+| Name              | Type     | execution context | arguments                                         | return type                      |
+|-------------------|----------|-------------------|---------------------------------------------------|----------------------------------|
+| `state:mapper`    | function | button config     | state, entity, climate_entity, hvac_mode          | any                              |
+| `source:__filter` | function | button config     | source, state, entity, climate_entity, hvac_mode  | object({ id..., name... }) array |
+| `active`          | function | button config     | value, entity, climate_entity, hvac_mode          | boolean                          |
+| `disabled`        | function | button config     | value, entity, climate_entity, hvac_mode          | boolean                          |
+| `style`           | function | button config     | value, entity, climate_entity, hvac_mode          | object                           |
+| `toggle_action`   | function | button config     | state, entity, climate_entity, hvac_mode          | promise                          |
+| `change_action`   | function | button config     | selected_value, entity, climate_entity, hvac_mode | promise                          |
 
 `state` - current button state value  
 `entity` - button entity  
@@ -443,11 +453,10 @@ indicators:
 
 **execution context methods:**  
 
-| Name | arguments | description | return type |
-|------|-----------|-------------|-------------|
-|`toggle_state` | sate | toggle state, example: `this.toggle_state('on') => off`  | string
-|`call_service` | domain, service, options, | call Home Assistant service | promise 
-
+| Name           | arguments                 | description                                             | return type |
+|----------------|---------------------------|---------------------------------------------------------|-------------|
+| `toggle_state` | sate                      | toggle state, example: `this.toggle_state('on') => off` | string      |
+| `call_service` | domain, service, options, | call Home Assistant service                             | promise     |
 
 ##### dropdown
 > Consider an example swing_mode configuration:
@@ -498,14 +507,14 @@ buttons:
 
 #### tap action object
 
-| Name | Type | Default | Options | Description |
-|------|:----:|:-------:|:-----------:|-------------|
-| action | string | `more-info` | `more-info` / `navigate` / `call-service` / `fire-dom-event` / `url` / `none` | Action to perform.
-| entity | string |  | Any entity id | Override default entity of `more-info`, when  `action` is defined as `more-info`.
-| service | string |  | Any service | Service to call (e.g. `fan.turn_on`) when `action` is defined as `call-service`
-| service_data | object |  | Any service data | Service data to include with the service call.
-| navigation_path | string |  | Any path | Path to navigate to (e.g. `/lovelace/0/`) when `action` is defined as `navigate`.
-| url | string |  | Any URL | URL to open when `action` is defined as `url`.
+| Name            |  Type  |   Default   |                                    Options                                    | Description                                                                       |
+|-----------------|:------:|:-----------:|:-----------------------------------------------------------------------------:|-----------------------------------------------------------------------------------|
+| action          | string | `more-info` | `more-info` / `navigate` / `call-service` / `fire-dom-event` / `url` / `none` | Action to perform.                                                                |
+| entity          | string |             |                                 Any entity id                                 | Override default entity of `more-info`, when  `action` is defined as `more-info`. |
+| service         | string |             |                                  Any service                                  | Service to call (e.g. `fan.turn_on`) when `action` is defined as `call-service`   |
+| service_data    | object |             |                               Any service data                                | Service data to include with the service call.                                    |
+| navigation_path | string |             |                                   Any path                                    | Path to navigate to (e.g. `/lovelace/0/`) when `action` is defined as `navigate`. |
+| url             | string |             |                                    Any URL                                    | URL to open when `action` is defined as `url`.                                    |
 
 #### tap action example
 ```yaml
@@ -638,16 +647,16 @@ secondary_info: fan-mode-dropdown
 The following variables are available and can be set in your theme to change the appearence of the card.
 Can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically anything supported by CSS.
 
-| name | Default | Description |
-|------|---------|-------------|
-| mini-climate-name-font-weight | 400 | Font weight of the entity name
-| mini-climate-info-font-weight | 300 | Font weight of the states
-| mini-climate-icon-color | --mini-humidifier-base-color, var(--paper-item-icon-color, #44739e) | The color for icons
-| mini-climate-button-color |--mini-humidifier-button-color, var(--paper-item-icon-color, #44739e) | The color for buttons icons
-| mini-climate-accent-color | var(--accent-color) | The accent color of UI elements
-| mini-climate-base-color | var(--primary-text-color) & var(--paper-item-icon-color) | The color of base text
-| mini-climate-background-opacity | 1 | Opacity of the background
-| mini-climate-scale | 1 | Scale of the card
+| name                            | Default                                                               | Description                     |
+|---------------------------------|-----------------------------------------------------------------------|---------------------------------|
+| mini-climate-name-font-weight   | 400                                                                   | Font weight of the entity name  |
+| mini-climate-info-font-weight   | 300                                                                   | Font weight of the states       |
+| mini-climate-icon-color         | --mini-humidifier-base-color, var(--paper-item-icon-color, #44739e)   | The color for icons             |
+| mini-climate-button-color       | --mini-humidifier-button-color, var(--paper-item-icon-color, #44739e) | The color for buttons icons     |
+| mini-climate-accent-color       | var(--accent-color)                                                   | The accent color of UI elements |
+| mini-climate-base-color         | var(--primary-text-color) & var(--paper-item-icon-color)              | The color of base text          |
+| mini-climate-background-opacity | 1                                                                     | Opacity of the background       |
+| mini-climate-scale              | 1                                                                     | Scale of the card               |
 
 ## My configuration
 
