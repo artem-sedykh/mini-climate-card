@@ -149,6 +149,9 @@ v2 is only compatible from version 2022.11 onwards
 | indicators: `name:icon`                   | object                              | optional     | v1.0.1 | Icon object                                                                                                   |
 | indicators: `name:icon:template`          | function                            | optional     | v1.0.1 | Icon template function                                                                                        |
 | indicators: `name:icon:style`             | function                            | optional     | v1.0.1 | Styles                                                                                                        |
+| indicators: `name:value`                  | object                              | optional     | v1.0.1 | Value object                                                                                                  |
+| indicators: `name:value:style`            | function                            | optional     | v1.0.1 | Styles                                                                                                        |
+| indicators: `name:unit`                   | string                              | optional     | v1.0.1 | Display unit                                                                                                  |
 | indicators: `name:unit`                   | string                              | optional     | v1.0.1 | Display unit                                                                                                  |
 | indicators: `name:round`                  | number                              | optional     | v1.0.1 | Rounding number value                                                                                         |
 | indicators: `name:hide`                   | boolean                             | optional     | v2.5.0 | Hide indicator, default value `False`                                                                         |
@@ -377,6 +380,7 @@ indicators:
 | `source:mapper` | function | indicator config  | value, entity, climate_entity, hvac_mode | any         |
 | `icon:template` | function | indicator config  | value, entity, climate_entity, hvac_mode | string      |
 | `icon:style`    | function | indicator config  | value, entity, climate_entity, hvac_mode | object      |
+| `value:style`   | function | indicator config  | value, entity, climate_entity, hvac_mode | object      |
 | `hide`          | function | indicator config  | value, entity, climate_entity, hvac_mode | boolean     |
 
 `value` - current indicator value  
@@ -430,7 +434,7 @@ indicators:
       entity: sensor.humidity
 ```
 
-##### icon template
+##### icon style
 
 > You can also set custom styles.
   for example:
@@ -441,6 +445,24 @@ indicators:
   humidity:
     icon:
       template: () => 'mdi:water'
+      style: >
+        (value) => (value > 30 ? { color: 'red'} : {})
+    unit: '%'
+    round: 1
+    source:
+      entity: sensor.humidity
+```
+
+##### value style
+
+> You can also set custom styles.
+  for example:
+```yaml
+type: custom:mini-climate
+entity: climate.my_ac
+indicators:
+  humidity:
+    value:
       style: >
         (value) => (value > 30 ? { color: 'red'} : {})
     unit: '%'

@@ -33,11 +33,11 @@ export default class ClimateIndicators extends ScopedRegistryHost(LitElement) {
     return html`<ha-icon style=${styleMap(indicator.iconStyle)} class='state__value_icon' .icon=${icon}></ha-icon>`;
   }
 
-  renderUnit(unit) {
-    if (!unit)
+  renderUnit(indicator) {
+    if (!indicator.unit)
       return '';
 
-    return html`<span class='state__uom'>${unit}</span>`;
+    return html`<span class='state__uom' style=${styleMap(indicator.valueStyle)}>${indicator.unit}</span>`;
   }
 
   renderIndicator(indicator) {
@@ -50,8 +50,8 @@ export default class ClimateIndicators extends ScopedRegistryHost(LitElement) {
     return html`
        <div class='state ${cls}' @click=${e => this.handlePopup(e, indicator)}>
          ${this.renderIcon(indicator)}
-         <span class='state__value'>${indicator.value}</span>
-         ${this.renderUnit(indicator.unit)}
+         <span class='state__value' style=${styleMap(indicator.valueStyle)}>${indicator.value}</span>
+         ${this.renderUnit(indicator)}
        </div>
     `;
   }
