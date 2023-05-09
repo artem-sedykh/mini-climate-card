@@ -57,6 +57,14 @@ export default class IndicatorObject {
     return {};
   }
 
+  get valueStyle() {
+    if (this.config.functions.value && this.config.functions.value.style)
+      return this.config.functions.value.style(this.value, this.entity,
+        this.climate.entity, this.climate.mode) || {};
+
+    return {};
+  }
+
   get hide() {
     if (this.config.functions.hide) {
       return this.config.functions.hide(this.value, this.entity,

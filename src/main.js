@@ -337,6 +337,13 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
         item.functions.icon.style = compileTemplate(item.icon.style, context);
     }
 
+    if (typeof item.value === 'object') {
+      item.functions.value = {};
+
+      if (item.value.style)
+        item.functions.value.style = compileTemplate(item.value.style, context);
+    }
+
     if (item.hide) {
       if (typeof item.hide === 'boolean') {
         item.functions.hide = () => true;
