@@ -68,6 +68,7 @@ const style = css`
   }
   ha-card.--group .mc__bg {
     background: none;
+    border: none;
   }
   .mc-climate {
     align-self: flex-end;
@@ -136,7 +137,7 @@ const style = css`
     padding: 16px;
   }
   ha-card.--group .mc-climate {
-    padding: 2px 0 0 0;
+    padding: 8px 0px 0px 0px;
   }
   .toggle-button {
     width: calc(var(--mc-unit) * .75);
