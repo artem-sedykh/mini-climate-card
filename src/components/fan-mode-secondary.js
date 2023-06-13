@@ -88,7 +88,7 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
         >
           ${this.renderFanMode()}
         </ha-icon-button>
-        <mwc-menu absolute activatable
+        <mwc-menu fixed activatable
             id=${'menu'}
             ?quick=${true}
             .menuCorner=${'END'}
