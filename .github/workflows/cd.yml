@@ -44,7 +44,7 @@ jobs:
           r="${r//$'\r'/'%0D'}"                             # Multiline escape sequences for '\r'
           echo "::set-output name=RELEASE_BODY::$r"
       - name: Upload the release file
-        uses: svenstaro/upload-release-action@v2.6.1
+        uses: svenstaro/upload-release-action@2.6.1
         with:
           file: dist/*
           file_glob: true
