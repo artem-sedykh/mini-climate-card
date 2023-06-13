@@ -70,7 +70,7 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
           ?color=${this.active}>
             <ha-icon .icon=${this.icon}></ha-icon>
         </ha-icon-button>
-        <mwc-menu absolute activatable
+        <mwc-menu fixed activatable
             id=${'menu'}
             ?quick=${true}
             .menuCorner=${'END'}

@@ -18,10 +18,10 @@
   "license": "MIT",
   "dependencies": {
     "@lit-labs/scoped-registry-mixin": "^1.0.1",
-    "@material/mwc-list": "^0.26.1",
-    "@material/mwc-menu": "^0.26.1",
-    "@material/mwc-ripple": "^0.26.1",
-    "lit": "^2.7.2",
+    "@material/mwc-list": "^0.27.0",
+    "@material/mwc-menu": "^0.27.0",
+    "@material/mwc-ripple": "^0.27.0",
+    "lit": "^2.7.5",
     "resize-observer-polyfill": "^1.5.1"
   },
   "devDependencies": {
