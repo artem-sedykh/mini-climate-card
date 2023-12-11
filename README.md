@@ -277,7 +277,7 @@ target_temperature:
 type: custom:mini-climate
 entity: climate.my_ac
 hvac_mode:
-  style: "(value, entity) => ({ color: 'black' })"
+  style: "(value, entity) => ({ color: 'black !important' })"
   hide: >
     (state) => state === 'dry'
   source:

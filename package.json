@@ -1,6 +1,6 @@
 {
   "name": "mini-climate-card",
-  "version": "v2.6.2",
+  "version": "v2.7.0",
   "description": "a/c card for Home Assistant Lovelace UI",
   "keywords": [
     "home-assistant",
@@ -17,11 +17,11 @@
   "author": "Artem Sedykh <anavrin72@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@lit-labs/scoped-registry-mixin": "^1.0.1",
+    "@lit-labs/scoped-registry-mixin": "^1.0.3",
     "@material/mwc-list": "^0.27.0",
     "@material/mwc-menu": "^0.27.0",
     "@material/mwc-ripple": "^0.27.0",
-    "lit": "^2.7.5",
+    "lit": "^3.1.0",
     "resize-observer-polyfill": "^1.5.1"
   },
   "devDependencies": {
