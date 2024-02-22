@@ -752,6 +752,7 @@ Can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically any
 | mini-climate-base-color         | var(--primary-text-color) & var(--paper-item-icon-color)              | The color of base text          |
 | mini-climate-background-opacity | 1                                                                     | Opacity of the background       |
 | mini-climate-scale              | 1                                                                     | Scale of the card               |
+| mini-climate-card-box-shadow    | var(--ha-card-box-shadow, none)                                       | The card shadow                 |
 
 ## My configuration
 
