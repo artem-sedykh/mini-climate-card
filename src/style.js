@@ -59,7 +59,7 @@ const style = css`
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
     opacity: var(--mc-bg-opacity);
-    box-shadow: var(--ha-card-box-shadow, none);
+    box-shadow: var(--mini-climate-card-box-shadow, var(--ha-card-box-shadow, none));
     box-sizing: border-box;
     border-radius: var(--ha-card-border-radius, 12px);
     border-width: var(--ha-card-border-width, 1px);
