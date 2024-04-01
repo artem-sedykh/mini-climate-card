@@ -18,7 +18,7 @@ export default class TemperatureObject {
   }
 
   get unit() {
-    return this.config.temperature.unit || this.config.target_temperature.unit;
+    return this.config.temperature.unit || this.config.target_temperature.unit || '°C';
   }
 
   get step() {

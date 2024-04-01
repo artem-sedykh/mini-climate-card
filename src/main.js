@@ -400,7 +400,6 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
 
   getTargetTemperatureConfig(config) {
     const item = {
-      unit: '°C',
       source: { entity: undefined, attribute: 'temperature' },
       ...config.target_temperature || {},
     };
@@ -477,7 +476,6 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
 
     this.config.temperature = {
       round: 1,
-      unit: '°C',
       source: { entity: undefined, attribute: 'current_temperature' },
       ...config.temperature || {},
     };
