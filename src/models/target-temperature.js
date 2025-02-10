@@ -116,7 +116,7 @@ export default class TargetTemperatureObject {
 
   update(value) {
     if (this.config.target_temperature.functions.change_action) {
-      const climateEntity = this.hass[this.config.entity];
+      const climateEntity = this.hass.states[this.config.entity];
       return this.config.target_temperature.functions.change_action(value, this.entity,
         climateEntity);
     }
