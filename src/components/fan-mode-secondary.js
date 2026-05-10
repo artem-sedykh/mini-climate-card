@@ -33,12 +33,14 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
   }
 
   get selectedIndex() {
-    return this.fanMode.source.map(item => item.id).indexOf(this._selected.id);
+    if (!this.fanMode || !this.fanMode.source) return -1;
+    return this.fanMode.source.map(item => item.id).indexOf(this._selected ? this._selected.id : undefined);
   }
 
   handleChange(e) {
     const { index } = e.detail;
 
+    if (!this.fanMode || !this.fanMode.source) return;
     if (index === this.selectedIndex || !this.fanMode.source[index])
       return;
 
@@ -62,9 +64,9 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
   }
 
   renderFanMode() {
-    const label = this._selected ? this._selected.name : this.fanMode.state;
-    const icon = this.config.secondary_info.icon ? this.config.secondary_info.icon
-      : this.fanMode.icon;
+    const label = (this._selected && this._selected.name) ? this._selected.name : (this.fanMode && this.fanMode.state ? this.fanMode.state : '');
+    const icon = (this.config && this.config.secondary_info && this.config.secondary_info.icon) ? this.config.secondary_info.icon
+      : (this.fanMode && this.fanMode.icon ? this.fanMode.icon : '');
 
     return html`
        <ha-icon class='icon' .icon=${icon}></ha-icon>
@@ -79,12 +81,13 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
   }
 
   renderFanModeDropdown() {
+    const source = (this.fanMode && this.fanMode.source) || [];
     return html`
       <div class='mc-dropdown'>
         <ha-icon-button class='mc-dropdown__button icon'
           id=${'button'}
           @click=${this.handleClick}
-          ?disabled=${this.fanMode.disabled}
+          ?disabled=${this.fanMode && this.fanMode.disabled}
         >
           ${this.renderFanMode()}
         </ha-icon-button>
@@ -94,8 +97,8 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
             .menuCorner=${'END'}
             .corner=${'TOP_RIGHT'}
             @selected=${this.handleChange}>
-          ${this.fanMode.source.map(item => html`
-            <mwc-list-item value=${item.id || item.name} ?selected=${this._selected.id && this._selected.id === item.id} .activated=${this._selected.id && this._selected.id === item.id}>
+          ${source.map(item => html`
+            <mwc-list-item value=${item.id || item.name} ?selected=${this._selected && this._selected.id === item.id} .activated=${this._selected && this._selected.id === item.id}>
               <span class='mc-dropdown__item__label'>${item.name}</span>
             </mwc-list-item>`)}
         </mwc-menu>
@@ -108,7 +111,7 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
       return html``;
     }
 
-    const { type } = this.config.secondary_info;
+    const type = (this.config && this.config.secondary_info) ? this.config.secondary_info.type : undefined;
 
     if (type === 'fan-mode-dropdown') {
       return this.renderFanModeDropdown();
