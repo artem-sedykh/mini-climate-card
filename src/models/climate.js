@@ -35,7 +35,11 @@ export default class ClimateObject {
     const action = this.attr.hvac_action;
     let item = { id: action };
     const labelPrefix = 'state_attributes.climate.hvac_action';
-    item.name = getLabel(this.hass, [`${labelPrefix}.${action}`], action);
+    try {
+      item.name = getLabel(this.hass, [`${labelPrefix}.${action}`], action);
+    } catch (err) {
+      item.name = action;
+    }
 
     if (action in source) {
       if (typeof source[action] === 'string')
@@ -62,7 +66,13 @@ export default class ClimateObject {
     for (let i = 0; i < hvacModes.length; i += 1) {
       const hvacMode = hvacModes[i];
       const labels = [`state.climate.${hvacMode}`, `component.climate.state._.${hvacMode}`];
-      const item = { id: hvacMode, name: getLabel(this.hass, labels, hvacMode) };
+      let name = hvacMode;
+      try {
+        name = getLabel(this.hass, labels, hvacMode);
+      } catch (err) {
+        name = hvacMode;
+      }
+      const item = { id: hvacMode, name };
       const iconId = hvacMode.toString().toUpperCase();
       if (iconId in ICON)
         item.icon = ICON[iconId];
@@ -79,7 +89,13 @@ export default class ClimateObject {
 
     for (let i = 0; i < fanModes.length; i += 1) {
       const mode = fanModes[i];
-      source[mode] = getLabel(this.hass, [`${labelPrefix}.${mode}`], mode);
+      let name = mode;
+      try {
+        name = getLabel(this.hass, [`${labelPrefix}.${mode}`], mode);
+      } catch (err) {
+        name = mode;
+      }
+      source[mode] = name;
     }
     return source;
   }

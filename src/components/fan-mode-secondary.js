@@ -34,7 +34,14 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
 
   get selectedIndex() {
     if (!this.fanMode || !this.fanMode.source) return -1;
-    return this.fanMode.source.map(item => item.id).indexOf(this._selected ? this._selected.id : undefined);
+    let { source } = this.fanMode;
+    if (!Array.isArray(source)) {
+      source = Object.entries(source)
+        .filter(s => s[0] !== '__filter')
+        .map(([id, name]) => ({ id, name: name.name || name }));
+    }
+    return source.map(item => item.id)
+      .indexOf(this._selected ? this._selected.id : undefined);
   }
 
   handleChange(e) {
@@ -64,9 +71,24 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
   }
 
   renderFanMode() {
-    const label = (this._selected && this._selected.name) ? this._selected.name : (this.fanMode && this.fanMode.state ? this.fanMode.state : '');
-    const icon = (this.config && this.config.secondary_info && this.config.secondary_info.icon) ? this.config.secondary_info.icon
-      : (this.fanMode && this.fanMode.icon ? this.fanMode.icon : '');
+    let label = '';
+    if (this._selected && this._selected.name) {
+      label = this._selected.name;
+    } else if (this.fanMode && this.fanMode.state) {
+      const { state: stateId, source } = this.fanMode;
+      if (source && !Array.isArray(source) && source[stateId]) {
+        label = source[stateId].name || source[stateId] || stateId;
+      } else if (source && Array.isArray(source)) {
+        const found = source.find(s => s.id === stateId);
+        label = found ? found.name : stateId;
+      } else {
+        label = stateId;
+      }
+    }
+
+    const icon = (this.config && this.config.secondary_info && this.config.secondary_info.icon)
+      ? this.config.secondary_info.icon
+      : (this.fanMode && this.fanMode.icon ? this.fanMode.icon : 'mdi:fan');
 
     return html`
        <ha-icon class='icon' .icon=${icon}></ha-icon>
@@ -81,7 +103,13 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
   }
 
   renderFanModeDropdown() {
-    const source = (this.fanMode && this.fanMode.source) || [];
+    let source = (this.fanMode && this.fanMode.source) || [];
+    if (!Array.isArray(source)) {
+      source = Object.entries(source)
+        .filter(s => s[0] !== '__filter')
+        .map(([id, name]) => ({ id, name: name.name || name }));
+    }
+
     return html`
       <div class='mc-dropdown'>
         <ha-icon-button class='mc-dropdown__button icon'
@@ -111,7 +139,9 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
       return html``;
     }
 
-    const type = (this.config && this.config.secondary_info) ? this.config.secondary_info.type : undefined;
+    const type = (this.config && this.config.secondary_info)
+      ? this.config.secondary_info.type
+      : undefined;
 
     if (type === 'fan-mode-dropdown') {
       return this.renderFanModeDropdown();
@@ -123,7 +153,7 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
   updated(changedProps) {
     if (changedProps.has('fanMode')) {
       clearTimeout(this.timer);
-      this._selected = this.fanMode.selected;
+      this._selected = this.fanMode ? this.fanMode.selected : undefined;
       this.requestUpdate('_selected');
     }
   }

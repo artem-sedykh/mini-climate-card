@@ -24,10 +24,33 @@ const buildElementDefinitions = (elements, constructor) => {
   // eslint-disable-next-line no-param-reassign
   constructor.elementDefinitionsLoaded = promises.length === 0;
   if (!constructor.elementDefinitionsLoaded) {
+    if (!constructor.__lazyLoadPatched) {
+      // eslint-disable-next-line no-param-reassign
+      constructor.__lazyLoadPatched = true;
+      const originalConnectedCallback = constructor.prototype.connectedCallback;
+      // eslint-disable-next-line no-param-reassign
+      constructor.prototype.connectedCallback = function connectedCallback() {
+        if (originalConnectedCallback) {
+          originalConnectedCallback.call(this);
+        }
+        if (!constructor.elementDefinitionsLoaded) {
+          if (!constructor.__instances) {
+            // eslint-disable-next-line no-param-reassign
+            constructor.__instances = new Set();
+          }
+          constructor.__instances.add(this);
+        }
+      };
+    }
+
     Promise.all(promises)
       .then(() => {
         // eslint-disable-next-line no-param-reassign
         constructor.elementDefinitionsLoaded = true;
+        if (constructor.__instances) {
+          constructor.__instances.forEach(inst => inst.requestUpdate && inst.requestUpdate());
+          constructor.__instances.clear();
+        }
       });
   }
   return definitions;
