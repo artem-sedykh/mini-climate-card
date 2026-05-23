@@ -604,6 +604,9 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
   }
 
   renderIcon() {
+    if (this.config.hide_icon)
+      return html``;
+
     const state = this.climate.isActive;
     return html`
       <div class='entity__icon' ?color=${state}>
