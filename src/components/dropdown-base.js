@@ -115,6 +115,10 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
           width: calc(var(--mc-dropdown-unit));
           height: calc(var(--mc-dropdown-unit));
           --mdc-icon-button-size: calc(var(--mc-dropdown-unit));
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         mwc-item > *:nth-child(2) {
           margin-left: 4px;
