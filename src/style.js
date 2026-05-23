@@ -144,6 +144,10 @@ const style = css`
     height: calc(var(--mc-unit) * .75);
     --mdc-icon-button-size: calc(var(--mc-unit) * .75);
     color: var(--mc-icon-color);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-left: auto;
     margin-top: calc(var(--mc-unit) * -.125);
     margin-right: calc(var(--mc-unit) * .05);
