@@ -23,7 +23,10 @@ const style = css`
     color: var(--mc-text-color);
     --mc-dropdown-unit: calc(var(--mc-unit) * .75);
     --paper-item-min-height: var(--mc-unit);
+    /* --mdc-icon-button-size is the pre-2026 knob, --ha-icon-button-size the
+       current one; both are set so the card sizes correctly on either. */
     --mdc-icon-button-size: calc(var(--mc-unit) * 0.75);
+    --ha-icon-button-size: calc(var(--mc-unit) * 0.75);
   }
   ha-card.--group {
     box-shadow: none;
@@ -143,6 +146,7 @@ const style = css`
     width: calc(var(--mc-unit) * .75);
     height: calc(var(--mc-unit) * .75);
     --mdc-icon-button-size: calc(var(--mc-unit) * .75);
+    --ha-icon-button-size: calc(var(--mc-unit) * .75);
     color: var(--mc-icon-color);
     margin-left: auto;
     margin-top: calc(var(--mc-unit) * -.125);

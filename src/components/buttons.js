@@ -71,6 +71,7 @@ export default class ClimateButtons extends ScopedRegistryHost(LitElement) {
         --paper-item-min-height: var(--mc-unit);
         --mc-dropdown-unit: var(--mc-unit);
         --mdc-icon-button-size: calc(var(--mc-unit));
+        --ha-icon-button-size: calc(var(--mc-unit));
       }
       :host([color]) {
         background: var(--mc-active-color);
