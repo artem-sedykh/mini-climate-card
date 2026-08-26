@@ -88,6 +88,11 @@
           "secondary_info": {
             "type": "fan-mode-dropdown"
           }
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "climate.not_here",
+          "name": "Missing entity"
         }
       ]
     }

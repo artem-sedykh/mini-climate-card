@@ -43,8 +43,19 @@ describe('the card on a dashboard', () => {
 
     assert.equal(rendered.length, expected);
 
+    const known = new Set(Object.values(bench.ids));
+
     for (const card of rendered) {
       assert.ok(card.height > 0, `${card.name}: no height`);
+
+      // A card pointed at an entity that does not exist draws the unavailable
+      // label and none of the controls - that is #46, and it is asserted in
+      // unavailable.test.mjs. Here it only has to not be mistaken for a card
+      // that failed to render.
+      if (!known.has(card.config.entity)) {
+        assert.match(card.text, /Unavailable/, `${card.name}: ${card.text}`);
+        continue;
+      }
       assert.ok(
         card.components.includes('mc-temperature'),
         `${card.name}: ${card.components.join(', ')}`,

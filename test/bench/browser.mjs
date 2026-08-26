@@ -8,13 +8,18 @@ import { BASE, request } from './auth.mjs';
 
 export const open = async (tokens, { viewport = { width: 900, height: 700 } } = {}) => {
   const browser = await chromium.launch();
-  const page = await browser.newPage({ viewport });
+  // The locale is pinned, and so is the frontend's own language below. Without
+  // both, the labels a scenario reads are whatever language the machine
+  // running it prefers: the same assertion passes on a CI runner and fails on
+  // a developer's laptop, saying nothing about the card either way.
+  const page = await browser.newPage({ viewport, locale: 'en-US' });
 
   // The frontend reads its session out of localStorage, so a scenario never
   // has to type into the login form.
   await page.addInitScript(
     ([url, clientId, payload]) => {
       localStorage.setItem('hassUrl', url);
+      localStorage.setItem('selectedLanguage', JSON.stringify('en'));
       localStorage.setItem(
         'hassTokens',
         JSON.stringify({ ...payload, hassUrl: url, clientId, expires: Date.now() + 1800000 }),
@@ -71,4 +76,29 @@ export const cards = (page, tag) =>
 export const entity = async (tokens, id) => {
   const { body } = await request(`/api/states/${id}`, undefined, tokens.access_token);
   return body;
+};
+
+/**
+ * Publish to a topic the fixtures listen on - how a scenario puts an entity
+ * into a state that matters: unavailable, a different action, a reading it did
+ * not have.
+ */
+export const publish = (tokens, topic, payload) =>
+  request(
+    '/api/services/mqtt/publish',
+    { topic, payload: String(payload), retain: true },
+    tokens.access_token,
+  );
+
+/** Waits for a condition the bench cannot make synchronous: MQTT, then a render. */
+export const until = async (check, { timeout = 10000, step = 250 } = {}) => {
+  const deadline = Date.now() + timeout;
+  let last;
+
+  for (;;) {
+    last = await check();
+    if (last) return last;
+    if (Date.now() > deadline) throw new Error(`timed out: last value ${JSON.stringify(last)}`);
+    await new Promise(resolve => setTimeout(resolve, step));
+  }
 };

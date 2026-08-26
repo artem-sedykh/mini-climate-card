@@ -86,16 +86,20 @@ npm run watch         # unminified, rebuilding on save
 Node version comes from `.nvmrc`. Use it; CI reads the same file.
 
 There are **four layers of checks** - see "Checks" below. The fourth, the
-bench, is the only one that renders the card inside a real Home Assistant;
-it needs docker and is not wired into CI yet.
+bench, is the only one that renders the card inside a real Home Assistant. It
+needs docker, and CI runs it in a workflow of its own rather than in the
+required check.
 
 ## Checks
 
 Four layers, in the order of how much they cost to run: assertions on the built
 bundle, unit tests, the card rendered in two browser engines, and the card on a
-dashboard in a Home Assistant of its own. CI runs the first three. The first is
-described here; the next two are under "Tests", after the TypeScript settings
-they are built with, and the fourth is `test/bench/README.md`.
+dashboard in a Home Assistant of its own. CI runs all four - the first three in
+`Continuous Integration`, whose `build` job is the required check, and the
+fourth in `Bench`, which boots containers and has a leg that is allowed to
+fail. The first is described here; the next two are under "Tests", after the
+TypeScript settings they are built with, and the fourth is
+`test/bench/README.md`.
 
 **`npm run check:bundle`** - `scripts/check-bundle.mjs`, assertions on
 `dist/mini-climate-card-bundle.js` after a build. It is deliberately the first
@@ -254,6 +258,11 @@ kind, and both passed everything else in this repository while they were
 broken. One of its scenarios is #188 itself: the icon button inside its host,
 measured. Removing `--ha-icon-button-size` from a built bundle was confirmed to
 fail it, at 48px inside a 30px host.
+
+In CI it runs against two versions of Home Assistant: the pinned one, which
+has to pass, and `latest`, which is allowed to fail because a break there is
+news about Home Assistant rather than about the branch. A weekly run is what
+turns that into a warning before a user files it.
 
 It is deliberately thin, and geometry in pixels is deliberately not here:
 `test/browser/` answers that in seconds, twice, with no container. `test/bench/`
