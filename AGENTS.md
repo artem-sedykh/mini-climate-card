@@ -463,6 +463,20 @@ my configuration", and it is worth doing before reasoning about the code:
 3. `npm run bench up`, then `npm run bench shot`. The pictures land in
    `test/e2e/shots/` and can be attached to the issue.
 
+### Answering with a scenario, not only with a comment
+
+When the answer to a question is "this YAML does that", **add it to the bench**
+rather than only writing it in the thread. `test/e2e/bench.json` has a view of
+those - a card per answer - and `test/e2e/answers.test.mjs` asserts what each
+one is claimed to do.
+
+The reason is in the tracker itself. The same handful of questions - colour the
+icon by what the unit is doing, show an indicator without its value, rename the
+modes - were asked and answered years apart, in threads nobody finds, about
+behaviour nothing was watching. An answer that lives only in a comment is one
+nobody notices breaking. An answer with a card beside it is one that fails a
+run when it stops being true.
+
 Four things about the bench are worth knowing before it wastes an hour: a
 scenario runs against an instance **minutes old**, where Home Assistant still
 shows first-boot dialogs that a long-lived instance does not; the scenarios run

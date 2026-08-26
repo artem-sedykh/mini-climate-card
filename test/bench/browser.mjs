@@ -145,6 +145,11 @@ export const dialogs = page =>
     return open;
   });
 
+/** A service call from outside the page - how a scenario changes what the card
+ * is looking at without pressing anything. */
+export const callService = (tokens, domain, service, data) =>
+  request(`/api/services/${domain}/${service}`, data, tokens.access_token);
+
 export const entity = async (tokens, id) => {
   const { body } = await request(`/api/states/${id}`, undefined, tokens.access_token);
   return body;
