@@ -78,6 +78,12 @@ jobs:
       - name: Format
         run: npm run format:check
 
+      - name: Documentation paths
+        # Cheap, and it needs neither a build nor a browser, so it fails early:
+        # every path the documentation names has to exist. Six of them did not
+        # for the whole of the TypeScript migration (#244).
+        run: npm run check:docs
+
       - name: Unit tests
         # With coverage: the thresholds in vitest.config.mjs fail the run if it
         # slides. `npm test` stays the plain run, because that is the one

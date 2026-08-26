@@ -35,7 +35,7 @@ Worth knowing before deciding whether something is a vulnerability here.
 **A card configuration is code.** The templates a user writes for indicators,
 buttons, `hide`, `style`, `change_action` and the rest are compiled with
 `new Function` and run in the page
-([`src/utils/utils.js`](https://github.com/artem-sedykh/mini-climate-card/blob/master/src/utils/utils.js)).
+([`src/utils/utils.ts`](https://github.com/artem-sedykh/mini-climate-card/blob/master/src/utils/utils.ts)).
 This is deliberate: it is what lets the card be described in YAML end to end,
 so a device nobody here has heard of can go on a dashboard without a pull
 request.

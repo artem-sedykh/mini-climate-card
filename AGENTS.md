@@ -119,6 +119,17 @@ Two of those need explaining:
   pass - a duplicated `ReactiveElement` is about 11 KB, which is exactly the
   size of change this is there to catch.
 
+Alongside them, and needing neither a build nor a browser:
+
+**`npm run check:docs`** - `scripts/check-docs-paths.mjs`, over every markdown
+file except `release_notes/`, which records what was true at a release rather
+than what is true now. Every path the prose names has to exist; a path named
+because it is absent goes in the script's `IGNORED` map with its reason. It
+exists because six paths in this file said `.js` for the whole of the
+TypeScript migration and nothing noticed - `mkdocs build --strict` checks the
+links between pages of the site, not the paths a sentence names, and it never
+sees this file at all.
+
 ## TypeScript
 
 The whole of `src/` is TypeScript (#228). Local imports are written without an

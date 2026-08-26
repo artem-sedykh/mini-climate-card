@@ -14,7 +14,7 @@ $ git clone https://github.com/artem-sedykh/mini-climate-card.git
 
 ```yaml
 resources:
-  - url: /local/mini-humidifier/dist/mini-climate-card-bundle.js
+  - url: /local/mini-climate-card/dist/mini-climate-card-bundle.js
     type: module
 ```
 
@@ -24,7 +24,7 @@ resources:
 
 1. Move into the `mini-climate-card` repo, checkout the *dev* branch & install dependencies.
 ```console
-$ cd mini-climate-card-dev && git checkout dev && npm install
+$ cd mini-climate-card && git checkout dev && npm install
 ```
 
 2. Make changes to the source
