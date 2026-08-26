@@ -25,22 +25,22 @@
     "resize-observer-polyfill": "^1.5.1"
   },
   "devDependencies": {
-    "@babel/cli": "^7.4.3",
-    "@babel/core": "^7.4.3",
+    "@babel/cli": "^8.0.4",
+    "@babel/core": "^8.0.1",
     "@babel/plugin-proposal-class-properties": "^7.3.3",
-    "@babel/plugin-proposal-decorators": "^7.3.0",
+    "@babel/plugin-proposal-decorators": "^8.0.2",
     "@babel/plugin-transform-template-literals": "^7.2.0",
-    "@babel/preset-env": "^7.3.1",
+    "@babel/preset-env": "^8.0.2",
     "@eslint/js": "^10.0.1",
-    "@rollup/plugin-json": "^4.0.3",
+    "@rollup/plugin-json": "^6.1.0",
     "babel-plugin-iife-wrap": "^1.1.0",
     "babel-preset-minify": "^0.5.0",
     "eslint": "^10.9.1",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.11.0",
     "prettier": "^3.9.6",
-    "rollup": "^2.80.0",
-    "rollup-plugin-node-resolve": "^3.4.0"
+    "rollup": "^4.62.5",
+    "rollup-plugin-node-resolve": "^5.2.0"
   },
   "scripts": {
     "build": "npm run lint && npm run format:check && npm run rollup && npm run babel && npm run check:bundle",
