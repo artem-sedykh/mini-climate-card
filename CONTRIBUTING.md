@@ -43,15 +43,32 @@ a change that did nothing.
 A few things worth knowing before you start. All of them are in
 [AGENTS.md](AGENTS.md), which is the longer version of this section.
 
-- **Three layers of tests, and none of them is Home Assistant.** `npm test`
+- **Four layers of tests, and the fourth one is a Home Assistant.** `npm test`
   covers the models, the utils and the configuration merge; `npm run
   test:browser` renders the card in Chromium and WebKit, which needs
   `npx playwright install chromium webkit` once; `npm run check:bundle`
-  asserts things about the built file. What none of them has is the real
-  `ha-card`, `ha-icon` and `ha-icon-button` - the component layer registers
-  stand-ins for those, and they are where this card has broken before. So
-  please still load your change into a running Home Assistant, say which
-  version you tested on, and be plain about what you could not check.
+  asserts things about the built file. Those three register **stand-ins** for
+  `ha-card`, `ha-icon` and `ha-icon-button`, and the real ones are where this
+  card has broken before - so there is a fourth:
+
+  ```console
+  npm run rollup      # the bench serves dist/
+  npm run bench up    # Home Assistant and a broker in docker, on port 8124
+  npm run test:e2e    # the card on a real dashboard, clicked by a real browser
+  npm run bench shot  # or just pictures of it, into test/e2e/shots/
+  npm run bench down
+  ```
+
+  It needs docker, and it is the only layer that sees the actual Home
+  Assistant elements. Which entities exist and what the dashboard holds are
+  in `test/e2e/bench.json` - adding a card to that file is how you put your
+  own configuration in front of the browser. The rest, including how the
+  entities are invented and what is deliberately **not** tested there, is
+  [test/bench/README.md](test/bench/README.md).
+
+  None of the four is your own installation. Please still load the change into
+  a running Home Assistant, say which version you tested on, and be plain
+  about what you could not check.
 - **Every component registers itself** at the bottom of its own module, with
   `define('mc-something', TheClass)`, and the card imports those modules for
   that alone. The names are global, which is why they are prefixed - a new
@@ -74,6 +91,12 @@ CI runs lint, formatting, the unit tests with coverage thresholds, the
 component tests in both engines, the build, assertions on the built bundle,
 HACS validation, and a gate that catches CRLF and BOM. `npm run build` locally
 covers everything except the component tests and the last two.
+
+The bench runs in a workflow of its own, against two versions of Home
+Assistant. **The `latest` leg is allowed to fail**, and if it does on your pull
+request it is almost certainly not your fault: it means a Home Assistant
+release changed something under the card. Say so in the pull request and carry
+on - the leg that has to pass is the pinned one.
 
 ## Releasing
 
