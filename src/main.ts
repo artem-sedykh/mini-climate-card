@@ -65,9 +65,6 @@ class MiniClimate extends LitElement {
 
   targetTemperatureValue: number | string;
 
-  /** The card's own width, observed, and published as --mc-card-width. */
-  width: number;
-
   private _hass!: HomeAssistant;
 
   static getStubConfig(
@@ -95,7 +92,6 @@ class MiniClimate extends LitElement {
     this.targetTemperatureChanging = false;
     this.climate = {} as ClimateObject;
     this.targetTemperatureValue = 0;
-    this.width = 0;
   }
 
   static override get properties() {
@@ -756,7 +752,6 @@ class MiniClimate extends LitElement {
 
     return styleMap({
       ...(scale && { '--mc-unit': `${40 * scale}px` }),
-      ...{ '--mc-card-width': `${this.width}px` },
     });
   }
 
@@ -791,16 +786,6 @@ class MiniClimate extends LitElement {
       this.targetTemperatureValue = this.targetTemperature.value;
       this.requestUpdate('targetTemperatureValue');
     }
-
-    const ro = new ResizeObserver(entries => {
-      const item = entries.find(e => e.target === this);
-      if (item && item.contentRect && this.width !== item.contentRect.width) {
-        this.width = item.contentRect.width;
-        this.requestUpdate('width');
-      }
-    });
-
-    ro.observe(this);
   }
 }
 

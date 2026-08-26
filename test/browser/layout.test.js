@@ -16,18 +16,29 @@ const widths = async (card, width) => {
   };
 };
 
+// The three sets of controls the layout has to hold: the default one, one made
+// wider by an extra button in the main row, and one made narrower by hiding the
+// hvac mode. The old cap was two constants that assumed the first of them.
+const CONTROLS = {
+  default: {},
+  'an extra button': { buttons: { boost: { icon: 'mdi:fire', location: 'main', type: 'button' } } },
+  'no hvac mode': { hvac_mode: { hide: true } },
+};
+
 describe('the layout under a name that does not fit', () => {
-  // A name long enough that something has to give, which is the situation the
-  // card measures itself for: `--mc-card-width` feeds a `max-width` on the
-  // name so that the controls beside it keep their room.
+  // A name long enough that something has to give. Which part gives is the
+  // whole of #222: the card used to measure itself, publish the width as
+  // `--mc-card-width` and cap the name with `calc((width - 191.3px) / 1.43)`.
   const config = { name: 'The air conditioner in the bedroom on the second floor' };
 
   it('never lets the card scroll sideways', async () => {
-    const { card } = await mountCard({ config });
+    for (const [controls, extra] of Object.entries(CONTROLS)) {
+      const { card } = await mountCard({ config: { ...config, ...extra } });
 
-    for (const width of [300, 400, 500]) {
-      const measured = await widths(card, width);
-      expect(measured.overflows, `${width}px`).to.be.false;
+      for (const width of [300, 400, 500]) {
+        const measured = await widths(card, width);
+        expect(measured.overflows, `${controls} at ${width}px`).to.be.false;
+      }
     }
   });
 
@@ -50,25 +61,39 @@ describe('the layout under a name that does not fit', () => {
     expect(nameBox.right).to.be.at.most(card.getBoundingClientRect().right);
   });
 
-  // Worth knowing while #222 is open: the controls are not immune either. At
-  // 300px this configuration measures them at 67px against 117px at 500px -
-  // the name's own `min-width` outbids the cap, and `mc-temperature` carries
-  // `min-width: 0`, so the readout is what gives way next. Not asserted,
-  // because it is a consequence of the current numbers rather than a promise
-  // the card makes.
+  it('leaves the controls the width they need, whatever the card is', async () => {
+    // What the constants got wrong. They described the default controls at one
+    // moment, so a card with any other set was squeezed at the narrow end -
+    // measured here before the change at 300px: 117px of controls down to 67.
+    // With an extra button the two engines did not even agree on how much
+    // (121.1px in one, 135.3px in the other at 400px), because what gives way
+    // then depends on the contents rather than on a rule.
+    for (const [controls, extra] of Object.entries(CONTROLS)) {
+      const { card } = await mountCard({ config: { ...config, ...extra } });
 
-  it('gives the name a cap that comes from the card width', async () => {
+      const measured = [];
+      for (const width of [300, 400, 500]) measured.push(await widths(card, width));
+
+      const distinct = new Set(measured.map(m => m.controls));
+
+      expect(distinct.size, `${controls}: ${[...distinct].join(', ')}`).to.equal(1);
+      expect(measured[0].name, controls).to.be.lessThan(measured[2].name);
+    }
+  });
+
+  it('does not measure itself', async () => {
+    // The mechanism is gone rather than left unused: no observer, and nothing
+    // published for a stylesheet to read. Asserted so that bringing either
+    // back is a decision - the test it replaces asserted the opposite for the
+    // same reason.
     const { card } = await mountCard({ config });
 
     await widths(card, 400);
 
-    // The mechanism itself, so that its removal is a decision rather than an
-    // accident: the observer writes the card's width into a custom property,
-    // and the stylesheet reads it.
     const value = getComputedStyle(card.shadowRoot.querySelector('ha-card')).getPropertyValue(
       '--mc-card-width',
     );
 
-    expect(value.trim()).to.equal('400px');
+    expect(value.trim()).to.equal('');
   });
 });
