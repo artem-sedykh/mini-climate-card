@@ -206,3 +206,44 @@ indicators:
 ```
 
 ![an indicator icon drawn red while the climate entity is not cooling](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/indicator-by-mode.png)
+
+### A row of preset buttons
+
+One climate entity holds **one** preset at a time, so a row of preset buttons
+is a set of switches rather than a list. Each button maps the attribute to
+on/off and sends the chosen value on press; `active` decides which one is lit.
+
+```yaml
+type: custom:mini-climate
+entity: climate.pass_actuator_3
+buttons:
+  eco:
+    icon: mdi:leaf
+    state:
+      attribute: preset_mode
+      mapper: state => state === 'eco' ? 'on' : 'off'
+    active: state => state === 'on'
+    toggle_action: >
+      (state, entity) => this.call_service('climate', 'set_preset_mode', { entity_id: entity.entity_id, preset_mode: state === 'on' ? 'none' : 'eco' })
+  boost:
+    icon: mdi:weather-hurricane
+    state:
+      attribute: preset_mode
+      mapper: state => state === 'boost' ? 'on' : 'off'
+    active: state => state === 'on'
+    toggle_action: >
+      (state, entity) => this.call_service('climate', 'set_preset_mode', { entity_id: entity.entity_id, preset_mode: state === 'on' ? 'none' : 'boost' })
+```
+
+Two things worth knowing:
+
+- the buttons sit behind the toggle, like every other button;
+- after pressing one there is a moment where no button is lit - the old preset
+  goes out before the new one comes in. On a slow connection that is visible;
+  it settles.
+
+To show the selected preset's **name** as well, add an indicator reading
+`attribute: preset_mode` - that is [A shortened value](#a-shortened-value)'s
+`values` + `mapper`, applied to `preset_mode`.
+
+![a row of preset buttons with the active one lit](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/preset-buttons.png)
