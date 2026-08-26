@@ -1,0 +1,115 @@
+# The bench: the card on a dashboard in a Home Assistant of its own.
+#
+# Deliberately not part of `Continuous Integration`. That workflow's `build`
+# job is the required status check on master, and it has to stay quick and to
+# answer for this repository alone. This one boots containers, and one of its
+# two legs is allowed to fail on purpose - neither belongs in a required check.
+name: Bench
+
+on:
+  push:
+    branches: ['*', '!badges']
+    paths:
+      - 'src/**'
+      - 'test/bench/**'
+      - 'test/e2e/**'
+      - 'rollup.config.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/bench.yml'
+  pull_request:
+    branches: ['**']
+    paths:
+      - 'src/**'
+      - 'test/bench/**'
+      - 'test/e2e/**'
+      - 'rollup.config.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/bench.yml'
+  # Home Assistant ships monthly, and the `latest` leg below is how this
+  # repository hears about a release that breaks the card. Nobody has to push
+  # anything for that to happen, so a weekly run is the only thing that will
+  # find it before a user does. Wednesday, away from the CI workflow's Monday.
+  schedule:
+    - cron: '41 5 * * 3'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bench:
+    name: ${{ matrix.label }}
+    runs-on: ubuntu-latest
+    # A container boot and a browser: generous enough to say something real
+    # when it hangs, short enough not to hold a runner for an hour.
+    timeout-minutes: 20
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      # Both legs always run: which of the two versions broke is the answer,
+      # and cancelling the other one throws it away.
+      fail-fast: false
+      matrix:
+        include:
+          # The version the card is documented against and most users are on.
+          # This one is not allowed to fail.
+          - label: Home Assistant 2026.8.3
+            version: 2026.8.3
+            experimental: false
+          # What is about to be everyone's version. Allowed to fail, because a
+          # break here is news about Home Assistant rather than about the
+          # branch being pushed - and blocking a contributor's pull request on
+          # it would be telling them to fix something that is not theirs.
+          - label: Home Assistant latest
+            version: latest
+            experimental: true
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # Chromium only: the bench answers questions about Home Assistant, and
+      # the two-engine question is `npm run test:browser`, which CI already
+      # runs without a container.
+      - run: npx playwright install --with-deps chromium
+
+      # The bench serves dist/, so there has to be one.
+      - run: npm run rollup
+
+      - name: Start the bench
+        env:
+          BENCH_HA_VERSION: ${{ matrix.version }}
+        run: npm run bench up
+
+      - name: Which version actually booted
+        run: |
+          docker compose -f test/bench/docker-compose.yaml images
+          curl -s http://localhost:8124/api/onboarding
+
+      - run: npm run test:e2e
+
+      # A red run of a browser test is hard to read without one. The scenarios
+      # write into test/e2e/shots/ as they go.
+      - name: Screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: shots-${{ matrix.version }}
+          path: test/e2e/shots/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Home Assistant's own log
+        if: failure()
+        run: docker compose -f test/bench/docker-compose.yaml logs --tail 200
+
+      - name: Stop the bench
+        if: always()
+        run: npm run bench down

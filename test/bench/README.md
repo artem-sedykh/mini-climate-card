@@ -22,8 +22,13 @@ card unchanged.
 npm run rollup          # the bench serves dist/, so build first
 npm run bench up        # fresh instance, entities, dashboard
 npm run test:e2e        # the scenarios in test/e2e/
+npm run bench shot      # a picture of the dashboard and of each card
 npm run bench down      # and it is gone
 ```
+
+`shot` is the other half of what this is for: an answer to "the layout is off"
+that is a screenshot rather than a paragraph. Point `BENCH_MANIFEST` at a
+manifest holding the reporter's own YAML and the pictures are of their card.
 
 `up` and `down` need docker on this machine. Everything else talks to whatever
 `BENCH_URL` names, so a bench running on another host is used from here with
@@ -37,6 +42,26 @@ npm run bench down      # and it is gone
 | `BENCH_MQTT_PORT` | `1884` | published broker port |
 | `BENCH_CARD_DIST` | `../../dist` | what is served as `/local/bench/` |
 | `BENCH_MANIFEST` | `test/e2e/bench.json` | which card, which entities, which dashboard |
+
+## In CI
+
+`.github/workflows/bench.yml`, on pushes and pull requests that touch `src/`,
+`test/bench/` or `test/e2e/`, and once a week. Two legs:
+
+- **the pinned version** - what the card is documented against and what most
+  users are on. Not allowed to fail.
+- **`latest`** - allowed to fail, on purpose. A break there is news about Home
+  Assistant rather than about the branch being pushed, and blocking a
+  contributor's pull request on it would be telling them to fix something that
+  is not theirs. Home Assistant ships monthly, which is what the weekly run is
+  for: hearing it before a user does.
+
+It is deliberately **not** part of `Continuous Integration`. That workflow's
+`build` job is the required check on master, and a required check should be
+quick and should answer for this repository alone.
+
+Screenshots are uploaded as an artifact on every run, failed or not - a red
+browser test is hard to read without one.
 
 ## What it is not
 

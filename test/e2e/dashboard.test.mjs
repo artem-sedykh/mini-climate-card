@@ -13,7 +13,7 @@
 import { after, before, describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
-import { cards, entity, open } from '../bench/browser.mjs';
+import { cards, dialogs, entity, open } from '../bench/browser.mjs';
 import { DASHBOARD, prepare } from '../bench/setup.mjs';
 import { BASE } from '../bench/auth.mjs';
 
@@ -31,6 +31,11 @@ describe('the card on a dashboard', () => {
     await session.page.goto(`${BASE}/${DASHBOARD}/0`, { waitUntil: 'load' });
     await session.page.waitForSelector('mini-climate', { timeout: 60000 });
     await session.page.waitForTimeout(1500);
+
+    // A modal over the cards makes every click time out with a message about
+    // stability that says nothing about the modal. Named here instead.
+    const modal = await dialogs(session.page);
+    assert.deepEqual(modal, [], 'something modal is covering the dashboard');
   });
 
   after(async () => {
@@ -43,8 +48,19 @@ describe('the card on a dashboard', () => {
 
     assert.equal(rendered.length, expected);
 
+    const known = new Set(Object.values(bench.ids));
+
     for (const card of rendered) {
       assert.ok(card.height > 0, `${card.name}: no height`);
+
+      // A card pointed at an entity that does not exist draws the unavailable
+      // label and none of the controls - that is #46, and it is asserted in
+      // unavailable.test.mjs. Here it only has to not be mistaken for a card
+      // that failed to render.
+      if (!known.has(card.config.entity)) {
+        assert.match(card.text, /Unavailable/, `${card.name}: ${card.text}`);
+        continue;
+      }
       assert.ok(
         card.components.includes('mc-temperature'),
         `${card.name}: ${card.components.join(', ')}`,

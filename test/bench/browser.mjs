@@ -8,13 +8,18 @@ import { BASE, request } from './auth.mjs';
 
 export const open = async (tokens, { viewport = { width: 900, height: 700 } } = {}) => {
   const browser = await chromium.launch();
-  const page = await browser.newPage({ viewport });
+  // The locale is pinned, and so is the frontend's own language below. Without
+  // both, the labels a scenario reads are whatever language the machine
+  // running it prefers: the same assertion passes on a CI runner and fails on
+  // a developer's laptop, saying nothing about the card either way.
+  const page = await browser.newPage({ viewport, locale: 'en-US' });
 
   // The frontend reads its session out of localStorage, so a scenario never
   // has to type into the login form.
   await page.addInitScript(
     ([url, clientId, payload]) => {
       localStorage.setItem('hassUrl', url);
+      localStorage.setItem('selectedLanguage', JSON.stringify('en'));
       localStorage.setItem(
         'hassTokens',
         JSON.stringify({ ...payload, hassUrl: url, clientId, expires: Date.now() + 1800000 }),
@@ -61,6 +66,10 @@ export const cards = (page, tag) =>
         classes: host.className.trim(),
         height: +box.height.toFixed(1),
         width: +box.width.toFixed(1),
+        icon: !!root.querySelector('.entity__icon'),
+        // A card that draws past its own edge, which is what an element left
+        // without the thing it was positioned against tends to do.
+        overflows: host.scrollWidth > host.clientWidth,
         components: [...root.querySelectorAll('*')]
           .filter(element => element.localName.startsWith('mc-'))
           .map(element => element.localName),
@@ -68,7 +77,57 @@ export const cards = (page, tag) =>
     });
   }, tag);
 
+/**
+ * Anything modal that is open over the dashboard. A dialog covering the cards
+ * turns every click into a 30-second timeout whose message says only that the
+ * element was not stable, so this is asked before a scenario starts and the
+ * failure names what is in the way.
+ */
+export const dialogs = page =>
+  page.evaluate(() => {
+    const open = [];
+    const walk = root => {
+      for (const element of root.querySelectorAll('*')) {
+        const name = element.localName;
+        if ((name === 'ha-dialog' || name === 'ha-md-dialog') && element.isConnected) {
+          const box = element.getBoundingClientRect();
+          if (box.width > 0 && box.height > 0) {
+            open.push(element.textContent.replace(/\s+/g, ' ').trim().slice(0, 120));
+          }
+        }
+        if (element.shadowRoot) walk(element.shadowRoot);
+      }
+    };
+    walk(document);
+    return open;
+  });
+
 export const entity = async (tokens, id) => {
   const { body } = await request(`/api/states/${id}`, undefined, tokens.access_token);
   return body;
+};
+
+/**
+ * Publish to a topic the fixtures listen on - how a scenario puts an entity
+ * into a state that matters: unavailable, a different action, a reading it did
+ * not have.
+ */
+export const publish = (tokens, topic, payload) =>
+  request(
+    '/api/services/mqtt/publish',
+    { topic, payload: String(payload), retain: true },
+    tokens.access_token,
+  );
+
+/** Waits for a condition the bench cannot make synchronous: MQTT, then a render. */
+export const until = async (check, { timeout = 10000, step = 250 } = {}) => {
+  const deadline = Date.now() + timeout;
+  let last;
+
+  for (;;) {
+    last = await check();
+    if (last) return last;
+    if (Date.now() > deadline) throw new Error(`timed out: last value ${JSON.stringify(last)}`);
+    await new Promise(resolve => setTimeout(resolve, step));
+  }
 };

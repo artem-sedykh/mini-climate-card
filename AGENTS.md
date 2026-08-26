@@ -86,16 +86,20 @@ npm run watch         # unminified, rebuilding on save
 Node version comes from `.nvmrc`. Use it; CI reads the same file.
 
 There are **four layers of checks** - see "Checks" below. The fourth, the
-bench, is the only one that renders the card inside a real Home Assistant;
-it needs docker and is not wired into CI yet.
+bench, is the only one that renders the card inside a real Home Assistant. It
+needs docker, and CI runs it in a workflow of its own rather than in the
+required check.
 
 ## Checks
 
 Four layers, in the order of how much they cost to run: assertions on the built
 bundle, unit tests, the card rendered in two browser engines, and the card on a
-dashboard in a Home Assistant of its own. CI runs the first three. The first is
-described here; the next two are under "Tests", after the TypeScript settings
-they are built with, and the fourth is `test/bench/README.md`.
+dashboard in a Home Assistant of its own. CI runs all four - the first three in
+`Continuous Integration`, whose `build` job is the required check, and the
+fourth in `Bench`, which boots containers and has a leg that is allowed to
+fail. The first is described here; the next two are under "Tests", after the
+TypeScript settings they are built with, and the fourth is
+`test/bench/README.md`.
 
 **`npm run check:bundle`** - `scripts/check-bundle.mjs`, assertions on
 `dist/mini-climate-card-bundle.js` after a build. It is deliberately the first
@@ -254,6 +258,11 @@ kind, and both passed everything else in this repository while they were
 broken. One of its scenarios is #188 itself: the icon button inside its host,
 measured. Removing `--ha-icon-button-size` from a built bundle was confirmed to
 fail it, at 48px inside a 30px host.
+
+In CI it runs against two versions of Home Assistant: the pinned one, which
+has to pass, and `latest`, which is allowed to fail because a break there is
+news about Home Assistant rather than about the branch. A weekly run is what
+turns that into a warning before a user files it.
 
 It is deliberately thin, and geometry in pixels is deliberately not here:
 `test/browser/` answers that in seconds, twice, with no container. `test/bench/`
@@ -415,13 +424,52 @@ When you touch anything that talks to a Home Assistant element:
 - Feature-detect the element. Do not branch on the Home Assistant version
   string unless there is no way to detect the behaviour itself.
 
-## Verifying a change by hand
+## Verifying a change against a real Home Assistant
 
-The three layers above do not replace this, and were never going to: they
-render the card against stand-ins for `ha-card`, `ha-icon` and
-`ha-icon-button`, and what breaks this card is Home Assistant's own elements,
-which change from release to release. A green run means the logic holds, not
-that the card works on a dashboard.
+**Start with the bench.** It is a Home Assistant of its own, it takes one
+command, and it is where the real `ha-card`, `ha-icon` and `ha-icon-button`
+are - the elements the three cheaper layers replace with stand-ins, and the
+ones that have broken this card before.
+
+```console
+npm run rollup      # the bench serves dist/, so build first
+npm run bench up    # containers, entities, dashboard; ~60s on a cold image
+npm run test:e2e    # the scenarios
+npm run bench shot  # pictures of the dashboard and of each card
+npm run bench down
+```
+
+`BENCH_URL=http://host:8124` points every command except `up`/`down` at a bench
+running somewhere else, which is how it is used from a machine without docker.
+
+### Reproducing a report on it
+
+This is the fastest way to answer "the layout is off" or "it does not work with
+my configuration", and it is worth doing before reasoning about the code:
+
+1. Put the reporter's YAML into the `views` of `test/e2e/bench.json` - or into
+   a copy of that file, and point `BENCH_MANIFEST` at it. Entities are named by
+   their fixture key in braces (`{{bench_ac}}`), because the bench substitutes
+   the ids Home Assistant actually gave them.
+2. If their entity is unlike the fixtures - no `fan_modes`, a `preset_mode`, no
+   `hvac_action` - add one to `entities`. It is an MQTT discovery payload, so
+   anything a climate entity can be, a fixture can be.
+3. `npm run bench up`, then `npm run bench shot`. The pictures land in
+   `test/e2e/shots/` and can be attached to the issue.
+
+Four things about the bench are worth knowing before it wastes an hour: a
+scenario runs against an instance **minutes old**, where Home Assistant still
+shows first-boot dialogs that a long-lived instance does not; the scenarios run
+one file at a time, because the fixtures are one shared instance; the browser
+locale and the frontend language are pinned to English on purpose; and entity
+ids are read back from the registry rather than assumed. The reasons are in
+`test/bench/README.md`.
+
+### And then by hand, in a real installation
+
+The bench is still not somebody's house. Real integrations, real devices, real
+themes and a real HACS install live there, and a green bench means the card
+works against a Home Assistant, not against theirs.
 
 1. `npm run dev` - the same bundle unminified, which is far easier to debug in
    a browser and loads exactly the same.

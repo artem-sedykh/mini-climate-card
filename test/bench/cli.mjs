@@ -8,7 +8,7 @@ import { cp, rm, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { BASE } from './auth.mjs';
-import { prepare } from './setup.mjs';
+import { DASHBOARD, prepare } from './setup.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const compose = (...args) =>
@@ -45,6 +45,36 @@ const up = async ({ fresh }) => {
   await waitForHomeAssistant();
 };
 
+// One picture per card on the dashboard, plus the dashboard itself. This is
+// the other half of what the bench is for: an answer to "the layout is off"
+// that is a screenshot rather than a paragraph.
+const shot = async () => {
+  const { open } = await import('./browser.mjs');
+  const { mkdir } = await import('node:fs/promises');
+  const directory = process.env.BENCH_SHOTS || 'test/e2e/shots';
+
+  await mkdir(directory, { recursive: true });
+  const ready = await prepare();
+  const session = await open(ready.tokens);
+
+  await session.page.goto(`${BASE}/${DASHBOARD}/0`, { waitUntil: 'load' });
+  await session.page.waitForSelector('mini-climate', { timeout: 60000 });
+  await session.page.waitForTimeout(1500);
+
+  await session.page.screenshot({ path: `${directory}/dashboard.png` });
+
+  const all = session.page.locator('mini-climate');
+  const count = await all.count();
+
+  for (let index = 0; index < count; index += 1) {
+    await all.nth(index).screenshot({ path: `${directory}/card-${index + 1}.png` });
+  }
+  await session.browser.close();
+
+  console.log(`${count + 1} screenshots in ${directory}`);
+  if (session.errors.length) console.log(`page errors: ${JSON.stringify(session.errors)}`);
+};
+
 const command = process.argv[2] || 'status';
 
 if (command === 'up') {
@@ -56,6 +86,8 @@ if (command === 'up') {
   const ready = await prepare();
   console.log(`bench ready: ${ready.dashboard}`);
   console.log(`entities: ${JSON.stringify(ready.ids)}`);
+} else if (command === 'shot') {
+  await shot();
 } else if (command === 'down') {
   compose('down', '-v');
 } else if (command === 'status') {

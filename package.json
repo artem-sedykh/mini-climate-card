@@ -57,7 +57,7 @@
     "test:coverage": "vitest run --coverage",
     "test:browser": "web-test-runner",
     "bench": "node test/bench/cli.mjs",
-    "test:e2e": "node --test test/e2e/",
+    "test:e2e": "node --test --test-concurrency=1 \"test/e2e/*.test.mjs\"",
     "test:watch": "vitest"
   },
   "engines": {
