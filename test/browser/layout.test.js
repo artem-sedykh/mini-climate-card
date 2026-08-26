@@ -115,3 +115,76 @@ describe('the layout under a name that does not fit', () => {
     expect(value.trim()).to.equal('');
   });
 });
+
+// Vertical alignment across the core row. The row is as tall as the entity
+// icon, and what sits beside the icon was aligned to its edges rather than to
+// its middle: the mode and the temperatures to the bottom (#99), the name to
+// the top when nothing followed it (#100).
+describe('what the core row lines up against', () => {
+  // Middles rather than tops: the parts have different heights, so a top that
+  // matches would mean they do not line up.
+  const middles = async card => {
+    card.style.display = 'block';
+    card.style.width = '400px';
+    await nextFrame();
+
+    const root = card.shadowRoot;
+    const middle = sel => {
+      const el = root.querySelector(sel);
+      if (!el) return null;
+      const box = el.getBoundingClientRect();
+      return box.top + box.height / 2;
+    };
+
+    return {
+      icon: middle('.entity__icon'),
+      name: middle('.entity__info__name'),
+      controls: middle('.ctl-wrap'),
+      secondary: middle('.entity__secondary_info'),
+    };
+  };
+
+  // Half a pixel: the two engines disagree by a fraction on the height of the
+  // controls, and a rule about lining up is not a rule about rounding.
+  const TOLERANCE = 0.5;
+
+  it('centres the mode and the temperatures against the entity icon', async () => {
+    for (const extra of [
+      {},
+      { secondary_info: { hide: '() => true' } },
+      { toggle: { hide: true } },
+    ]) {
+      const { card } = await mountCard({ config: extra });
+      const at = await middles(card);
+
+      expect(Math.abs(at.controls - at.icon), JSON.stringify(extra)).to.be.at.most(TOLERANCE);
+    }
+  });
+
+  it('centres the name once the secondary info is not there', async () => {
+    const { card } = await mountCard({ config: { secondary_info: { hide: '() => true' } } });
+    const at = await middles(card);
+
+    expect(at.secondary).to.equal(null);
+    expect(Math.abs(at.name - at.icon)).to.be.at.most(TOLERANCE);
+  });
+
+  it('leaves the name where it was while the secondary info is there', async () => {
+    // The pair fills the row together, and moving the name then would move
+    // the line under it for every card that never asked for a change.
+    const { card } = await mountCard();
+    const at = await middles(card);
+
+    expect(at.name).to.be.lessThan(at.icon);
+    expect(at.secondary).to.be.greaterThan(at.icon);
+  });
+
+  it('centres the name on an unavailable entity too', async () => {
+    // The unavailable card has no secondary info by construction, and the
+    // label it draws instead sits in the same row.
+    const { card } = await mountCard({ state: 'unavailable' });
+    const at = await middles(card);
+
+    expect(Math.abs(at.name - at.icon)).to.be.at.most(TOLERANCE);
+  });
+});

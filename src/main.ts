@@ -734,15 +734,22 @@ class MiniClimate extends LitElement {
     `;
   }
 
-  renderSecondaryInfo(): TemplateResult {
-    if (this.climate.isUnavailable) return html``;
+  /**
+   * Read twice per render - once to decide whether to draw the line, once by
+   * `computeClasses` so the styles can centre the name that is then alone in
+   * its row (#100).
+   */
+  secondaryInfoHidden(): boolean {
+    if (this.climate.isUnavailable) return true;
 
-    if (
+    return Boolean(
       this.config.secondary_info.functions.hide &&
-      this.config.secondary_info.functions.hide(this.climate.entity, this.climate.mode)
-    ) {
-      return html``;
-    }
+      this.config.secondary_info.functions.hide(this.climate.entity, this.climate.mode),
+    );
+  }
+
+  renderSecondaryInfo(): TemplateResult {
+    if (this.secondaryInfoHidden()) return html``;
 
     return html`
       <div class='entity__secondary_info ellipsis'>
@@ -767,6 +774,7 @@ class MiniClimate extends LitElement {
       '--more-info': config.tap_action.action !== 'none',
       '--inactive': !this.climate.isActive,
       '--unavailable': this.climate.isUnavailable,
+      '--no-secondary-info': this.secondaryInfoHidden(),
     });
   }
 
