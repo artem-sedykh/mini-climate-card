@@ -116,14 +116,11 @@ Two of those need explaining:
   pass - a duplicated `ReactiveElement` is about 11 KB, which is exactly the
   size of change this is there to catch.
 
-## Two languages, for now
+## TypeScript
 
-The source is moving to TypeScript file by file (#228). Everything but the
-styles and the console banner is over: `src/types.ts`, `src/const.ts`,
-`src/utils/`, `src/models/`, `src/components/` and `src/main.ts`. An import
-written without an extension can land on either, which is why the resolver in
-`rollup.config.mjs`, `web-test-runner.config.mjs` and `tsconfig.json` all name
-both.
+The whole of `src/` is TypeScript (#228). Local imports are written without an
+extension, so `.ts` is in the resolver's list in `rollup.config.mjs` and
+`web-test-runner.config.mjs` - node's own defaults do not include it.
 
 Types are stripped by esbuild and **checked by nothing at build time** - that
 is `npm run typecheck`, and it is part of `npm run build` and of CI.
@@ -137,14 +134,15 @@ Three settings are load-bearing rather than preference:
 - **`@web/dev-server-esbuild` is handed the same `tsconfig`.** It does not
   read one on its own, so without it the component tests would run under
   different semantics than the build.
-- **esbuild transforms TypeScript only, and the browser plugin names no
-  `target`.** While the migration is half done the JavaScript that is left has
-  to reach the bundle exactly as it was - that is what makes comparing the
-  bundle across a migrated file mean anything.
+- **The browser plugin names no `target`.** Naming one makes esbuild
+  down-level its output, and the component tests would then run against code
+  the build never produces.
 
-`checkJs` is off. The JavaScript that remains is checked by eslint and by the
-three test layers; turning it on would report the whole card at once, which is
-the rewrite this deliberately is not.
+The migration was checked a step at a time by comparing the built bundle
+before and after. The models and the styles came out **byte-identical**; the
+components and `main.ts` came to +57 and -36 bytes, each of which is an
+enumerated change rather than a surprise. That comparison is the reason the
+steps were small.
 
 **`npm test`** - vitest over `test/`, node environment. It covers the six
 model classes in `src/models/`, the helpers in `src/utils/`, every branch of

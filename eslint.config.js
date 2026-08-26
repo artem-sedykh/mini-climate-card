@@ -30,15 +30,6 @@ module.exports = [
   },
   js.configs.recommended,
   {
-    files: ['src/**/*.js'],
-    languageOptions: {
-      ecmaVersion: 2022,
-      sourceType: 'module',
-      globals: globals.browser,
-    },
-    rules,
-  },
-  {
     files: ['test/**/*.js'],
     languageOptions: {
       ecmaVersion: 2022,
@@ -67,9 +58,9 @@ module.exports = [
     },
     rules,
   },
-  // TypeScript, while the migration in #228 is under way: the recommended set
-  // without type-aware linting, which would need a program per lint run for
-  // rules the compiler already reports through `npm run typecheck`.
+  // The whole of src/ is TypeScript since #228: the recommended set without
+  // type-aware linting, which would need a program per lint run for rules the
+  // compiler already reports through `npm run typecheck`.
   ...tseslint.configs.recommended.map(config => ({
     ...config,
     files: ['src/**/*.ts'],

@@ -53,10 +53,7 @@ const componentIds = (() => {
   const ids = [];
 
   for (const entry of readdirSync(dir, { recursive: true, withFileTypes: true })) {
-    // Both languages while the migration in #228 is under way. This guard is
-    // why the check failed loudly the moment the components became .ts rather
-    // than reporting ok over an empty list.
-    if (!entry.isFile() || !/\.(js|ts)$/.test(entry.name)) continue;
+    if (!entry.isFile() || !entry.name.endsWith('.ts')) continue;
 
     const source = read(path.join(entry.parentPath, entry.name));
     const match = source.match(/^define\('([^']+)'/m);

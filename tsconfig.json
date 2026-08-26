@@ -20,16 +20,9 @@
     "useDefineForClassFields": false,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    // The migration is file by file (#228), so both languages have to build
-    // side by side. `checkJs` stays off while that is true: the JavaScript
-    // that is left is checked by eslint and by the three test layers, and
-    // turning it on would report the whole card at once - which is the
-    // rewrite this is deliberately not.
-    "allowJs": true,
-    "checkJs": false,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*.ts", "src/**/*.js"]
+  "include": ["src/**/*.ts"]
 }
