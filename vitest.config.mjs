@@ -1,0 +1,47 @@
+import { configDefaults, defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    include: ['test/**/*.test.js'],
+    // The default environment is node. The three files that need a DOM ask for
+    // jsdom with a `@vitest-environment` docblock of their own, so the rest do
+    // not pay for it.
+    environment: 'node',
+    exclude: [...configDefaults.exclude],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text-summary', 'html', 'json-summary'],
+      include: ['src/**/*.js'],
+      // What this layer cannot reach, with the reason:
+      exclude: [
+        // Components render in a browser. Under vitest only their import-time
+        // code would run, which measures nothing and reports a number that
+        // looks like coverage.
+        'src/components/**',
+        // Styles and constants are data.
+        'src/style.js',
+        'src/sharedStyle.js',
+        'src/const.js',
+        // A console banner.
+        'src/initialize.js',
+        // Element registration: it runs when a component is constructed,
+        // which needs a browser. It is also the first thing to go when the
+        // scoped registry does.
+        'src/utils/buildElementDefinitions.js',
+      ],
+      thresholds: {
+        // Set to what the suite reaches today, not to a round number, so they
+        // say "this must not slide" rather than "aim here". Raise them when
+        // coverage rises.
+        //
+        // The number is held down by src/main.js, which is at 68%: half of it
+        // is render methods that only run in a browser. The models, which are
+        // where a wrong attribute or a crossed argument hides, are at 95%.
+        statements: 82,
+        branches: 74,
+        functions: 72,
+        lines: 83,
+      },
+    },
+  },
+});
