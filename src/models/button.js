@@ -31,8 +31,12 @@ export default class ButtonObject {
 
   get hide() {
     if (this.config.functions.hide) {
-      return this.config.functions.hide(this.state, this.entity,
-        this.climate.entity, this.climate.mode);
+      return this.config.functions.hide(
+        this.state,
+        this.entity,
+        this.climate.entity,
+        this.climate.mode,
+      );
     }
 
     return false;
@@ -50,8 +54,12 @@ export default class ButtonObject {
     let state = this.originalState;
 
     if (this.config.functions.state && this.config.functions.state.mapper) {
-      state = this.config.functions.state.mapper(state, this.entity,
-        this.climate.entity, this.climate.mode);
+      state = this.config.functions.state.mapper(
+        state,
+        this.entity,
+        this.climate.entity,
+        this.climate.mode,
+      );
     }
 
     return state;
@@ -59,8 +67,12 @@ export default class ButtonObject {
 
   isActive(state) {
     if (this.config.functions.active) {
-      return this.config.functions.active(state, this.entity,
-        this.climate.entity, this.climate.mode);
+      return this.config.functions.active(
+        state,
+        this.entity,
+        this.climate.entity,
+        this.climate.mode,
+      );
     }
 
     return false;
@@ -71,15 +83,21 @@ export default class ButtonObject {
   }
 
   get isOn() {
-    return this.entity !== undefined
-      && !STATES_OFF.includes(this.state)
-      && !UNAVAILABLE_STATES.includes(this.state);
+    return (
+      this.entity !== undefined &&
+      !STATES_OFF.includes(this.state) &&
+      !UNAVAILABLE_STATES.includes(this.state)
+    );
   }
 
   get disabled() {
     if (this.config.functions.disabled) {
-      return this.config.functions.disabled(this.state, this.entity,
-        this.climate.entity, this.climate.mode);
+      return this.config.functions.disabled(
+        this.state,
+        this.entity,
+        this.climate.entity,
+        this.climate.mode,
+      );
     }
 
     return false;
@@ -87,8 +105,14 @@ export default class ButtonObject {
 
   get style() {
     if (this.config.functions.style) {
-      return this.config.functions.style(this.state, this.entity,
-        this.climate.entity, this.climate.mode) || {};
+      return (
+        this.config.functions.style(
+          this.state,
+          this.entity,
+          this.climate.entity,
+          this.climate.mode,
+        ) || {}
+      );
     }
 
     return {};
@@ -100,17 +124,22 @@ export default class ButtonObject {
       .filter(([key]) => key !== '__filter')
       .map(([key, value]) => {
         if (typeof value === 'object') {
-          return { id: key, ...value || {} };
+          return { id: key, ...(value || {}) };
         }
         return { id: key, name: value };
       });
 
     if (source.some(s => 'order' in s))
-      source = source.sort((a, b) => ((a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0)));
+      source = source.sort((a, b) => (a.order > b.order ? 1 : b.order > a.order ? -1 : 0));
 
     if (functions.source && functions.source.filter) {
-      return functions.source.filter(source, this.state, this.entity,
-        this.climate.entity, this.climate.mode);
+      return functions.source.filter(
+        source,
+        this.state,
+        this.entity,
+        this.climate.entity,
+        this.climate.mode,
+      );
     }
 
     return source;
@@ -118,23 +147,25 @@ export default class ButtonObject {
 
   get selected() {
     const { state } = this;
-    if (state === undefined || state === null)
-      return undefined;
+    if (state === undefined || state === null) return undefined;
 
     return this.source.find(s => s.id === state.toString());
   }
 
   get actionTimeout() {
-    if ('action_timeout' in this.config)
-      return this.config.action_timeout;
+    if ('action_timeout' in this.config) return this.config.action_timeout;
 
     return ACTION_TIMEOUT;
   }
 
   handleToggle() {
     if (this.config.functions.toggle_action) {
-      return this.config.functions.toggle_action(this.state, this.entity,
-        this.climate.entity, this.climate.mode);
+      return this.config.functions.toggle_action(
+        this.state,
+        this.entity,
+        this.climate.entity,
+        this.climate.mode,
+      );
     }
 
     return this.climate.callService('switch', 'toggle', { entity_id: this.entity.entity_id });
@@ -142,8 +173,13 @@ export default class ButtonObject {
 
   handleChange(selected) {
     if (this.config.functions.change_action) {
-      return this.config.functions.change_action(selected, this.state, this.entity,
-        this.climate.entity, this.climate.mode);
+      return this.config.functions.change_action(
+        selected,
+        this.state,
+        this.entity,
+        this.climate.entity,
+        this.climate.mode,
+      );
     }
 
     return undefined;

@@ -24,8 +24,12 @@ export default class IndicatorObject {
     let value = this.originalValue;
 
     if (this.config.functions.mapper) {
-      value = this.config.functions.mapper(value, this.entity,
-        this.climate.entity, this.climate.mode);
+      value = this.config.functions.mapper(
+        value,
+        this.entity,
+        this.climate.entity,
+        this.climate.mode,
+      );
     }
 
     if ('round' in this.config && Number.isNaN(value) === false)
@@ -40,8 +44,12 @@ export default class IndicatorObject {
 
   get icon() {
     if (this.config.functions.icon && this.config.functions.icon.template) {
-      return this.config.functions.icon.template(this.value, this.entity,
-        this.climate.entity, this.climate.mode);
+      return this.config.functions.icon.template(
+        this.value,
+        this.entity,
+        this.climate.entity,
+        this.climate.mode,
+      );
     } else if (this.config.icon && typeof this.config.icon === 'string') {
       return this.config.icon;
     }
@@ -51,24 +59,40 @@ export default class IndicatorObject {
 
   get iconStyle() {
     if (this.config.functions.icon && this.config.functions.icon.style)
-      return this.config.functions.icon.style(this.value, this.entity,
-        this.climate.entity, this.climate.mode) || {};
+      return (
+        this.config.functions.icon.style(
+          this.value,
+          this.entity,
+          this.climate.entity,
+          this.climate.mode,
+        ) || {}
+      );
 
     return {};
   }
 
   get valueStyle() {
     if (this.config.functions.value && this.config.functions.value.style)
-      return this.config.functions.value.style(this.value, this.entity,
-        this.climate.entity, this.climate.mode) || {};
+      return (
+        this.config.functions.value.style(
+          this.value,
+          this.entity,
+          this.climate.entity,
+          this.climate.mode,
+        ) || {}
+      );
 
     return {};
   }
 
   get hide() {
     if (this.config.functions.hide) {
-      return this.config.functions.hide(this.value, this.entity,
-        this.climate.entity, this.climate.mode);
+      return this.config.functions.hide(
+        this.value,
+        this.entity,
+        this.climate.entity,
+        this.climate.mode,
+      );
     }
 
     return false;

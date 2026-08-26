@@ -4,7 +4,9 @@ import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import buildElementDefinitions from '../../utils/buildElementDefinitions';
 
 export default class ClimateMenuSurface extends ScopedRegistryHost(MenuSurfaceBase) {
-  static get defineId() { return 'mwc-menu-surface'; }
+  static get defineId() {
+    return 'mwc-menu-surface';
+  }
 
   static get elementDefinitions() {
     return buildElementDefinitions([], ClimateMenuSurface);

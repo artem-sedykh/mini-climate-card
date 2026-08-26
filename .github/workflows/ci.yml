@@ -4,31 +4,41 @@ on:
   push:
     branches: ['*']
   pull_request:
-    branches: ['*']
+    # `**`, not `*`: a single star stops at a slash, so a pull request whose
+    # base is a branch like `refactor/models` matches nothing and runs no
+    # checks at all - without saying so anywhere. The push trigger keeps `*`
+    # deliberately, otherwise every pull request runs everything twice.
+    branches: ['**']
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
       - name: Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18.x
-      - name: Cahce dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-          key: ${{ runner.OS }}-node-18.x-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-node-18.x
-            ${{ runner.OS }}-
+          # From .nvmrc, so this file and a contributor's shell cannot drift
+          # apart. eslint 10 needs node 20 or newer, which is what the pinned
+          # 18 here would have failed on.
+          node-version-file: .nvmrc
+          cache: npm
+
       - name: Install dependencies
+        # `npm ci` rather than `npm install`: it installs exactly what the
+        # lockfile says and fails when the lockfile and package.json disagree,
+        # instead of quietly resolving something else and updating the file.
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format
+        run: npm run format:check
+
+      - name: Build
         run: |
-          npm install
-      - name: Lint and build
-        run: |
-          npm run lint
           npm run rollup
           npm run babel

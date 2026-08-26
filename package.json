@@ -31,21 +31,28 @@
     "@babel/plugin-proposal-decorators": "^7.3.0",
     "@babel/plugin-transform-template-literals": "^7.2.0",
     "@babel/preset-env": "^7.3.1",
+    "@eslint/js": "^10.0.1",
     "@rollup/plugin-json": "^4.0.3",
     "babel-plugin-iife-wrap": "^1.1.0",
     "babel-preset-minify": "^0.5.0",
-    "eslint": "^5.16.0",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.26.0",
+    "eslint": "^10.9.1",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.11.0",
+    "prettier": "^3.9.6",
     "rollup": "^2.80.0",
     "rollup-plugin-node-resolve": "^3.4.0"
   },
   "scripts": {
-    "build": "npm run lint && npm run rollup && npm run babel",
+    "build": "npm run lint && npm run format:check && npm run rollup && npm run babel",
     "rollup": "rollup -c",
     "babel": "babel dist/mini-climate-card-bundle.js --out-file dist/mini-climate-card-bundle.js",
-    "lint": "eslint src/* --ext .js",
-    "lint:fix": "eslint src/* --ext .js --fix",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "watch": "rollup -c --watch"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

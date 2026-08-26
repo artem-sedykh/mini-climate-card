@@ -18,7 +18,7 @@ export default class ClimateObject {
       max_temp: undefined,
       hvac_action: '',
       fan_modes: [],
-      ...entity.attributes || {},
+      ...(entity.attributes || {}),
     };
   }
 
@@ -38,10 +38,8 @@ export default class ClimateObject {
     item.name = getLabel(this.hass, [`${labelPrefix}.${action}`], action);
 
     if (action in source) {
-      if (typeof source[action] === 'string')
-        item.name = source[action];
-      else
-        item = { ...item, ...source[action] };
+      if (typeof source[action] === 'string') item.name = source[action];
+      else item = { ...item, ...source[action] };
     }
 
     return item;
@@ -64,8 +62,7 @@ export default class ClimateObject {
       const labels = [`state.climate.${hvacMode}`, `component.climate.state._.${hvacMode}`];
       const item = { id: hvacMode, name: getLabel(this.hass, labels, hvacMode) };
       const iconId = hvacMode.toString().toUpperCase();
-      if (iconId in ICON)
-        item.icon = ICON[iconId];
+      if (iconId in ICON) item.icon = ICON[iconId];
 
       source.push(item);
     }
@@ -97,9 +94,11 @@ export default class ClimateObject {
   }
 
   get isOff() {
-    return this.entity !== undefined
-      && STATES_OFF.includes(this.state)
-      && !UNAVAILABLE_STATES.includes(this.state);
+    return (
+      this.entity !== undefined &&
+      STATES_OFF.includes(this.state) &&
+      !UNAVAILABLE_STATES.includes(this.state)
+    );
   }
 
   get isActive() {
@@ -111,9 +110,11 @@ export default class ClimateObject {
   }
 
   get isOn() {
-    return this.entity !== undefined
-      && !STATES_OFF.includes(this.state)
-      && !UNAVAILABLE_STATES.includes(this.state);
+    return (
+      this.entity !== undefined &&
+      !STATES_OFF.includes(this.state) &&
+      !UNAVAILABLE_STATES.includes(this.state)
+    );
   }
 
   callService(domain, service, inOptions) {

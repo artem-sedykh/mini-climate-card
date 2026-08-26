@@ -8,15 +8,15 @@ import ClimateListItem from './mwc/list-item';
 import buildElementDefinitions from '../utils/buildElementDefinitions';
 
 export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) {
-  static get defineId() { return 'mc-dropdown-base'; }
+  static get defineId() {
+    return 'mc-dropdown-base';
+  }
 
   static get elementDefinitions() {
-    return buildElementDefinitions([
-      'ha-icon',
-      'ha-icon-button',
-      ClimateMenu,
-      ClimateListItem,
-    ], ClimateDropdownBase);
+    return buildElementDefinitions(
+      ['ha-icon', 'ha-icon-button', ClimateMenu, ClimateListItem],
+      ClimateDropdownBase,
+    );
   }
 
   static get properties() {
@@ -43,9 +43,11 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
   onChange(e) {
     const { index } = e.detail;
     if (index !== this.selectedId && this.items[index]) {
-      this.dispatchEvent(new CustomEvent('change', {
-        detail: this.items[index],
-      }));
+      this.dispatchEvent(
+        new CustomEvent('change', {
+          detail: this.items[index],
+        }),
+      );
       e.detail.index = -1;
     }
   }
@@ -76,10 +78,12 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
             .menuCorner=${'END'}
             .corner=${'TOP_RIGHT'}
             @selected=${this.onChange}>
-          ${this.items.map(item => html`
+          ${this.items.map(
+            item => html`
             <mwc-list-item value=${item.id || item.name} ?selected=${this.selected === item.id} .activated=${this.selected === item.id}>
               <span class='mc-dropdown__item__label'>${item.name}</span>
-            </mwc-list-item>`)}
+            </mwc-list-item>`,
+          )}
         </mwc-menu>
       </div>
     `;

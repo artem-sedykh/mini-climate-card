@@ -24,8 +24,7 @@ export default class TemperatureObject {
   get step() {
     const entity = this.targetTemperatureEntity;
 
-    if ('step' in this.config.target_temperature)
-      return this.config.target_temperature.step;
+    if ('step' in this.config.target_temperature) return this.config.target_temperature.step;
 
     if (entity && entity.attributes && entity.attributes.target_temp_step)
       return entity.attributes.target_temp_step;
@@ -40,8 +39,7 @@ export default class TemperatureObject {
       if ('fixed' in this.config.temperature)
         return parseFloat(value.toString()).toFixed(this.config.temperature.fixed);
 
-      if ('round' in this.config.temperature)
-        return round(value, this.config.temperature.round);
+      if ('round' in this.config.temperature) return round(value, this.config.temperature.round);
     }
 
     return value;
@@ -52,7 +50,12 @@ export default class TemperatureObject {
   }
 
   get hide() {
-    return this.shouldHideCurrentTemperature(this.value, this.temperatureEntity,
-      this.targetTemperatureEntity, this.climate.entity, this.climate.mode);
+    return this.shouldHideCurrentTemperature(
+      this.value,
+      this.temperatureEntity,
+      this.targetTemperatureEntity,
+      this.climate.entity,
+      this.climate.mode,
+    );
   }
 }

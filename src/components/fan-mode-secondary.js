@@ -6,14 +6,15 @@ import ClimateListItem from './mwc/list-item';
 import buildElementDefinitions from '../utils/buildElementDefinitions';
 
 export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitElement) {
-  static get defineId() { return 'mc-fan-mode-secondary'; }
+  static get defineId() {
+    return 'mc-fan-mode-secondary';
+  }
 
   static get elementDefinitions() {
-    return buildElementDefinitions([
-      'ha-icon',
-      ClimateMenu,
-      ClimateListItem,
-    ], ClimateFanModeSecondary);
+    return buildElementDefinitions(
+      ['ha-icon', ClimateMenu, ClimateListItem],
+      ClimateFanModeSecondary,
+    );
   }
 
   constructor() {
@@ -39,8 +40,7 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
   handleChange(e) {
     const { index } = e.detail;
 
-    if (index === this.selectedIndex || !this.fanMode.source[index])
-      return;
+    if (index === this.selectedIndex || !this.fanMode.source[index]) return;
 
     clearTimeout(this.timer);
 
@@ -63,7 +63,8 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
 
   renderFanMode() {
     const label = this._selected ? this._selected.name : this.fanMode.state;
-    const icon = this.config.secondary_info.icon ? this.config.secondary_info.icon
+    const icon = this.config.secondary_info.icon
+      ? this.config.secondary_info.icon
       : this.fanMode.icon;
 
     return html`
@@ -94,10 +95,12 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
             .menuCorner=${'END'}
             .corner=${'TOP_RIGHT'}
             @selected=${this.handleChange}>
-          ${this.fanMode.source.map(item => html`
+          ${this.fanMode.source.map(
+            item => html`
             <mwc-list-item value=${item.id || item.name} ?selected=${this._selected.id && this._selected.id === item.id} .activated=${this._selected.id && this._selected.id === item.id}>
               <span class='mc-dropdown__item__label'>${item.name}</span>
-            </mwc-list-item>`)}
+            </mwc-list-item>`,
+          )}
         </mwc-menu>
       </div>
     `;
@@ -146,6 +149,7 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
         min-width: calc(var(--mc-unit) * .5);
         --mdc-icon-size: calc(var(--mc-unit) * 0.5);
       }
-    `];
+    `,
+    ];
   }
 }

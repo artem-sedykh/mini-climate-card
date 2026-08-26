@@ -5,13 +5,12 @@ import sharedStyle from '../sharedStyle';
 import buildElementDefinitions from '../utils/buildElementDefinitions';
 
 export default class ClimateButton extends ScopedRegistryHost(LitElement) {
-  static get defineId() { return 'mc-button'; }
+  static get defineId() {
+    return 'mc-button';
+  }
 
   static get elementDefinitions() {
-    return buildElementDefinitions([
-      'ha-icon',
-      'ha-icon-button',
-    ], ClimateButton);
+    return buildElementDefinitions(['ha-icon', 'ha-icon-button'], ClimateButton);
   }
 
   constructor() {
@@ -33,8 +32,7 @@ export default class ClimateButton extends ScopedRegistryHost(LitElement) {
     this._isOn = !this._isOn;
     this.button.handleToggle();
 
-    if (this.timer)
-      clearTimeout(this.timer);
+    if (this.timer) clearTimeout(this.timer);
 
     this.timer = setTimeout(async () => {
       if (this.button.entity === entity) {
@@ -65,8 +63,7 @@ export default class ClimateButton extends ScopedRegistryHost(LitElement) {
     if (changedProps.has('button')) {
       this._isOn = this.button.isOn;
 
-      if (this.timer)
-        clearTimeout(this.timer);
+      if (this.timer) clearTimeout(this.timer);
 
       this.requestUpdate('_isOn');
     }
@@ -92,6 +89,7 @@ export default class ClimateButton extends ScopedRegistryHost(LitElement) {
         opacity: .25;
         pointer-events: none;
       }
-    `];
+    `,
+    ];
   }
 }
