@@ -14,7 +14,7 @@ export default class ClimateObject {
   attr: Record<string, any>;
 
   /** The mode the card is showing, which `main` assigns after it reads it. */
-  private _hvac_mode: string | undefined;
+  private _hvac_mode: SourceItem | undefined;
 
   constructor(hass: HomeAssistant, config: CardConfig, entity: HassEntity) {
     this.hass = hass || ({} as HomeAssistant);
@@ -59,11 +59,11 @@ export default class ClimateObject {
     return item;
   }
 
-  get mode(): string | undefined {
+  get mode(): SourceItem | undefined {
     return this._hvac_mode;
   }
 
-  set mode(value: string | undefined) {
+  set mode(value: SourceItem | undefined) {
     this._hvac_mode = value;
   }
 

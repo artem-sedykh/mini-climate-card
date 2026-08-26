@@ -1,4 +1,4 @@
-import { html, LitElement } from 'lit';
+import { html, LitElement, type PropertyValues, type TemplateResult } from 'lit';
 import define from './utils/define';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
@@ -16,6 +16,15 @@ import IndicatorObject from './models/indicator';
 import ClimateObject from './models/climate';
 import HvacModeObject from './models/hvac-mode';
 import ICON from './const';
+import type {
+  ButtonConfig,
+  CardConfig,
+  HassEntity,
+  HomeAssistant,
+  IndicatorConfig,
+  RawCardConfig,
+  TemplateContext,
+} from './types';
 import './components/temperature';
 import './components/target-temperature';
 import './components/mode-menu';
@@ -26,7 +35,46 @@ import './components/button';
 import './components/secondary-info';
 
 class MiniClimate extends LitElement {
-  static getStubConfig(hass, unusedEntities, allEntities) {
+  config!: CardConfig;
+
+  entity!: HassEntity;
+
+  climate: ClimateObject;
+
+  temperature: TemperatureObject;
+
+  targetTemperature: TargetTemperatureObject;
+
+  hvacMode: HvacModeObject;
+
+  buttons: Record<string, ButtonObject>;
+
+  indicators: Record<string, IndicatorObject>;
+
+  /** The fan mode button, kept aside because its source is filled in from the
+   * entity the first time the card renders. */
+  fanModeConfig!: ButtonConfig;
+
+  initial: boolean;
+
+  toggle: boolean;
+
+  swapTemperatures: boolean;
+
+  targetTemperatureChanging: boolean;
+
+  targetTemperatureValue: number | string;
+
+  /** The card's own width, observed, and published as --mc-card-width. */
+  width: number;
+
+  private _hass!: HomeAssistant;
+
+  static getStubConfig(
+    _hass: HomeAssistant,
+    unusedEntities: string[],
+    allEntities: string[],
+  ): { entity: string | undefined } {
     let entity = unusedEntities.find(eid => eid.split('.')[0] === 'climate');
     if (!entity) {
       entity = allEntities.find(eid => eid.split('.')[0] === 'climate');
@@ -38,19 +86,19 @@ class MiniClimate extends LitElement {
     super();
     this.initial = true;
     this.toggle = false;
-    this.temperature = {};
-    this.targetTemperature = {};
+    this.temperature = {} as TemperatureObject;
+    this.targetTemperature = {} as TargetTemperatureObject;
     this.swapTemperatures = false;
     this.buttons = {};
     this.indicators = {};
-    this.hvacMode = {};
+    this.hvacMode = {} as HvacModeObject;
     this.targetTemperatureChanging = false;
-    this.climate = {};
+    this.climate = {} as ClimateObject;
     this.targetTemperatureValue = 0;
     this.width = 0;
   }
 
-  static get properties() {
+  static override get properties() {
     return {
       _hass: { type: Object },
       config: { type: Object },
@@ -61,11 +109,11 @@ class MiniClimate extends LitElement {
     };
   }
 
-  static get styles() {
+  static override get styles() {
     return [sharedStyle, style];
   }
 
-  set hass(hass) {
+  set hass(hass: HomeAssistant) {
     if (!hass) return;
     const entity = hass.states[this.config.entity];
     this._hass = hass;
@@ -86,16 +134,16 @@ class MiniClimate extends LitElement {
     this.climate.mode = this.hvacMode.selected;
   }
 
-  get hass() {
+  get hass(): HomeAssistant {
     return this._hass;
   }
 
-  get name() {
+  get name(): string {
     return this.config.name || this.climate.name;
   }
 
-  updateIndicators(force) {
-    const indicators = {};
+  updateIndicators(force: boolean): void {
+    const indicators: Record<string, IndicatorObject> = {};
     let changed = false;
 
     for (let i = 0; i < this.config.indicators.length; i += 1) {
@@ -115,10 +163,10 @@ class MiniClimate extends LitElement {
     if (changed || force) this.indicators = indicators;
   }
 
-  updateTemperature(force) {
+  updateTemperature(force: boolean): void {
     if (this.targetTemperatureChanging) return;
 
-    const temperatureEntityId = this.config.temperature.source.entity || this.config.entity;
+    const temperatureEntityId = this.config.temperature.source!.entity || this.config.entity;
     const temperatureEntity = this.hass.states[temperatureEntityId];
 
     const targetTemperatureEntityId =
@@ -134,16 +182,12 @@ class MiniClimate extends LitElement {
       this.climate,
     );
 
-    if (
-      this.temperature.rawValue !== temperature.rawValue ||
-      this.temperature.target !== temperature.target ||
-      force
-    ) {
+    if (this.temperature.rawValue !== temperature.rawValue || force) {
       this.temperature = temperature;
     }
   }
 
-  updateTargetTemperature(force) {
+  updateTargetTemperature(force: boolean): void {
     if (this.targetTemperatureChanging) return;
 
     const entityId =
@@ -158,7 +202,7 @@ class MiniClimate extends LitElement {
     }
   }
 
-  updateHvacMode(force) {
+  updateHvacMode(force: boolean): void {
     const config = this.config.hvac_mode;
 
     const entityId = (config.state && config.state.entity) || this.climate.id;
@@ -169,8 +213,8 @@ class MiniClimate extends LitElement {
     }
   }
 
-  updateButtons(force) {
-    const buttons = {};
+  updateButtons(force: boolean): void {
+    const buttons: Record<string, ButtonObject> = {};
     let changed = false;
 
     for (let i = 0; i < this.config.buttons.length; i += 1) {
@@ -192,7 +236,7 @@ class MiniClimate extends LitElement {
     }
   }
 
-  getButtonsConfig(config) {
+  getButtonsConfig(config: RawCardConfig): ButtonConfig[] {
     const data = Object.entries(config.buttons || {});
 
     const buttons = [];
@@ -210,8 +254,8 @@ class MiniClimate extends LitElement {
     return buttons;
   }
 
-  getButtonConfig(value, config) {
-    const item = {
+  getButtonConfig(value: any, config: RawCardConfig): ButtonConfig {
+    const item: any = {
       icon: 'mdi:radiobox-marked',
       type: 'button',
       toggle_action: undefined,
@@ -221,7 +265,7 @@ class MiniClimate extends LitElement {
     item.functions = {};
 
     const context = { ...value };
-    context.call_service = (domain, service, options) =>
+    context.call_service = (domain: string, service: string, options: Record<string, unknown>) =>
       this.hass.callService(domain, service, options);
     context.entity_config = config;
     context.toggle_state = toggleState;
@@ -263,16 +307,25 @@ class MiniClimate extends LitElement {
     return item;
   }
 
-  getFanModeConfig(config) {
-    let fanModeConfig = {
+  getFanModeConfig(config: RawCardConfig): ButtonConfig {
+    let fanModeConfig: any = {
       id: 'fan_mode',
       icon: 'mdi:fan',
       type: 'dropdown',
       order: 0,
       state: { attribute: 'fan_mode' },
-      change_action: (selected, state, entity) => {
+      // Written as a function, but it does not run as one from here.
+      // `getButtonConfig` puts it through `compileTemplate` like any string a
+      // user wrote: the text is re-parsed and called with the template context
+      // bound, so `this` below is that context and not the card. The cast says
+      // so and erases, which matters - the emitted text is what gets parsed.
+      change_action: (selected: string, _state: unknown, entity: HassEntity) => {
         const options = { fan_mode: selected, entity_id: entity.entity_id };
-        return this.call_service('climate', 'set_fan_mode', options);
+        return (this as unknown as TemplateContext).call_service(
+          'climate',
+          'set_fan_mode',
+          options,
+        );
       },
       ...(config.fan_mode || {}),
     };
@@ -285,8 +338,8 @@ class MiniClimate extends LitElement {
     return fanModeConfig;
   }
 
-  getIndicatorConfig(key, value, config) {
-    const item = {
+  getIndicatorConfig(key: string, value: any, config: RawCardConfig): IndicatorConfig {
+    const item: any = {
       id: key,
       source: { enitity: undefined, attribute: undefined, mapper: undefined },
       icon: '',
@@ -329,8 +382,8 @@ class MiniClimate extends LitElement {
     return item;
   }
 
-  getSecondaryInfoConfig(config) {
-    const item = {
+  getSecondaryInfoConfig(config: any): any {
+    const item: any = {
       ...config,
     };
 
@@ -348,8 +401,8 @@ class MiniClimate extends LitElement {
     return item;
   }
 
-  getToggleConfig(config) {
-    const item = {
+  getToggleConfig(config: any): any {
+    const item: any = {
       ...config,
     };
 
@@ -367,14 +420,14 @@ class MiniClimate extends LitElement {
     return item;
   }
 
-  getIndicatorsConfig(config) {
+  getIndicatorsConfig(config: RawCardConfig): IndicatorConfig[] {
     return Object.entries(config.indicators || {}).map(i =>
       this.getIndicatorConfig(i[0], i[1] || {}, config),
     );
   }
 
-  getTargetTemperatureConfig(config) {
-    const item = {
+  getTargetTemperatureConfig(config: RawCardConfig): any {
+    const item: any = {
       source: { entity: undefined, attribute: 'temperature' },
       ...(config.target_temperature || {}),
     };
@@ -388,7 +441,7 @@ class MiniClimate extends LitElement {
     item.functions = {};
 
     const context = { ...(config.target_temperature || {}) };
-    context.call_service = (domain, service, options) =>
+    context.call_service = (domain: string, service: string, options: Record<string, unknown>) =>
       this.hass.callService(domain, service, options);
     context.entity_config = config;
     context.toggle_state = toggleState;
@@ -400,12 +453,18 @@ class MiniClimate extends LitElement {
     return item;
   }
 
-  getHvacModeConfig(config) {
-    let mode = {
+  getHvacModeConfig(config: RawCardConfig): any {
+    let mode: any = {
       type: 'dropdown',
-      change_action: (selected, entity) => {
+      // As in getFanModeConfig: re-parsed by compileTemplate, so `this` is
+      // the template context.
+      change_action: (selected: string, entity: HassEntity) => {
         const options = { hvac_mode: selected, entity_id: entity.entity_id };
-        return this.call_service('climate', 'set_hvac_mode', options);
+        return (this as unknown as TemplateContext).call_service(
+          'climate',
+          'set_hvac_mode',
+          options,
+        );
       },
       ...(config.hvac_mode || {}),
     };
@@ -419,12 +478,18 @@ class MiniClimate extends LitElement {
     return mode;
   }
 
-  setConfig(config) {
+  setConfig(config: RawCardConfig): void {
     const supportedDomains = ['climate', 'fan'];
 
     if (!config.entity || supportedDomains.includes(config.entity.split('.')[0]) === false)
       throw new Error(`Specify an entity from within domains: [${supportedDomains.join(', ')}].`);
 
+    // The cast is load-bearing rather than cosmetic: `tap_action` may arrive
+    // as a string, and spreading the user's config over the defaults then
+    // replaces the whole object with it. `handleClick` reads `config.action`
+    // off that string and returns, so every value but `none` is a dead click -
+    // see #234. Written down here rather than fixed, because fixing it changes
+    // what the card does.
     this.config = {
       tap_action: {
         action: 'more-info',
@@ -435,7 +500,7 @@ class MiniClimate extends LitElement {
         service_data: {},
       },
       ...config,
-    };
+    } as CardConfig;
 
     this.config.indicators = this.getIndicatorsConfig(config);
 
@@ -477,7 +542,7 @@ class MiniClimate extends LitElement {
     this.swapTemperatures = !!this.config.swap_temperatures;
   }
 
-  renderCtlWrap() {
+  renderCtlWrap(): TemplateResult | string {
     if (this.climate.isUnavailable) {
       return html`
         <span class="label ellipsis">        
@@ -489,7 +554,13 @@ class MiniClimate extends LitElement {
     const buttons = Object.entries(this.buttons)
       .map(b => b[1])
       .filter(b => b.location === 'main' && !b.hide)
-      .sort((a, b) => (a.order > b.order ? 1 : b.order > a.order ? -1 : 0));
+      .sort((a, b) =>
+        (a.order as number) > (b.order as number)
+          ? 1
+          : (b.order as number) > (a.order as number)
+            ? -1
+            : 0,
+      );
 
     return html`
         ${buttons.map(button =>
@@ -507,20 +578,20 @@ class MiniClimate extends LitElement {
     `;
   }
 
-  renderEntityControls() {
+  renderEntityControls(): TemplateResult | string {
     if (this.climate.isUnavailable) return '';
 
     return html`
         <div class="entity__controls">
           <mc-target-temperature
             .targetTemperature=${this.targetTemperature}
-            @changing="${e => this.handleChangingTargetTemperature(e)}">
+            @changing="${(e: CustomEvent) => this.handleChangingTargetTemperature(e)}">
           </mc-target-temperature>
         </div>
     `;
   }
 
-  render() {
+  override render(): TemplateResult {
     const handle = this.config.secondary_info.type !== 'fan-mode-dropdown';
     return html`
       <ha-card
@@ -532,7 +603,7 @@ class MiniClimate extends LitElement {
             ${this.renderIcon()}
             <div class='entity__info'>
               <div class="wrap">
-                <div class="entity__info__name_wrap" @click=${e => this.handlePopup(e, handle)}>
+                <div class="entity__info__name_wrap" @click=${(e: Event) => this.handlePopup(e, handle)}>
                   ${this.renderEntityName()}
                 </div>
                 <div class="ctl-wrap ellipsis">
@@ -549,29 +620,29 @@ class MiniClimate extends LitElement {
     `;
   }
 
-  handleChangingTargetTemperature(e) {
+  handleChangingTargetTemperature(e: CustomEvent): void {
     this.targetTemperatureValue = this.targetTemperature.value;
     this.targetTemperatureChanging = e.detail.changing;
     this.requestUpdate('targetTemperatureChanging');
   }
 
-  handlePopup(e, handle) {
+  handlePopup(e: Event, handle: boolean): void {
     if (!handle) return;
 
     e.stopPropagation();
     handleClick(this, this.hass, this.config.tap_action, this.climate.id);
   }
 
-  handleToggle(e) {
+  handleToggle(e: Event): void {
     e.stopPropagation();
     this.toggle = !this.toggle;
   }
 
-  toggleButtonCls() {
+  toggleButtonCls(): string {
     return this.toggle ? 'open' : '';
   }
 
-  renderIcon() {
+  renderIcon(): TemplateResult {
     const state = this.climate.isActive;
     return html`
       <div class='entity__icon' ?color=${state}>
@@ -579,7 +650,7 @@ class MiniClimate extends LitElement {
       </div>`;
   }
 
-  renderTogglePanel() {
+  renderTogglePanel(): TemplateResult | string {
     if (!this.toggle) return '';
 
     return html`
@@ -591,7 +662,7 @@ class MiniClimate extends LitElement {
     `;
   }
 
-  renderBottomPanel() {
+  renderBottomPanel(): TemplateResult | string {
     if (this.climate.isUnavailable) return '';
 
     return html`
@@ -604,7 +675,7 @@ class MiniClimate extends LitElement {
     `;
   }
 
-  renderToggleButton() {
+  renderToggleButton(): TemplateResult {
     if (
       Object.entries(this.buttons)
         .map(entry => entry[1])
@@ -622,22 +693,22 @@ class MiniClimate extends LitElement {
     return html`
         <ha-icon-button class='toggle-button ${this.toggleButtonCls()}'
           .icon=${this.config.toggle.icon}
-          @click=${e => this.handleToggle(e)}>
+          @click=${(e: Event) => this.handleToggle(e)}>
             <ha-icon .icon=${this.config.toggle.icon}></ha-icon>
         </ha-icon-button>
     `;
   }
 
-  renderEntityName() {
+  renderEntityName(): TemplateResult {
     return html`
-      <div class='entity__info__name' @click=${e => this.handlePopup(e, true)}>
+      <div class='entity__info__name' @click=${(e: Event) => this.handlePopup(e, true)}>
         ${this.name}
       </div>
      ${this.renderSecondaryInfo()}
     `;
   }
 
-  renderSecondaryInfo() {
+  renderSecondaryInfo(): TemplateResult {
     if (this.climate.isUnavailable) return html``;
 
     if (
@@ -658,7 +729,7 @@ class MiniClimate extends LitElement {
       </div>`;
   }
 
-  computeIcon() {
+  computeIcon(): string {
     return this.config.icon ? this.config.icon : this.climate.icon || ICON.DEFAULT;
   }
 
@@ -667,7 +738,7 @@ class MiniClimate extends LitElement {
       '--initial': this.initial,
       '--collapse': config.collapse,
       '--group': config.group,
-      '--more-info': config.tap_action !== 'none',
+      '--more-info': (config.tap_action as unknown as string) !== 'none',
       '--inactive': !this.climate.isActive,
       '--unavailable': this.climate.isUnavailable,
     });
@@ -682,7 +753,7 @@ class MiniClimate extends LitElement {
     });
   }
 
-  initDefaultFanModeSource() {
+  initDefaultFanModeSource(): void {
     const fanMode = this.fanModeConfig;
     const entries = Object.entries(fanMode.source || {}).filter(s => s[0] !== '__filter');
     const { entity } = this.climate;
@@ -692,7 +763,7 @@ class MiniClimate extends LitElement {
     }
   }
 
-  initDefaultHvacModeSource() {
+  initDefaultHvacModeSource(): void {
     const hvacMode = this.config.hvac_mode;
     const entries = Object.entries(hvacMode.source || {}).filter(s => s[0] !== '__filter');
     const { entity } = this.climate;
@@ -701,7 +772,7 @@ class MiniClimate extends LitElement {
       hvacMode.source = { ...this.climate.defaultHvacModes, ...(hvacMode.source || {}) };
   }
 
-  firstUpdated(changedProps) {
+  override firstUpdated(changedProps: PropertyValues): void {
     super.firstUpdated(changedProps);
 
     if (changedProps.has('climate')) {
@@ -727,6 +798,15 @@ class MiniClimate extends LitElement {
 }
 
 define('mini-climate', MiniClimate);
+
+// The list the Lovelace card picker reads. It belongs to the frontend, not to
+// this card, so it is declared rather than imported.
+declare global {
+  interface Window {
+    customCards?: Array<Record<string, unknown>>;
+  }
+}
+
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: 'mini-climate',

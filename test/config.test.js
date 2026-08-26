@@ -9,7 +9,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 let Card;
 
 beforeAll(async () => {
-  await import('../src/main.js');
+  await import('../src/main');
   Card = customElements.get('mini-climate');
 });
 

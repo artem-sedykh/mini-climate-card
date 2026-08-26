@@ -24,7 +24,7 @@ which indicators exist and what each one reads, which buttons appear, what icon
 each takes, what service each one calls, when each is hidden or disabled.
 
 Several of those options are **template strings**. The user writes a function
-as text in YAML, and `compileTemplate` in `src/utils/utils.js` re-parses it
+as text in YAML, and `compileTemplate` in `src/utils/utils.ts` re-parses it
 with `new Function` and calls it with a context object. That is the one
 deliberate `new Function` in the repository.
 
@@ -43,7 +43,7 @@ This is a constraint on what may be changed, not just a description of what is:
 ### The template context
 
 Every compiled template is called with `this` bound to a context built in
-`src/main.js`, and the context is `{ ...value }` - **the option's own YAML
+`src/main.ts`, and the context is `{ ...value }` - **the option's own YAML
 spread into it**. So anything the user writes beside a template is readable
 from the template as `this.<key>`. That is not an accident to tidy up; it is
 the extension point, and it is why unknown keys inside an indicator or a button
@@ -52,7 +52,7 @@ cannot be rejected.
 On top of that the context carries:
 
 - `entity_config` - the whole card configuration.
-- `toggle_state` - the `on`/`off` flip from `src/utils/utils.js`.
+- `toggle_state` - the `on`/`off` flip from `src/utils/utils.ts`.
 - `call_service(domain, service, options)` - for buttons and target
   temperature only. Indicators do not get it, because an indicator displays.
 
@@ -74,7 +74,7 @@ npm test              # vitest, the unit tests under test/
 npm run test:coverage # the same, with coverage and its thresholds
 npm run test:watch    # vitest in watch mode
 npm run test:browser  # @web/test-runner, the component tests in two engines
-npm run rollup        # bundle src/main.js -> dist/mini-climate-card-bundle.js
+npm run rollup        # bundle src/main.ts -> dist/mini-climate-card-bundle.js
 npm run dev           # the same bundle, unminified
 npm run check:bundle  # assertions on the built bundle (needs a build first)
 npm run build         # lint + format:check + test + rollup + check:bundle
@@ -118,12 +118,12 @@ Two of those need explaining:
 
 ## Two languages, for now
 
-The source is moving to TypeScript file by file (#228). `src/types.ts`,
-`src/const.ts`, `src/utils/` and `src/models/` are over; `src/components/`,
-`src/main.js` and the styles are not yet. An import written without an
-extension can land on either, which is why the resolver in
-`rollup.config.mjs`, `web-test-runner.config.mjs` and `tsconfig.json` all
-name both.
+The source is moving to TypeScript file by file (#228). Everything but the
+styles and the console banner is over: `src/types.ts`, `src/const.ts`,
+`src/utils/`, `src/models/`, `src/components/` and `src/main.ts`. An import
+written without an extension can land on either, which is why the resolver in
+`rollup.config.mjs`, `web-test-runner.config.mjs` and `tsconfig.json` all name
+both.
 
 Types are stripped by esbuild and **checked by nothing at build time** - that
 is `npm run typecheck`, and it is part of `npm run build` and of CI.
@@ -172,7 +172,7 @@ Two things that suite pins down are worth knowing before changing them:
 `npm run test:coverage` is the same run with `@vitest/coverage-v8` on, and CI
 uses it in place of `npm test`. It measures the unit layer only, and the
 thresholds are set to what the suite reaches today rather than to a round
-number. The number is held down by `src/main.js` at 68%, half of which is
+number. The number is held down by `src/main.ts` at 68%, half of which is
 render methods that only run in a browser; the models are at 95%.
 
 `test/menu.test.js` covers the card's own menu under jsdom - when it opens,
@@ -208,8 +208,8 @@ Three things about it are load-bearing:
 
 The first run of that layer found three components deriving state in
 `updated()` and asking for a second render pass over a value that was already
-known when the first one started - `button.js`, `dropdown.js` and
-`fan-mode-secondary.js`, all now doing it in `willUpdate()`. It also found the
+known when the first one started - `button.ts`, `dropdown.ts` and
+`fan-mode-secondary.ts`, all now doing it in `willUpdate()`. It also found the
 target temperature control sending the same temperature more than once when
 its presses land in the same millisecond, because the timer that had already
 sent compared against a cleared `temp_last_changed` and read the whole epoch
@@ -225,27 +225,27 @@ is a check nobody knows works.
 
 ```
 src/
-  main.js            <mini-climate>, the card element: lifecycle, the whole
+  main.ts            <mini-climate>, the card element: lifecycle, the whole
                      configuration merge, and the top-level render
   components/        the sub-elements the card renders, registered as mc-*
-                     menu.js is the card's own dropdown menu
+                     menu.ts is the card's own dropdown menu
   models/            wrappers that turn raw hass state into what a component
                      renders (climate, button, indicator, temperature,
                      target-temperature, hvac-mode)
   utils/             template compilation, click handling, define()
-  const.js           icons, the off/unavailable state lists, tap action names
+  const.ts           icons, the off/unavailable state lists, tap action names
   style.js           card styles
   sharedStyle.js     styles shared with the sub-elements
 release_notes/       one file per version, read by the release workflow
 ```
 
-The card has **no translations of its own**. `src/utils/getLabel.js` asks
+The card has **no translations of its own**. `src/utils/getLabel.ts` asks
 `hass.localize` for Home Assistant's own keys and falls back to a literal.
 
 ## How a card configuration is resolved
 
 This is the part worth understanding before changing anything about options.
-All of it lives in `setConfig` in `src/main.js` and the `get*Config` methods
+All of it lives in `setConfig` in `src/main.ts` and the `get*Config` methods
 around it.
 
 1. **The entity is checked**, and `setConfig` throws for anything outside the
@@ -285,7 +285,7 @@ Two shorthands are normalised, and they are not normalised the same way:
 ## Registering the elements
 
 Every component registers itself at the bottom of its own module -
-`define('mc-button', ClimateButton)` - and `main.js` imports those modules for
+`define('mc-button', ClimateButton)` - and `main.ts` imports those modules for
 that alone. `src/utils/define.js` is `customElements.define` without the throw
 when the name is already taken, which is what a page that loads the bundle
 twice does.
@@ -485,17 +485,20 @@ Tracked under #198, which is also the order the work is meant to happen in.
   models; there is no component layer, so anything that only shows up once the
   card is on a dashboard - which is where this card has broken before - is
   caught by hand or not at all.
-- **The card's own `tap_action` in string form does nothing.** An indicator's
+- **The card's own `tap_action` in string form does nothing** (#234). An indicator's
   string is normalised to `{ action: <string> }`; the card's own is not, so the
   user's string replaces the default object wholesale, and `handleClick` then
   reads `config.action` off a string and returns. Every value but `none`
   is a dead click.
-- **Whether the card looks clickable has nothing to do with `tap_action`.**
+- **Whether the card looks clickable has nothing to do with `tap_action`**
+  (#234).
   `.entity__info__name_wrap` carries `cursor: pointer` unconditionally, so a
   card configured to do nothing still invites a click. `computeClasses`
   computes a `--more-info` class for this and gets it wrong twice over: it
   compares the whole option against the string `'none'`, which an object never
   equals, and no stylesheet uses the class at all.
+- **`updateTemperature` compared a property `TemperatureObject` never had**
+  (#233). The dead clause is gone; what it was meant to say is still open.
 - **`getIndicatorConfig` spells the default source key `enitity`.** Harmless
   today, because a user-supplied `source` replaces the whole object, but it is
   the kind of typo that makes a working option look unsupported.

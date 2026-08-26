@@ -8,7 +8,7 @@ import esbuild from 'rollup-plugin-esbuild';
 const development = process.env.BUILD === 'development';
 
 export default {
-  input: 'src/main.js',
+  input: 'src/main.ts',
   output: {
     file: 'dist/mini-climate-card-bundle.js',
     format: 'umd',

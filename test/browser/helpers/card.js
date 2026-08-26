@@ -1,7 +1,7 @@
 import { fixture, nextFrame } from '@open-wc/testing';
 import { defineHaElements } from './ha-elements.js';
 import { createHass, ENTITY_ID } from './hass.js';
-import '../../../src/main.js';
+import '../../../src/main';
 
 // The card as Home Assistant builds it: `setConfig` with the YAML, then
 // `hass`, then into the document. The order matters - the `hass` setter reads
