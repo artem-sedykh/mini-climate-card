@@ -71,13 +71,48 @@ npm run format        # prettier --write
 npm run format:check  # what CI runs
 npm run rollup        # bundle src/main.js -> dist/mini-climate-card-bundle.js
 npm run babel         # minify that bundle in place
-npm run build         # lint + format:check + rollup + babel
+npm run check:bundle  # assertions on the built bundle (needs a build first)
+npm run build         # lint + format:check + rollup + babel + check:bundle
 npm run watch         # rebuild on save
 ```
 
 Node version comes from `.nvmrc`. Use it; CI reads the same file.
 
-There are **no tests in this repository yet**. See "Known debt".
+There is **one layer of checks** so far - see "Checks" below. There are no
+unit or component tests yet; see "Known debt".
+
+## Checks
+
+**`npm run check:bundle`** - `scripts/check-bundle.mjs`, assertions on
+`dist/mini-climate-card-bundle.js` after a build. It is deliberately the first
+layer rather than unit tests, because in the sister card every regression that
+ever reached users lived in the build rather than in the source: a development
+build of lit, a duplicated `@lit/reactive-element`, a directive left unresolved
+and emitted as an external `require`. None of them is visible in the source and
+all of them are visible in the output file.
+
+It checks that the bundle registers the element and the card picker entry,
+carries every `mc-*` component, resolves every import, is not lit's development
+build, has not grown its lit copy count, still holds the one `new Function`
+that is the template engine, and stays within a tolerance of a recorded size.
+
+Two of those need explaining:
+
+- **The lit copy count is asserted against a baseline, not against one.** It is
+  five today (see "The dropdown, and the five copies of lit"), so the check
+  guards against a sixth rather than against the problem. It becomes `=== 1`
+  when `@material/mwc-*` goes.
+- **The size baseline is in `scripts/bundle-baseline.json`,** tracked rather
+  than computed. When a change legitimately moves the size, update the file in
+  the same commit and say why. Do not widen the tolerance to make a build
+  pass - a duplicated `ReactiveElement` is about 11 KB, which is exactly the
+  size of change this is there to catch.
+
+The checks were tested by breaking a copy of the bundle six ways - removing the
+`new Function`, adding a sixth lit registration, adding lit's dev-mode banner,
+leaving a `require`, removing the `customElements.define`, and renaming a
+component - and confirming each one fails the run. A check nobody has seen fail
+is a check nobody knows works.
 
 ## Layout
 
@@ -329,8 +364,9 @@ Two consequences worth remembering:
 
 Tracked under #198, which is also the order the work is meant to happen in.
 
-- **No tests at all.** Nothing here is checked by anything except a build that
-  succeeds.
+- **No unit or component tests.** The bundle assertions are the only layer.
+  Nothing checks that a model turns entity state into what a component expects,
+  or that the card renders at all.
 - **Five copies of lit in the bundle**, from `@material/mwc-*`.
 - **`@lit-labs/scoped-registry-mixin`** and the two silent failure modes above.
   `src/components/fan-mode-secondary.js` renders an `ha-icon-button` it never

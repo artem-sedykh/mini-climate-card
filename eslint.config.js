@@ -37,5 +37,18 @@ module.exports = [
     },
     rules,
   },
+  {
+    files: ['scripts/**/*.mjs'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: globals.node,
+    },
+    rules: {
+      ...rules,
+      // These scripts exist to report to the terminal.
+      'no-console': 'off',
+    },
+  },
   prettier,
 ];
