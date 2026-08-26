@@ -28,8 +28,9 @@ export default {
     // No `dedupe`: with @material/mwc-* gone there is one copy of lit in the
     // tree, and `npm run check:bundle` asserts exactly that.
     nodeResolve({
-      // The migration to TypeScript is file by file (#228), so an import
-      // written without an extension can land on either language.
+      // Local imports are written without an extension and the whole of src/
+      // is TypeScript, so `.ts` has to be in this list - node's own defaults
+      // do not include it.
       extensions: ['.mjs', '.js', '.json', '.node', '.ts'],
       exportConditions: [development ? 'development' : 'production'],
     }),
@@ -40,10 +41,6 @@ export default {
     // is already in the tree for the browser tests, so both languages go
     // through one tool.
     //
-    // Only TypeScript goes through it. While the migration is half done the
-    // JavaScript that is left has to reach the bundle exactly as it was -
-    // that is what makes comparing the bundle across a migrated file mean
-    // anything.
     esbuild({ include: /\.ts$/, target: 'es2021', tsconfig: './tsconfig.json' }),
     ...(development ? [] : [terser({ format: { comments: false } })]),
   ],

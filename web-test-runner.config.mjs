@@ -12,8 +12,8 @@ const json = fromRollup(rollupJson);
 export default {
   files: 'test/browser/**/*.test.js',
   nodeResolve: {
-    // Every local import in src/ is written without an extension, and while
-    // the migration in #228 is under way it can land on either language.
+    // Every local import in src/ is written without an extension, and the
+    // whole of src/ is TypeScript.
     extensions: ['.mjs', '.js', '.json', '.node', '.ts'],
     // The same conditions rollup.config.mjs pins. Without them the choice
     // between lit's development and production builds depends on NODE_ENV,
@@ -26,9 +26,8 @@ export default {
   mimeTypes: { '**/*.json': 'js' },
   plugins: [
     json({ include: ['**/*.json'] }),
-    // TypeScript only, and deliberately without a `target`: naming one makes
-    // the plugin transform the JavaScript as well, and while the migration is
-    // half done that would mean the tests run against code the build never
+    // Deliberately without a `target`: naming one makes esbuild down-level
+    // the output, and the tests would then run against code the build never
     // produces.
     //
     // `tsconfig` is not optional here - the plugin does not read it on its
