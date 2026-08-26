@@ -72,6 +72,7 @@ npm run format:check  # what CI runs
 npm test              # vitest, the unit tests under test/
 npm run test:coverage # the same, with coverage and its thresholds
 npm run test:watch    # vitest in watch mode
+npm run test:browser  # @web/test-runner, the component tests in two engines
 npm run rollup        # bundle src/main.js -> dist/mini-climate-card-bundle.js
 npm run dev           # the same bundle, unminified
 npm run check:bundle  # assertions on the built bundle (needs a build first)
@@ -144,7 +145,44 @@ number. The number is held down by `src/main.js` at 68%, half of which is
 render methods that only run in a browser; the models are at 95%.
 
 `test/menu.test.js` covers the card's own menu under jsdom - when it opens,
-when it closes, and what it reports when an option is picked.
+when it closes, and what it reports when an option is picked. What jsdom
+cannot answer about it - the top layer, the focus, where it lands near an edge
+- is the layer below.
+
+**`npm run test:browser`** - `@web/test-runner` over `test/browser/`, in
+**Chromium and WebKit**. This is the layer that renders the card. The iOS
+companion app draws in WKWebView and desktop Safari is a real share of the
+audience, so WebKit is somewhere this card genuinely runs; before #223 nothing
+had ever run it there.
+
+`test/browser/helpers/` holds the fixture: `mountCard` builds the card the way
+Home Assistant does (`setConfig`, then `hass`, then into the document),
+`components` walks the nested shadow roots, and `countRenders` shadows
+`render` on each instance.
+
+Three things about it are load-bearing:
+
+- **The stand-ins for `ha-card`, `ha-icon` and `ha-icon-button` each carry a
+  `display`.** The real elements bring their own and the card's styles size
+  them on the strength of it. An inline stub collapses, and every measurement
+  taken through it is then measuring nothing.
+- **Renders are counted, not awaited.** `await el.updateComplete` resolves to
+  `false` when an update was requested from inside the update cycle, but it
+  answers only for the cycle running when it is asked - by the time a walk
+  reaches a component two levels down, that component's second pass is over. A
+  counter does not care when it is read.
+- **Assertions are on strings** - `localName`, `dataset.value`, text. A DOM
+  node in a failure report hangs the runner until the timeout with no output,
+  which reads like a broken test rather than a failed one.
+
+The first run of that layer found three components deriving state in
+`updated()` and asking for a second render pass over a value that was already
+known when the first one started - `button.js`, `dropdown.js` and
+`fan-mode-secondary.js`, all now doing it in `willUpdate()`. It also found the
+target temperature control sending the same temperature more than once when
+its presses land in the same millisecond, because the timer that had already
+sent compared against a cleared `temp_last_changed` and read the whole epoch
+as elapsed time.
 
 The bundle checks were tested by breaking a copy of the bundle six ways - removing the
 `new Function`, adding a sixth lit registration, adding lit's dev-mode banner,

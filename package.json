@@ -21,10 +21,14 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@open-wc/testing": "^5.0.0",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^1.0.0",
     "@vitest/coverage-v8": "^4.1.11",
+    "@web/dev-server-rollup": "^1.0.0",
+    "@web/test-runner": "^1.0.0",
+    "@web/test-runner-playwright": "^1.0.0",
     "eslint": "^10.9.1",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.11.0",
@@ -45,6 +49,7 @@
     "dev": "rollup -c --environment BUILD:development",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "test:browser": "web-test-runner",
     "test:watch": "vitest"
   },
   "engines": {

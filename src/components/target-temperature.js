@@ -46,15 +46,21 @@ export default class ClimateTargetTemperature extends LitElement {
     this.sendChangeEvent(true);
 
     window.setTimeout(() => {
-      const now = Date.now();
-      if (now - this.temp_last_changed >= this.timeout) {
-        const { value } = this.targetTemperature;
-        try {
-          this.targetTemperature.update(value);
-        } finally {
-          this.sendChangeEvent(false);
-          this.temp_last_changed = null;
-        }
+      // Every press schedules one of these, and the last one to arrive is the
+      // one that sends. `temp_last_changed` is cleared once that has happened,
+      // so a timer that arrives afterwards has nothing left to do - without
+      // this line it compared against `null`, read the whole epoch as elapsed
+      // time and sent the same temperature to the device again.
+      if (!this.temp_last_changed) return;
+
+      if (Date.now() - this.temp_last_changed < this.timeout) return;
+
+      const { value } = this.targetTemperature;
+      try {
+        this.targetTemperature.update(value);
+      } finally {
+        this.sendChangeEvent(false);
+        this.temp_last_changed = null;
       }
     }, this.timeout + 10);
   }

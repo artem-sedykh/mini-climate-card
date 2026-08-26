@@ -52,6 +52,21 @@ module.exports = [
     rules,
   },
   {
+    // The component layer runs in real browsers under @web/test-runner, whose
+    // test framework is mocha - `describe` and `it` arrive as globals there,
+    // where vitest's are imported.
+    files: ['test/browser/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        ...globals.browser,
+        ...globals.mocha,
+      },
+    },
+    rules,
+  },
+  {
     files: ['scripts/**/*.mjs'],
     languageOptions: {
       ecmaVersion: 2022,

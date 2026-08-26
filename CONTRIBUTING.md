@@ -43,12 +43,15 @@ a change that did nothing.
 A few things worth knowing before you start. All of them are in
 [AGENTS.md](AGENTS.md), which is the longer version of this section.
 
-- **Nothing here renders the card.** `npm test` covers the models, the utils
-  and the configuration merge; `npm run check:bundle` asserts things about the
-  built file. Neither opens a browser, and the elements this card draws are
-  Home Assistant's own - which is where it has broken before. So please load
-  your change into a running Home Assistant, say which version you tested on,
-  and be plain about what you could not check.
+- **Three layers of tests, and none of them is Home Assistant.** `npm test`
+  covers the models, the utils and the configuration merge; `npm run
+  test:browser` renders the card in Chromium and WebKit, which needs
+  `npx playwright install chromium webkit` once; `npm run check:bundle`
+  asserts things about the built file. What none of them has is the real
+  `ha-card`, `ha-icon` and `ha-icon-button` - the component layer registers
+  stand-ins for those, and they are where this card has broken before. So
+  please still load your change into a running Home Assistant, say which
+  version you tested on, and be plain about what you could not check.
 - **Every component registers itself** at the bottom of its own module, with
   `define('mc-something', TheClass)`, and the card imports those modules for
   that alone. The names are global, which is why they are prefixed - a new
@@ -67,9 +70,10 @@ A few things worth knowing before you start. All of them are in
 Commits follow [Conventional Commits](https://www.conventionalcommits.org/)
 without a scope: `fix:`, `feat:`, `ci:`, `build:`, `docs:`.
 
-CI runs lint, formatting, the unit tests with coverage thresholds, the build,
-assertions on the built bundle, HACS validation, and a gate that catches CRLF
-and BOM. `npm run build` locally covers everything except the last two.
+CI runs lint, formatting, the unit tests with coverage thresholds, the
+component tests in both engines, the build, assertions on the built bundle,
+HACS validation, and a gate that catches CRLF and BOM. `npm run build` locally
+covers everything except the component tests and the last two.
 
 ## Releasing
 
