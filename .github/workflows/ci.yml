@@ -84,6 +84,12 @@ jobs:
         # for the whole of the TypeScript migration (#244).
         run: npm run check:docs
 
+      - name: Changelog
+        # CHANGELOG.md is generated from release_notes/; this fails if the two
+        # drift. It needs neither a build nor a browser, so it starts as early
+        # as the documentation check.
+        run: npm run changelog -- --check
+
       - name: Unit tests
         # With coverage: the thresholds in vitest.config.mjs fail the run if it
         # slides. `npm test` stays the plain run, because that is the one

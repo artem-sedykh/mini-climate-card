@@ -37,7 +37,12 @@ const IGNORED = new Map([
 // Release notes are a record of a released version, not a description of the
 // tree: `getLabel.js` was the file's name when v2.7.4 shipped, and correcting
 // it there would make the note say something that was never true.
+//
+// CHANGELOG.md is generated from release_notes/ and records the same history,
+// so it gets the same exemption. A path in it that no longer exists is not a
+// rotted link; it is what the file is for.
 const SKIPPED_MARKDOWN = 'release_notes/';
+const SKIPPED_FILE = 'CHANGELOG.md';
 
 // Nothing tracked lives under these.
 const SKIPPED_DIRS = new Set(['node_modules', 'dist', '.git', 'site', 'coverage']);
@@ -64,7 +69,9 @@ const walk = dir => {
 };
 
 const files = walk('');
-const markdown = files.filter(file => file.endsWith('.md') && !file.startsWith(SKIPPED_MARKDOWN));
+const markdown = files.filter(
+  file => file.endsWith('.md') && !file.startsWith(SKIPPED_MARKDOWN) && file !== SKIPPED_FILE,
+);
 const basenames = new Set(files.map(file => path.posix.basename(file)));
 const known = new Set(files);
 
