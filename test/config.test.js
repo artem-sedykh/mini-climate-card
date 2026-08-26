@@ -95,6 +95,26 @@ describe('the card defaults', () => {
   });
 });
 
+describe('hide_icon', () => {
+  it('hides nothing when it is not configured', () => {
+    expect(build({}).card.shouldHideIcon()).toBe(false);
+  });
+
+  it('takes a boolean', () => {
+    expect(build({ hide_icon: true }).card.shouldHideIcon()).toBe(true);
+    expect(build({ hide_icon: false }).card.shouldHideIcon()).toBe(false);
+  });
+
+  it('takes a template, like every other hide in this card', () => {
+    // Compiled once in setConfig rather than per render, so what is stored is
+    // the function and not the text.
+    const { card } = build({ hide_icon: "(climate_entity) => climate_entity.state === 'off'" });
+
+    expect(card.shouldHideIcon({ state: 'off' })).toBe(true);
+    expect(card.shouldHideIcon({ state: 'cool' })).toBe(false);
+  });
+});
+
 describe('indicators', () => {
   it('takes the id from the key it was written under', () => {
     const { card } = build({ indicators: { power: { source: { attribute: 'x' } } } });

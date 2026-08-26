@@ -159,6 +159,7 @@ export interface RawCardConfig {
   collapse?: boolean;
   group?: boolean;
   swap_temperatures?: boolean;
+  hide_icon?: boolean | string;
   tap_action?: TapAction | string;
   secondary_info?: string | Record<string, any>;
   toggle?: Record<string, any>;
@@ -209,5 +210,6 @@ export interface CardConfig {
    */
   tap_action: TapAction;
   hide_current_temperature?: boolean | string;
+  hide_icon?: boolean | string;
   [key: string]: any;
 }

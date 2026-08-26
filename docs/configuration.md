@@ -13,6 +13,8 @@
 | group                                     | boolean                             | optional     | v1.0.2 | Removes border, paddings, background color and box-shadow                                                     |
 | icon                                      | string                              | optional     | v1.0.1 | Specify a custom icon from any of the available mdi icons                                                     |
 | swap_temperatures                         | boolean                             | optional     | V2.1.1 | Swap the current and the target temperature in the card                                                       |
+| hide_icon                                 | boolean                             | optional     | v3.0.0 | Hide the entity icon on the left, default value `False`                                                       |
+| hide_icon                                 | function                            | optional     | v3.0.0 | Custom hide the entity icon function, see [hide_icon](#hide_icon)                                             |
 | hide_current_temperature                  | boolean                             | optional     | V2.1.2 | Hide the current temperature in the card                                                                      |
 | hide_current_temperature                  | function                            | optional     | V2.5.0 | Custom hide the current temperature in the card function                                                      |
 | **toggle**                                | object                              | optional     | v1.0.2 | Show/hide bottom buttons toggle button                                                                        |
@@ -120,6 +122,30 @@
 | buttons: `name:style`                     | function                            | optional     | v1.0.1 | Styles                                                                                                        |
 | tap_action                                | [action object](tap-action.md#tap-action-object) | true         | v1.0.4 | Action on click/tap, [tap_action](tap-action.md#tap-action-example)                                                        |
 | scale                                     | number                              | optional     | v1.0.1 | UI scale modifier, default is `1`                                                                             |
+
+### hide_icon
+
+Hides the entity icon on the left of the card and gives the space to the name.
+
+| Name        | Type     | execution context | arguments                 | return type |
+|-------------|----------|-------------------|---------------------------|-------------|
+| `hide_icon` | function | card config       | climate_entity, hvac_mode | boolean     |
+
+`climate_entity` - climate entity  
+`hvac_mode` - current hvac_mode
+
+```yaml
+# always
+type: custom:mini-climate
+entity: climate.my_ac
+hide_icon: true
+
+# only while the unit is off
+type: custom:mini-climate
+entity: climate.my_ac
+hide_icon: >
+  (climate_entity) => climate_entity.state === 'off'
+```
 
 ### toggle
 

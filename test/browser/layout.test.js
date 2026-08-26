@@ -81,6 +81,24 @@ describe('the layout under a name that does not fit', () => {
     }
   });
 
+  it('gives the name the room the icon had, when the icon is hidden', async () => {
+    // What #169 asked for, and what it would not have got before #222: the old
+    // cap on the name had no term for the icon, so the space freed by hiding
+    // it went into the gap in front of the controls instead.
+    const shown = await mountCard({ config });
+    const hidden = await mountCard({ config: { ...config, hide_icon: true } });
+
+    const before = await widths(shown.card, 400);
+    const after = await widths(hidden.card, 400);
+
+    // A count rather than the element itself: an assertion that fails with a
+    // DOM element as its actual value hangs the runner rather than failing,
+    // so a test written that way could never report the regression it is for.
+    expect(hidden.card.shadowRoot.querySelectorAll('.entity__icon').length).to.equal(0);
+    expect(after.name).to.be.greaterThan(before.name);
+    expect(after.controls).to.equal(before.controls);
+  });
+
   it('does not measure itself', async () => {
     // The mechanism is gone rather than left unused: no observer, and nothing
     // published for a stylesheet to read. Asserted so that bringing either
