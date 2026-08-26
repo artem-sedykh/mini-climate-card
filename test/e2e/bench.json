@@ -1,0 +1,87 @@
+{
+  "card": "mini-climate-card",
+  "resource": "/local/bench/mini-climate-card-bundle.js",
+  "entities": [
+    {
+      "domain": "climate",
+      "id": "bench_ac",
+      "discovery": {
+        "name": "Bench air conditioner",
+        "unique_id": "bench_ac",
+        "object_id": "bench_ac",
+        "modes": ["off", "cool", "heat", "dry", "fan_only"],
+        "fan_modes": ["auto", "low", "medium", "high"],
+        "preset_modes": ["eco", "boost", "sleep"],
+        "mode_command_topic": "bench/ac/mode/set",
+        "temperature_command_topic": "bench/ac/temperature/set",
+        "fan_mode_command_topic": "bench/ac/fan_mode/set",
+        "preset_mode_command_topic": "bench/ac/preset_mode/set",
+        "current_temperature_topic": "bench/ac/current_temperature",
+        "action_topic": "bench/ac/action",
+        "availability_topic": "bench/ac/availability",
+        "min_temp": 16,
+        "max_temp": 30,
+        "temp_step": 0.5
+      },
+      "state": {
+        "bench/ac/availability": "online",
+        "bench/ac/current_temperature": "24.0",
+        "bench/ac/action": "cooling"
+      }
+    },
+    {
+      "domain": "climate",
+      "id": "bench_trv",
+      "discovery": {
+        "name": "Bench radiator valve",
+        "unique_id": "bench_trv",
+        "object_id": "bench_trv",
+        "modes": ["off", "heat"],
+        "temperature_command_topic": "bench/trv/temperature/set",
+        "mode_command_topic": "bench/trv/mode/set",
+        "current_temperature_topic": "bench/trv/current_temperature",
+        "availability_topic": "bench/trv/availability",
+        "min_temp": 5,
+        "max_temp": 30,
+        "temp_step": 0.5
+      },
+      "state": {
+        "bench/trv/availability": "online",
+        "bench/trv/current_temperature": "21.5"
+      }
+    }
+  ],
+  "views": [
+    {
+      "title": "Cards",
+      "cards": [
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}"
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": "No secondary info",
+          "secondary_info": {
+            "hide": "() => true"
+          }
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_trv}}",
+          "name": "Valve, no fan modes",
+          "indicators": {
+            "temperature": {
+              "icon": "mdi:thermometer",
+              "source": {
+                "entity": "{{bench_trv}}",
+                "attribute": "current_temperature"
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
