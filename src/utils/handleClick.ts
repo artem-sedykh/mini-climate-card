@@ -1,5 +1,17 @@
-export default (node, hass, config, entityId) => {
-  let e;
+import type { HomeAssistant, TapAction } from '../types';
+
+// Home Assistant reads `event.detail`, and the card has always built these as
+// plain `Event`s with the field assigned afterwards rather than as
+// `CustomEvent`s. Writing the type down is not the place to change that.
+type HassEvent = Event & { detail?: Record<string, unknown> };
+
+export default (
+  node: HTMLElement,
+  hass: HomeAssistant,
+  config: TapAction,
+  entityId: string,
+): void => {
+  let e: HassEvent;
   if (!config) return;
 
   switch (config.action) {

@@ -1,10 +1,28 @@
 import { compileTemplate, getEntityValue, round } from '../utils/utils';
+import type { CardConfig, HassEntity, Template } from '../types';
+import type ClimateObject from './climate';
 
 export default class TemperatureObject {
-  constructor(temperatureEntity, targetTemperatureEntity, config, climate) {
-    this.climate = climate || {};
-    this.temperatureEntity = temperatureEntity || {};
-    this.targetTemperatureEntity = targetTemperatureEntity || {};
+  climate: ClimateObject;
+
+  temperatureEntity: HassEntity;
+
+  targetTemperatureEntity: HassEntity;
+
+  config: CardConfig;
+
+  /** Compiled once in the constructor, because it is read on every render. */
+  shouldHideCurrentTemperature: Template<boolean>;
+
+  constructor(
+    temperatureEntity: HassEntity,
+    targetTemperatureEntity: HassEntity,
+    config: CardConfig,
+    climate: ClimateObject,
+  ) {
+    this.climate = climate || ({} as ClimateObject);
+    this.temperatureEntity = temperatureEntity || ({} as HassEntity);
+    this.targetTemperatureEntity = targetTemperatureEntity || ({} as HassEntity);
     this.config = config;
     if (this.config.hide_current_temperature) {
       if (typeof this.config.hide_current_temperature === 'boolean') {

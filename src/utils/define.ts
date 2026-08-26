@@ -7,7 +7,7 @@
 // halfway through the second copy's module evaluation. Keeping the definitions
 // that arrived first leaves that page with a working card rather than a broken
 // one.
-const define = (name, element) => {
+const define = (name: string, element: CustomElementConstructor): void => {
   if (!customElements.get(name)) customElements.define(name, element);
 };
 

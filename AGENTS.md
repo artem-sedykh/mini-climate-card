@@ -69,6 +69,7 @@ npm ci                # install exactly what the lockfile says
 npm run lint          # eslint 10, flat config
 npm run format        # prettier --write
 npm run format:check  # what CI runs
+npm run typecheck     # tsc --noEmit; esbuild strips types, it never checks
 npm test              # vitest, the unit tests under test/
 npm run test:coverage # the same, with coverage and its thresholds
 npm run test:watch    # vitest in watch mode
@@ -114,6 +115,36 @@ Two of those need explaining:
   the same commit and say why. Do not widen the tolerance to make a build
   pass - a duplicated `ReactiveElement` is about 11 KB, which is exactly the
   size of change this is there to catch.
+
+## Two languages, for now
+
+The source is moving to TypeScript file by file (#228). `src/types.ts`,
+`src/const.ts`, `src/utils/` and `src/models/` are over; `src/components/`,
+`src/main.js` and the styles are not yet. An import written without an
+extension can land on either, which is why the resolver in
+`rollup.config.mjs`, `web-test-runner.config.mjs` and `tsconfig.json` all
+name both.
+
+Types are stripped by esbuild and **checked by nothing at build time** - that
+is `npm run typecheck`, and it is part of `npm run build` and of CI.
+
+Three settings are load-bearing rather than preference:
+
+- **`useDefineForClassFields: false`.** A declaration-only field
+  (`hass: HomeAssistant;`) otherwise emits as a class field and assigns
+  `undefined` over lit's accessor once the components follow: they render, and
+  none of their properties arrive.
+- **`@web/dev-server-esbuild` is handed the same `tsconfig`.** It does not
+  read one on its own, so without it the component tests would run under
+  different semantics than the build.
+- **esbuild transforms TypeScript only, and the browser plugin names no
+  `target`.** While the migration is half done the JavaScript that is left has
+  to reach the bundle exactly as it was - that is what makes comparing the
+  bundle across a migrated file mean anything.
+
+`checkJs` is off. The JavaScript that remains is checked by eslint and by the
+three test layers; turning it on would report the whole card at once, which is
+the rewrite this deliberately is not.
 
 **`npm test`** - vitest over `test/`, node environment. It covers the six
 model classes in `src/models/`, the helpers in `src/utils/`, every branch of
