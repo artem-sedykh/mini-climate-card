@@ -99,3 +99,110 @@ indicators:
     # localization of values
     mapper: value => this.source.values[value]
 ```
+
+## Recipes
+
+Five things this tracker has been asked for more than once, with the answer and
+what it looks like.
+
+Each is also a card in the bench's manifest and an assertion in
+`test/e2e/answers.test.mjs`, so an answer that stops being true fails a run
+rather than sitting here reading well.
+
+### A card with nothing but the temperature
+
+Everything that can be hidden, hidden - the icon, the name, the fan mode, the
+secondary info line and the toggle. What is left is the temperature and the
+buttons that change it.
+
+```yaml
+type: custom:mini-climate
+entity: climate.bedroom
+name: ' '
+hide_icon: true
+toggle:
+  hide: true
+fan_mode:
+  hide: true
+secondary_info:
+  hide: '() => true'
+```
+
+![a card showing only the temperature and its buttons](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/minimal-card.png)
+
+### An indicator with an icon and no value
+
+There is no option for this, and none is needed: the value carries a `style`,
+and a style can hide it. The unit goes with it.
+
+```yaml
+indicators:
+  window:
+    source:
+      entity: binary_sensor.bedroom_window
+    icon:
+      template: "(value) => (value === 'on' ? 'mdi:window-open' : 'mdi:window-closed')"
+      style: "(value) => (value === 'on' ? { color: 'orange' } : {})"
+    value:
+      style: "() => ({ display: 'none' })"
+```
+
+![an indicator drawn as an icon alone](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/icon-only.png)
+
+### A shortened value
+
+A `mapper` runs on every value the indicator reads, so anything that is a
+string can be cut, rounded or relabelled on the way to the card.
+
+```yaml
+indicators:
+  clock:
+    icon: mdi:clock-outline
+    source:
+      entity: sensor.bedroom_clock
+      mapper: "value => (typeof value === 'string' ? value.slice(0, 5) : value)"
+```
+
+![an indicator showing hh:mm out of hh:mm:ss](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/shortened-value.png)
+
+### The mode icon coloured by what the unit is doing
+
+`hvac_action` is what the unit is doing now - heating, cooling, idle - as
+against `state`, which is what it was asked to do. The style template is handed
+the entity, so both are available.
+
+```yaml
+hvac_mode:
+  style: >
+    (value, entity) => ({
+      color: entity.attributes.hvac_action === 'cooling'
+        ? 'blue'
+        : entity.attributes.hvac_action === 'heating'
+          ? 'red'
+          : 'grey',
+    })
+```
+
+![the mode icon drawn in blue while the unit is cooling](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/mode-icon-by-action.png)
+
+### An indicator coloured by the mode
+
+The third argument every template gets is the **climate entity**, whatever
+entity the indicator itself is reading. That is what to reach for here: an
+indicator on a floor sensor has no `hvac_action` of its own.
+
+```yaml
+indicators:
+  floor:
+    source:
+      entity: binary_sensor.floor_demand
+    unit: '%'
+    icon:
+      template: "() => 'mdi:heating-coil'"
+      style: >
+        (value, entity, climate_entity) => ({
+          color: climate_entity.state === 'cool' ? 'blue' : 'red',
+        })
+```
+
+![an indicator icon drawn red while the climate entity is not cooling](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/indicator-by-mode.png)

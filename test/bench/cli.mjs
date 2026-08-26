@@ -72,8 +72,21 @@ const shot = async () => {
     const all = session.page.locator('mini-climate');
     const count = await all.count();
 
+    // Named after the card rather than by its position, so a picture keeps its
+    // name when the view gains a card above it - which matters as soon as one
+    // of these is committed and pointed at from the documentation.
+    const named = ready.manifest.views[view].cards.map((card, index) => {
+      const slug = String(card.name || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+
+      return slug || `card-${index + 1}`;
+    });
+
     for (let index = 0; index < count; index += 1) {
-      await all.nth(index).screenshot({ path: `${directory}/view-${view}-card-${index + 1}.png` });
+      const name = named[index] || `card-${index + 1}`;
+      await all.nth(index).screenshot({ path: `${directory}/view-${view}-${name}.png` });
       taken += 1;
     }
   }
