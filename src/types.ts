@@ -143,6 +143,50 @@ export interface TargetTemperatureConfig {
 }
 
 /**
+ * The configuration as the user writes it in their Lovelace YAML.
+ *
+ * Everything is optional except the entity, everything a template can be is a
+ * string, and a key the card does not recognise is not a mistake - the
+ * templates read their own YAML back through `entity_config`, so an unknown
+ * key is data. That is why this ends in an index signature and why narrowing
+ * it further would be wrong rather than merely strict.
+ */
+export interface RawCardConfig {
+  entity: string;
+  name?: string;
+  icon?: string;
+  scale?: number;
+  collapse?: boolean;
+  group?: boolean;
+  swap_temperatures?: boolean;
+  tap_action?: TapAction | string;
+  secondary_info?: string | Record<string, any>;
+  toggle?: Record<string, any>;
+  indicators?: Record<string, any>;
+  buttons?: Record<string, any>;
+  fan_mode?: Record<string, any>;
+  hvac_mode?: Record<string, any>;
+  temperature?: Record<string, any>;
+  target_temperature?: Record<string, any>;
+  [key: string]: any;
+}
+
+/**
+ * What a template is called with as its `this`.
+ *
+ * `compileTemplate` evaluates the user's text and calls the wrapper with this
+ * object bound, so a template body reads `this.call_service(...)` and
+ * `this.entity_config`. The card builds one of these per option out of that
+ * option's own YAML.
+ */
+export interface TemplateContext {
+  call_service: (domain: string, service: string, options?: Record<string, unknown>) => unknown;
+  entity_config?: RawCardConfig;
+  toggle_state?: (state: string) => string;
+  [key: string]: any;
+}
+
+/**
  * The configuration as the models read it - after `setConfig` has merged the
  * defaults in and compiled every template. The type of what the *user* writes
  * is a separate thing, and belongs with `main.ts` when it follows (#228).
