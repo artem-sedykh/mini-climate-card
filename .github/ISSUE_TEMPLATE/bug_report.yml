@@ -7,7 +7,9 @@ body:
       value: |
         Before filing: hard-reload the browser with the cache cleared. The
         frontend caches resources aggressively, and a stale bundle looks
-        exactly like a bug.
+        exactly like a bug. The card prints its version to the browser console
+        when it loads, which is the quickest way to see which build the page is
+        actually running.
 
   - type: textarea
     id: what-happens
@@ -51,6 +53,33 @@ body:
     validations:
       required: true
 
+  - type: input
+    id: surface
+    attributes:
+      label: Where you see it
+      description: |
+        The browser and its version, or the companion app - iOS renders in
+        WKWebView, which is a different engine from Chrome - or a cast to a
+        display, or a kiosk browser. Say so if any experimental browser flags
+        are on: one of them used to make this card disappear entirely.
+      placeholder: Chrome 140 on Windows / iOS companion app / cast to a Nest Hub
+    validations:
+      required: true
+
+  - type: dropdown
+    id: minimal
+    attributes:
+      label: Does it happen with a minimal card?
+      description: |
+        A card with nothing in it but `type` and `entity`. One step, and it
+        separates the card from the configuration.
+      options:
+        - Yes, with type and entity alone
+        - No, only with my full configuration
+        - Not tried
+    validations:
+      required: true
+
   - type: textarea
     id: card-config
     attributes:
@@ -71,6 +100,28 @@ body:
       render: yaml
     validations:
       required: true
+
+  - type: textarea
+    id: install
+    attributes:
+      label: How the card is installed
+      description: |
+        HACS or a file copied by hand, and how the dashboard loads it: the
+        `resources:` entry from your YAML, or "added through Settings ->
+        Dashboards -> Resources". Please fill this in if the card does not
+        appear at all - more reports of that have turned out to be the
+        resource entry than anything in the card.
+      render: yaml
+
+  - type: textarea
+    id: theme
+    attributes:
+      label: Theme, card_mod or custom CSS
+      description: |
+        Anything restyling the card, including a Home Assistant theme. The card
+        renders Home Assistant's own elements, so a theme that moves them moves
+        the card with them.
+      render: yaml
 
   - type: textarea
     id: console

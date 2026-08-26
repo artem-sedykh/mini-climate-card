@@ -9,7 +9,7 @@ body:
         javascript templates, so a surprising amount is configurable without a
         code change - icons, colours, what a control does when pressed, and
         when it is hidden. See the
-        [README](https://github.com/artem-sedykh/mini-climate-card#readme).
+        [documentation](https://artem-sedykh.github.io/mini-climate-card/).
 
   - type: textarea
     id: problem
@@ -25,6 +25,28 @@ body:
       label: What you would like the card to do
     validations:
       required: true
+
+  - type: input
+    id: integration
+    attributes:
+      label: Integration and entity
+      description: |
+        Which integration provides the climate entity, if the idea depends on
+        what your device reports - a state, an attribute, a service. Half of
+        the requests here do: the card can only offer what the entity exposes,
+        and integrations expose different things. Skip it for anything purely
+        visual.
+      placeholder: ESPHome, climate.bedroom
+
+  - type: textarea
+    id: attributes
+    attributes:
+      label: Entity attributes
+      description: |
+        Developer tools -> States, if the idea is about a value the card does
+        not show yet. It is the fastest way to see whether the card can read it
+        at all.
+      render: yaml
 
   - type: textarea
     id: alternatives
