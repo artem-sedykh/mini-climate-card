@@ -49,6 +49,93 @@
         "bench/trv/availability": "online",
         "bench/trv/current_temperature": "21.5"
       }
+    },
+    {
+      "domain": "climate",
+      "id": "bench_ac_remote",
+      "discovery": {
+        "name": "Bench remote air conditioner",
+        "unique_id": "bench_ac_remote",
+        "object_id": "bench_ac_remote",
+        "modes": ["off", "cool", "heat", "dry", "fan_only", "heat_cool"],
+        "fan_modes": ["auto", "low", "medium", "high"],
+        "preset_modes": ["boost", "eco"],
+        "swing_modes": ["off", "vertical"],
+        "mode_command_topic": "bench/remote/mode/set",
+        "temperature_command_topic": "bench/remote/temperature/set",
+        "fan_mode_command_topic": "bench/remote/fan_mode/set",
+        "preset_mode_command_topic": "bench/remote/preset_mode/set",
+        "swing_mode_command_topic": "bench/remote/swing_mode/set",
+        "current_temperature_topic": "bench/remote/current_temperature",
+        "action_topic": "bench/remote/action",
+        "availability_topic": "bench/remote/availability",
+        "min_temp": 16,
+        "max_temp": 30,
+        "temp_step": 0.5
+      },
+      "state": {
+        "bench/remote/availability": "online",
+        "bench/remote/current_temperature": "23.5",
+        "bench/remote/action": "cooling"
+      }
+    },
+    {
+      "domain": "switch",
+      "id": "bench_plug",
+      "discovery": {
+        "name": "Bench plug",
+        "unique_id": "bench_plug",
+        "object_id": "bench_plug",
+        "command_topic": "bench/plug/set",
+        "state_topic": "bench/plug/state"
+      },
+      "state": {
+        "bench/plug/state": "ON"
+      }
+    },
+    {
+      "domain": "switch",
+      "id": "bench_sleep",
+      "discovery": {
+        "name": "Bench sleep mode",
+        "unique_id": "bench_sleep",
+        "object_id": "bench_sleep",
+        "command_topic": "bench/sleep/set",
+        "state_topic": "bench/sleep/state"
+      },
+      "state": {
+        "bench/sleep/state": "OFF"
+      }
+    },
+    {
+      "domain": "sensor",
+      "id": "bench_humidity",
+      "discovery": {
+        "name": "Bench humidity",
+        "unique_id": "bench_humidity",
+        "object_id": "bench_humidity",
+        "state_topic": "bench/humidity",
+        "unit_of_measurement": "%",
+        "device_class": "humidity"
+      },
+      "state": {
+        "bench/humidity": "48.4"
+      }
+    },
+    {
+      "domain": "sensor",
+      "id": "bench_power",
+      "discovery": {
+        "name": "Bench power",
+        "unique_id": "bench_power",
+        "object_id": "bench_power",
+        "state_topic": "bench/power",
+        "unit_of_measurement": "W",
+        "device_class": "power"
+      },
+      "state": {
+        "bench/power": "742.6"
+      }
     }
   ],
   "views": [
@@ -118,6 +205,102 @@
           "entity": "climate.not_here",
           "name": "Missing and icon templated",
           "hide_icon": "(climate_entity) => climate_entity.state === 'unavailable'"
+        }
+      ]
+    },
+    {
+      "title": "As people write them",
+      "cards": [
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac_remote}}",
+          "name": "Remote, as people write it",
+          "hvac_mode": {
+            "source": {
+              "off": "Stopped",
+              "cool": "Cooling",
+              "heat": "Heating",
+              "dry": "Drying",
+              "fan_only": "Fan",
+              "heat_cool": "Automatic"
+            }
+          },
+          "fan_mode": {
+            "source": {
+              "auto": "Automatic",
+              "low": "Gentle",
+              "medium": "Middling",
+              "high": "Strong"
+            }
+          },
+          "indicators": {
+            "humidity": {
+              "tap_action": "more-info",
+              "icon": "mdi:water",
+              "unit": "%",
+              "round": 1,
+              "source": {
+                "entity": "{{bench_humidity}}"
+              }
+            },
+            "power_consumption": {
+              "tap_action": {
+                "action": "more-info"
+              },
+              "icon": "mdi:flash",
+              "unit": "W",
+              "round": 1,
+              "source": {
+                "entity": "{{bench_power}}"
+              }
+            },
+            "power": {
+              "icon": "mdi:power-plug",
+              "source": {
+                "entity": "{{bench_plug}}",
+                "values": {
+                  "on": "powered",
+                  "off": "idle"
+                },
+                "mapper": "value => this.source.values[value]"
+              }
+            }
+          },
+          "buttons": {
+            "swing_mode": {
+              "type": "dropdown",
+              "icon": "mdi:approximately-equal",
+              "state": {
+                "attribute": "swing_mode"
+              },
+              "active": "state => state !== 'off'",
+              "source": {
+                "off": "Still",
+                "vertical": "Sweeping"
+              },
+              "change_action": "(selected, state, entity) => this.call_service('climate', 'set_swing_mode', { entity_id: entity.entity_id, swing_mode: selected })"
+            },
+            "preset_mode": {
+              "type": "dropdown",
+              "icon": "mdi:fan-speed-3",
+              "state": {
+                "attribute": "preset_mode"
+              },
+              "active": "state => state !== 'none'",
+              "source": {
+                "none": "Plain",
+                "boost": "Turbo",
+                "eco": "Quiet"
+              },
+              "change_action": "(selected, state, entity) => this.call_service('climate', 'set_preset_mode', { entity_id: entity.entity_id, preset_mode: selected })"
+            },
+            "sleep": {
+              "icon": "mdi:weather-night",
+              "state": {
+                "entity": "{{bench_sleep}}"
+              }
+            }
+          }
         }
       ]
     }
