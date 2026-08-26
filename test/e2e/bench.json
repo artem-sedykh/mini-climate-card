@@ -136,6 +136,19 @@
       "state": {
         "bench/power": "742.6"
       }
+    },
+    {
+      "domain": "sensor",
+      "id": "bench_clock",
+      "discovery": {
+        "name": "Bench clock",
+        "unique_id": "bench_clock",
+        "object_id": "bench_clock",
+        "state_topic": "bench/clock"
+      },
+      "state": {
+        "bench/clock": "21:47:08"
+      }
     }
   ],
   "views": [
@@ -299,6 +312,84 @@
               "state": {
                 "entity": "{{bench_sleep}}"
               }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "title": "Answers people were given",
+      "cards": [
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": " ",
+          "hide_icon": true,
+          "toggle": {
+            "hide": true
+          },
+          "fan_mode": {
+            "hide": true
+          },
+          "secondary_info": {
+            "hide": "() => true"
+          }
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": "Icon only",
+          "indicators": {
+            "window": {
+              "icon": {
+                "template": "(value) => (value === 'on' ? 'mdi:window-open' : 'mdi:window-closed')",
+                "style": "(value) => (value === 'on' ? { color: 'orange' } : {})"
+              },
+              "value": {
+                "style": "() => ({ display: 'none' })"
+              },
+              "source": {
+                "entity": "{{bench_plug}}"
+              }
+            }
+          }
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": "Shortened value",
+          "indicators": {
+            "clock": {
+              "icon": "mdi:clock-outline",
+              "source": {
+                "entity": "{{bench_clock}}",
+                "mapper": "value => (typeof value === 'string' ? value.slice(0, 5) : value)"
+              }
+            }
+          }
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": "Mode icon by action",
+          "hvac_mode": {
+            "style": "(value, entity) => ({ color: entity.attributes.hvac_action === 'cooling' ? 'rgb(0, 0, 255)' : 'rgb(255, 0, 0)' })"
+          }
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": "Indicator by mode",
+          "indicators": {
+            "floor": {
+              "icon": {
+                "template": "() => 'mdi:heating-coil'",
+                "style": "(value, entity, climate_entity) => ({ color: climate_entity.state === 'cool' ? 'rgb(0, 0, 255)' : 'rgb(255, 0, 0)' })"
+              },
+              "source": {
+                "entity": "{{bench_humidity}}"
+              },
+              "unit": "%"
             }
           }
         }
