@@ -14,7 +14,10 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text-summary', 'html', 'json-summary'],
-      include: ['src/**/*.js'],
+      // Both languages while the migration in #228 is under way: a file that
+      // moves to TypeScript must not fall out of the measurement, or the
+      // thresholds below would slide without anyone touching a test.
+      include: ['src/**/*.{js,ts}'],
       // What this layer cannot reach, with the reason:
       exclude: [
         // Components render in a browser. Under vitest only their import-time
@@ -24,7 +27,7 @@ export default defineConfig({
         // Styles and constants are data.
         'src/style.js',
         'src/sharedStyle.js',
-        'src/const.js',
+        'src/const.ts',
         // A console banner.
         'src/initialize.js',
       ],

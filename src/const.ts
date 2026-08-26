@@ -1,4 +1,7 @@
-const ICON = {
+// Indexed by hvac mode as well as by name - `ICON[mode.toUpperCase()]` is how
+// a mode picks its icon - so the type is what that lookup needs rather than
+// the literal keys.
+const ICON: Record<string, string> = {
   DEFAULT: 'mdi:air-conditioner',
   FAN: 'mdi:fan',
   OFF: 'mdi:power',

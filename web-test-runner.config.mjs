@@ -1,4 +1,5 @@
 import rollupJson from '@rollup/plugin-json';
+import { esbuildPlugin } from '@web/dev-server-esbuild';
 import { fromRollup } from '@web/dev-server-rollup';
 import { playwrightLauncher } from '@web/test-runner-playwright';
 
@@ -11,8 +12,9 @@ const json = fromRollup(rollupJson);
 export default {
   files: 'test/browser/**/*.test.js',
   nodeResolve: {
-    // Every local import in src/ is written without an extension.
-    extensions: ['.mjs', '.js', '.json', '.node'],
+    // Every local import in src/ is written without an extension, and while
+    // the migration in #228 is under way it can land on either language.
+    extensions: ['.mjs', '.js', '.json', '.node', '.ts'],
     // The same conditions rollup.config.mjs pins. Without them the choice
     // between lit's development and production builds depends on NODE_ENV,
     // and the tests would not be running the code the bundle ships.
@@ -22,7 +24,19 @@ export default {
   // @web/dev-server-rollup only runs a rollup plugin over what it already
   // considers JavaScript, so the JSON has to be declared as such first.
   mimeTypes: { '**/*.json': 'js' },
-  plugins: [json({ include: ['**/*.json'] })],
+  plugins: [
+    json({ include: ['**/*.json'] }),
+    // TypeScript only, and deliberately without a `target`: naming one makes
+    // the plugin transform the JavaScript as well, and while the migration is
+    // half done that would mean the tests run against code the build never
+    // produces.
+    //
+    // `tsconfig` is not optional here - the plugin does not read it on its
+    // own, and without it esbuild defines class fields. A declaration-only
+    // field would then assign `undefined` over lit's accessor: the components
+    // render and none of their properties arrive.
+    esbuildPlugin({ ts: true, tsconfig: 'tsconfig.json' }),
+  ],
   // No polyfill and no page of its own: since #217 the card registers its
   // elements globally, so these tests run against the same registry a browser
   // gives it inside Home Assistant. Before that a browser test would have had

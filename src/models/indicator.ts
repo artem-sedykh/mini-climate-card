@@ -1,11 +1,26 @@
 import { getEntityValue, round } from '../utils/utils';
+import type { HassEntity, HomeAssistant, IndicatorConfig } from '../types';
+import type ClimateObject from './climate';
 
 export default class IndicatorObject {
-  constructor(entity, config, climate, hass) {
-    this.config = config || {};
-    this.entity = entity || {};
-    this.climate = climate || {};
-    this._hass = hass || {};
+  config: IndicatorConfig;
+
+  entity: HassEntity;
+
+  climate: ClimateObject;
+
+  private _hass: HomeAssistant;
+
+  constructor(
+    entity: HassEntity,
+    config: IndicatorConfig,
+    climate: ClimateObject,
+    hass: HomeAssistant,
+  ) {
+    this.config = config || ({} as IndicatorConfig);
+    this.entity = entity || ({} as HassEntity);
+    this.climate = climate || ({} as ClimateObject);
+    this._hass = hass || ({} as HomeAssistant);
   }
 
   get id() {

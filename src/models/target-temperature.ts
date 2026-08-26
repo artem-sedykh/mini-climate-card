@@ -1,9 +1,30 @@
 import { getEntityValue } from '../utils/utils';
 import { NO_TARGET_TEMPERATURE } from '../const';
+import type { CardConfig, HassEntity, HomeAssistant } from '../types';
 
+/**
+ * The target temperature, which is the one value on the card a user changes
+ * directly. `NO_TARGET_TEMPERATURE` is what a climate entity that reports none
+ * shows instead of a number, so every reading is one or the other.
+ */
 export default class TargetTemperatureObject {
-  constructor(entity, config, hass) {
-    this.entity = entity || {};
+  entity: HassEntity;
+
+  config: CardConfig;
+
+  min: number;
+
+  max: number;
+
+  step: number;
+
+  private _hass: HomeAssistant;
+
+  /** Set while the user is pressing, before the value reaches the device. */
+  private _targetTemperature: number | undefined;
+
+  constructor(entity: HassEntity, config: CardConfig, hass: HomeAssistant) {
+    this.entity = entity || ({} as HassEntity);
     this.config = config;
     this._hass = hass;
 
@@ -22,7 +43,7 @@ export default class TargetTemperatureObject {
 
   getStep() {
     if ('step' in this.config.target_temperature)
-      return parseFloat(this.config.target_temperature.step);
+      return parseFloat(this.config.target_temperature.step as string);
 
     if (this.entity && this.entity.attributes && this.entity.attributes.target_temp_step)
       return parseFloat(this.entity.attributes.target_temp_step);
@@ -32,7 +53,7 @@ export default class TargetTemperatureObject {
 
   getMin() {
     if ('min' in this.config.target_temperature)
-      return parseFloat(this.config.target_temperature.min);
+      return parseFloat(this.config.target_temperature.min as string);
 
     if (this.entity && this.entity.attributes && this.entity.attributes.min_temp)
       return parseFloat(this.entity.attributes.min_temp);
@@ -42,7 +63,7 @@ export default class TargetTemperatureObject {
 
   getMax() {
     if ('max' in this.config.target_temperature)
-      return parseFloat(this.config.target_temperature.max);
+      return parseFloat(this.config.target_temperature.max as string);
 
     if (this.entity && this.entity.attributes && this.entity.attributes.max_temp)
       return parseFloat(this.entity.attributes.max_temp);
@@ -50,23 +71,23 @@ export default class TargetTemperatureObject {
     return 30.0;
   }
 
-  _floatOrPlaceholder(value) {
+  _floatOrPlaceholder(value: number): number | string {
     if (Number.isNaN(value)) {
       return NO_TARGET_TEMPERATURE;
     }
     return value;
   }
 
-  get value() {
+  get value(): number | string {
     if (this._targetTemperature !== undefined)
-      return this._floatOrPlaceholder(parseFloat(this._targetTemperature));
+      return this._floatOrPlaceholder(parseFloat(this._targetTemperature as unknown as string));
 
     const newValue = getEntityValue(this.entity, this.config.target_temperature.source);
     return this._floatOrPlaceholder(parseFloat(newValue));
   }
 
-  set value(value) {
-    this._targetTemperature = parseFloat(value);
+  set value(value: number | string) {
+    this._targetTemperature = parseFloat(value as string);
   }
 
   increment() {
@@ -76,7 +97,7 @@ export default class TargetTemperatureObject {
       return false;
     }
 
-    const newVal = this._round(this.value + this.step);
+    const newVal = this._round((this.value as number) + this.step);
 
     if (newVal <= this.max) {
       if (newVal <= this.min) {
@@ -98,7 +119,7 @@ export default class TargetTemperatureObject {
       return false;
     }
 
-    const newVal = this._round(this.value - this.step);
+    const newVal = this._round((this.value as number) - this.step);
 
     if (newVal >= this.min) {
       this.value = newVal;
@@ -109,12 +130,12 @@ export default class TargetTemperatureObject {
     return oldValue !== this.value;
   }
 
-  _round(val) {
+  _round(val: number): number {
     const s = this.step.toString().split('.');
     return s[1] ? parseFloat(val.toFixed(s[1].length)) : Math.round(val);
   }
 
-  update(value) {
+  update(value: number | string) {
     if (this.config.target_temperature.functions.change_action) {
       const climateEntity = this.hass.states[this.config.entity];
       return this.config.target_temperature.functions.change_action(

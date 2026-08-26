@@ -10,6 +10,7 @@
 const js = require('@eslint/js');
 const globals = require('globals');
 const prettier = require('eslint-config-prettier');
+const tseslint = require('typescript-eslint');
 
 const rules = {
   eqeqeq: ['error', 'smart'],
@@ -65,6 +66,35 @@ module.exports = [
       },
     },
     rules,
+  },
+  // TypeScript, while the migration in #228 is under way: the recommended set
+  // without type-aware linting, which would need a program per lint run for
+  // rules the compiler already reports through `npm run typecheck`.
+  ...tseslint.configs.recommended.map(config => ({
+    ...config,
+    files: ['src/**/*.ts'],
+  })),
+  {
+    files: ['src/**/*.ts'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: globals.browser,
+    },
+    rules: {
+      ...rules,
+      // The base rule does not understand a type-only reference and reports
+      // every imported type as unused.
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { args: 'after-used', ignoreRestSiblings: true },
+      ],
+      // `hass` and the user's YAML are not this repository's to type. What is
+      // written down in src/types.ts is what the card reads; `any` is where
+      // it stops claiming to know.
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
   },
   {
     files: ['scripts/**/*.mjs'],

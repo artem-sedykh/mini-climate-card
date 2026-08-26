@@ -1,12 +1,27 @@
 import { getEntityValue } from '../utils/utils';
 import { ACTION_TIMEOUT, STATES_OFF, UNAVAILABLE_STATES } from '../const';
+import type { ButtonConfig, HassEntity, HomeAssistant, SourceItem } from '../types';
+import type ClimateObject from './climate';
 
 export default class ButtonObject {
-  constructor(entity, config, climate, hass) {
-    this.config = config || {};
-    this.entity = entity || {};
-    this.climate = climate || {};
-    this._hass = hass || {};
+  config: ButtonConfig;
+
+  entity: HassEntity;
+
+  climate: ClimateObject;
+
+  private _hass: HomeAssistant;
+
+  constructor(
+    entity: HassEntity,
+    config: ButtonConfig,
+    climate: ClimateObject,
+    hass: HomeAssistant,
+  ) {
+    this.config = config || ({} as ButtonConfig);
+    this.entity = entity || ({} as HassEntity);
+    this.climate = climate || ({} as ClimateObject);
+    this._hass = hass || ({} as HomeAssistant);
   }
 
   get id() {
@@ -65,7 +80,7 @@ export default class ButtonObject {
     return state;
   }
 
-  isActive(state) {
+  isActive(state: unknown): boolean {
     if (this.config.functions.active) {
       return this.config.functions.active(
         state,
@@ -118,9 +133,9 @@ export default class ButtonObject {
     return {};
   }
 
-  get source() {
+  get source(): SourceItem[] {
     const { functions } = this.config;
-    let source = Object.entries(this.config.source || {})
+    let source: SourceItem[] = Object.entries(this.config.source || {})
       .filter(([key]) => key !== '__filter')
       .map(([key, value]) => {
         if (typeof value === 'object') {
@@ -130,7 +145,13 @@ export default class ButtonObject {
       });
 
     if (source.some(s => 'order' in s))
-      source = source.sort((a, b) => (a.order > b.order ? 1 : b.order > a.order ? -1 : 0));
+      source = source.sort((a, b) =>
+        (a.order as number) > (b.order as number)
+          ? 1
+          : (b.order as number) > (a.order as number)
+            ? -1
+            : 0,
+      );
 
     if (functions.source && functions.source.filter) {
       return functions.source.filter(
@@ -171,7 +192,7 @@ export default class ButtonObject {
     return this.climate.callService('switch', 'toggle', { entity_id: this.entity.entity_id });
   }
 
-  handleChange(selected) {
+  handleChange(selected: string) {
     if (this.config.functions.change_action) {
       return this.config.functions.change_action(
         selected,
