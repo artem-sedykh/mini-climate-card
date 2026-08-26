@@ -124,7 +124,18 @@ class MiniClimate extends LitElement {
     this._hass = hass;
     let force = false;
 
-    if (entity && this.entity !== entity) {
+    // Built even when `hass.states` holds nothing under `config.entity` - a
+    // renamed or deleted entity, or an integration that drops an entity
+    // instead of marking it unavailable (#46). The guard used to be
+    // `entity && this.entity !== entity`, and with no entity `this.climate`
+    // stayed the empty object the constructor puts there. A plain object has
+    // no `isUnavailable` getter, so every render path that asks whether to
+    // draw controls read `undefined`, drew them, and the components threw on
+    // models built from nothing: an empty card, four exceptions a render.
+    // The same guard also skipped the update when an entity that had been
+    // there disappeared, leaving its last readings on screen as though they
+    // were current.
+    if (this.entity !== entity || !(this.climate instanceof ClimateObject)) {
       this.entity = entity;
       this.climate = new ClimateObject(hass, this.config, entity);
       force = true;

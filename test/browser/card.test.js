@@ -67,6 +67,41 @@ describe('the card in a browser', () => {
     expect(card.shadowRoot.querySelector('mc-mode-menu')).to.not.exist;
   });
 
+  it('renders the unavailable card when the entity is not in hass.states', async () => {
+    // A card whose entity was renamed or deleted, or whose integration drops
+    // entities instead of marking them unavailable (#46). What used to happen
+    // is worth naming, because the card looked broken rather than
+    // unconfigured: `this.climate` stayed the empty object the constructor
+    // sets, its missing `isUnavailable` getter read `undefined`, and the
+    // controls rendered against models built from nothing - an empty card and
+    // four exceptions per render.
+    const { card } = await mountCard({ config: { entity: 'climate.not_here' } });
+
+    expect(card.shadowRoot.querySelector('ha-card').className).to.contain('--unavailable');
+    expect(card.shadowRoot.querySelector('.label').textContent.trim()).to.equal('Unavailable');
+    expect(card.shadowRoot.querySelector('mc-mode-menu')).to.not.exist;
+    expect(card.shadowRoot.querySelector('mc-temperature')).to.not.exist;
+    expect(card.shadowRoot.querySelector('mc-target-temperature')).to.not.exist;
+  });
+
+  it('stops showing readings once the entity disappears', async () => {
+    // The same guard skipped the update when an entity that had been there
+    // went away, so the card kept the last temperatures it had seen and gave
+    // no sign they were old.
+    const { card, hass } = await mountCard();
+
+    expect(card.shadowRoot.querySelector('mc-temperature')).to.exist;
+
+    const states = { ...hass.states };
+    delete states[ENTITY_ID];
+    card.hass = { ...hass, states };
+    await settle(card);
+
+    expect(card.shadowRoot.querySelector('ha-card').className).to.contain('--unavailable');
+    expect(card.shadowRoot.querySelector('.label').textContent.trim()).to.equal('Unavailable');
+    expect(card.shadowRoot.querySelector('mc-temperature')).to.not.exist;
+  });
+
   it('falls back when Home Assistant has no translation for the state', async () => {
     const { card } = await mountCard({ state: 'unavailable' });
 

@@ -16,11 +16,17 @@ export default class ClimateObject {
   /** The mode the card is showing, which `main` assigns after it reads it. */
   private _hvac_mode: SourceItem | undefined;
 
-  constructor(hass: HomeAssistant, config: CardConfig, entity: HassEntity) {
+  /**
+   * `entity` is optional because there is nothing to pass when `config.entity`
+   * names an entity Home Assistant does not have (#46). Everything below
+   * reads `this.entity`, which is an empty object in that case, rather than
+   * the argument.
+   */
+  constructor(hass: HomeAssistant, config: CardConfig, entity?: HassEntity) {
     this.hass = hass || ({} as HomeAssistant);
     this.config = config || ({} as CardConfig);
     this.entity = entity || ({} as HassEntity);
-    this.state = entity.state;
+    this.state = this.entity.state;
     this.attr = {
       friendly_name: '',
       temperature: 16,
@@ -32,7 +38,7 @@ export default class ClimateObject {
       max_temp: undefined,
       hvac_action: '',
       fan_modes: [],
-      ...(entity.attributes || {}),
+      ...(this.entity.attributes || {}),
     };
   }
 
@@ -108,11 +114,7 @@ export default class ClimateObject {
   }
 
   get isOff() {
-    return (
-      this.entity !== undefined &&
-      STATES_OFF.includes(this.state) &&
-      !UNAVAILABLE_STATES.includes(this.state)
-    );
+    return this.isUnavailable === false && STATES_OFF.includes(this.state);
   }
 
   get isActive() {
@@ -120,15 +122,18 @@ export default class ClimateObject {
   }
 
   get isUnavailable() {
-    return this.entity === undefined || UNAVAILABLE_STATES.includes(this.state);
+    // The test was `this.entity === undefined`, which could never be true:
+    // the constructor normalises a missing entity to an empty object, and an
+    // empty object is not undefined. An entity that is not in `hass.states`
+    // is recognised by having no `entity_id` (#46).
+    return this.entity.entity_id === undefined || UNAVAILABLE_STATES.includes(this.state);
   }
 
   get isOn() {
-    return (
-      this.entity !== undefined &&
-      !STATES_OFF.includes(this.state) &&
-      !UNAVAILABLE_STATES.includes(this.state)
-    );
+    // Read through `isUnavailable` rather than through `this.entity`, or a
+    // card pointed at an entity that does not exist reports itself on: this
+    // is the default `active` for both dropdowns (`src/main.ts`).
+    return this.isUnavailable === false && STATES_OFF.includes(this.state) === false;
   }
 
   callService(domain: string, service: string, inOptions?: Record<string, unknown>) {
