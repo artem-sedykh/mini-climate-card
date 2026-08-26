@@ -442,6 +442,12 @@ npm run bench down
 `BENCH_URL=http://host:8124` points every command except `up`/`down` at a bench
 running somewhere else, which is how it is used from a machine without docker.
 
+`npm run bench:coverage` (after `npm run dev`, which emits the sourcemap it
+needs) reports which parts of `src/` the scenarios reach. It is a diagnostic
+for finding gaps, not a metric: no threshold, no badge, and not comparable with
+`npm run test:coverage`, which measures the unit layer and excludes the
+components this one is mostly about.
+
 ### Reproducing a report on it
 
 This is the fastest way to answer "the layout is off" or "it does not work with

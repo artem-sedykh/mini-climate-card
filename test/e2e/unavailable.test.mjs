@@ -40,7 +40,7 @@ describe('an entity that cannot answer', () => {
     // Whatever a scenario did to the fixtures, the next one starts from the
     // manifest.
     if (bench) await publish(bench.tokens, 'bench/ac/availability', 'online');
-    if (session) await session.browser.close();
+    if (session) await session.close();
   });
 
   it('draws the unavailable card for an entity that is not in hass.states', async () => {

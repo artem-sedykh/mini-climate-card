@@ -60,7 +60,7 @@ describe('a card written the way people write them', () => {
 
   after(async () => {
     if (bench) await publish(bench.tokens, 'bench/plug/state', 'ON');
-    if (session) await session.browser.close();
+    if (session) await session.close();
   });
 
   it('sends a dropdown button through its own change_action', async () => {

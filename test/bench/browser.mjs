@@ -3,8 +3,14 @@
 //
 // Playwright is here as a dependency of @web/test-runner-playwright, which is
 // also what installs the engines - the component layer runs on them already.
+import { mkdir, writeFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
 import { BASE, request } from './auth.mjs';
+
+// Set by `npm run bench:coverage`. Off by default: collecting coverage means
+// serving an unminified build, which is not the file that ships.
+const COVERAGE = process.env.BENCH_COVERAGE === '1';
+const COVERAGE_DIR = process.env.BENCH_COVERAGE_DIR || 'test/e2e/coverage';
 
 export const open = async (tokens, { viewport = { width: 900, height: 700 } } = {}) => {
   const browser = await chromium.launch();
@@ -34,7 +40,25 @@ export const open = async (tokens, { viewport = { width: 900, height: 700 } } = 
     if (message.type() === 'error') errors.push(`console: ${message.text().slice(0, 300)}`);
   });
 
-  return { browser, page, errors };
+  if (COVERAGE) await page.coverage.startJSCoverage({ resetOnNavigation: false });
+
+  // Closing through here rather than through `browser` directly, so a scenario
+  // does not have to know whether coverage is being collected.
+  const close = async () => {
+    if (COVERAGE) {
+      const entries = await page.coverage.stopJSCoverage();
+      const ours = entries.filter(entry => entry.url.includes('/local/bench/'));
+
+      await mkdir(COVERAGE_DIR, { recursive: true });
+      await writeFile(
+        `${COVERAGE_DIR}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.json`,
+        JSON.stringify(ours),
+      );
+    }
+    await browser.close();
+  };
+
+  return { browser, page, errors, close };
 };
 
 /**
