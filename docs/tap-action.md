@@ -13,6 +13,11 @@
 | navigation_path | string |             |                                   Any path                                    | Path to navigate to (e.g. `/lovelace/0/`) when `action` is defined as `navigate`. |
 | url             | string |             |                                    Any URL                                    | URL to open when `action` is defined as `url`.                                    |
 
+An action that needs nothing but its name can be written as a bare string:
+`tap_action: none` and `tap_action: more-info` mean the same as
+`tap_action: {action: none}` and `tap_action: {action: more-info}`. The same
+shorthand works for an indicator's `tap_action`.
+
 ## tap action example
 ```yaml
 # toggle example
@@ -51,7 +56,7 @@ tap_action:
   action: url
   url: 'https://www.google.com/'
 
-# none example
+# none example - the shorthand for {action: none}
 type: custom:mini-climate
 entity: climate.my_ac
 tap_action: none

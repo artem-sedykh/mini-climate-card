@@ -484,12 +484,9 @@ class MiniClimate extends LitElement {
     if (!config.entity || supportedDomains.includes(config.entity.split('.')[0]) === false)
       throw new Error(`Specify an entity from within domains: [${supportedDomains.join(', ')}].`);
 
-    // The cast is load-bearing rather than cosmetic: `tap_action` may arrive
-    // as a string, and spreading the user's config over the defaults then
-    // replaces the whole object with it. `handleClick` reads `config.action`
-    // off that string and returns, so every value but `none` is a dead click -
-    // see #234. Written down here rather than fixed, because fixing it changes
-    // what the card does.
+    // The cast is load-bearing rather than cosmetic: `RawCardConfig` allows
+    // `tap_action` as a string, and the spread carries that string over the
+    // default object. The statement after it is what makes the cast true.
     this.config = {
       tap_action: {
         action: 'more-info',
@@ -501,6 +498,16 @@ class MiniClimate extends LitElement {
       },
       ...config,
     } as CardConfig;
+
+    // A bare string is how the documented `tap_action: none` is written, and
+    // written that way it replaced the whole default object. `handleClick`
+    // reads `config.action` off a string and returns, so every value but
+    // `none` was a dead click - and `none` only appeared to work, because
+    // doing nothing is what it asks for. `getIndicatorConfig` has always
+    // normalised the same shorthand for indicators; this is that line, in the
+    // one place it was missing (#234).
+    if (typeof config.tap_action === 'string')
+      this.config.tap_action = { action: config.tap_action };
 
     this.config.indicators = this.getIndicatorsConfig(config);
 
@@ -738,7 +745,7 @@ class MiniClimate extends LitElement {
       '--initial': this.initial,
       '--collapse': config.collapse,
       '--group': config.group,
-      '--more-info': (config.tap_action as unknown as string) !== 'none',
+      '--more-info': config.tap_action.action !== 'none',
       '--inactive': !this.climate.isActive,
       '--unavailable': this.climate.isUnavailable,
     });

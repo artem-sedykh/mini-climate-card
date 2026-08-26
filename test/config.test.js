@@ -78,6 +78,17 @@ describe('the card defaults', () => {
     expect(card.config.tap_action).toEqual({ action: 'navigate', navigation_path: '/x' });
   });
 
+  it('normalises a tap_action written as a string', () => {
+    // The documented `tap_action: none`, and every other action written the
+    // same way. Before #234 the string replaced the whole default object and
+    // reached `handleClick`, which reads `.action` off it - so `none` worked
+    // by accident and every other value was a dead click.
+    expect(build({ tap_action: 'none' }).card.config.tap_action).toEqual({ action: 'none' });
+    expect(build({ tap_action: 'more-info' }).card.config.tap_action).toEqual({
+      action: 'more-info',
+    });
+  });
+
   it('reads swap_temperatures as a flag', () => {
     expect(build({}).card.swapTemperatures).toBe(false);
     expect(build({ swap_temperatures: true }).card.swapTemperatures).toBe(true);

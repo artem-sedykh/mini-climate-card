@@ -201,6 +201,12 @@ export interface CardConfig {
   buttons: ButtonConfig[];
   secondary_info: Record<string, any>;
   toggle: Record<string, any>;
+  /**
+   * An object by the time the card reads it, whichever way it was written:
+   * `setConfig` turns the documented string form (`tap_action: none`) into
+   * `{ action: 'none' }`, the way `getIndicatorConfig` has always done for
+   * indicators. Before #234 the two spellings behaved differently.
+   */
   tap_action: TapAction;
   hide_current_temperature?: boolean | string;
   [key: string]: any;

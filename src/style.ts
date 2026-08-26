@@ -183,8 +183,10 @@ const style = css`
     margin-right: 10px;
     max-width: calc(calc(var(--mc-card-width) - 191.3px) / 1.43);
     min-width: calc(var(--mc-unit) * 2.5);
-    cursor: pointer;
     height: var(--mc-unit);
+  }
+  .--more-info .entity__info__name_wrap {
+    cursor: pointer;
   }
   mc-buttons {
     width: 100%;

@@ -276,15 +276,15 @@ around it.
    from `fan_modes` and `hvac_modes` when the user named no source. That is
    after the first render rather than in `setConfig`, because it needs `hass`.
 
-Two shorthands are normalised, and they are not normalised the same way:
+Three shorthands are normalised, all of them to the shape the card reads:
 
-- **`secondary_info` as a string** becomes `{ type: <string> }`. Handled.
-- **An indicator's `tap_action` as a string** becomes `{ action: <string> }`.
-  Handled, in `getIndicatorConfig`.
-- **The card's own `tap_action` as a string is not normalised.** The default
-  object is spread over by the user's value, so a string replaces the whole
-  object, and `handleClick` then reads `config.action` off a string and returns
-  having done nothing. See "Known debt".
+- **`secondary_info` as a string** becomes `{ type: <string> }`.
+- **An indicator's `tap_action` as a string** becomes `{ action: <string> }`,
+  in `getIndicatorConfig`.
+- **The card's own `tap_action` as a string** becomes `{ action: <string> }`,
+  in `setConfig`. It was the one that was not, until #234: the user's string
+  replaced the whole default object, and `handleClick` reads `config.action`
+  off it and returns having done nothing.
 
 ## Registering the elements
 
@@ -509,18 +509,6 @@ Tracked under #198, which is also the order the work is meant to happen in.
   models; there is no component layer, so anything that only shows up once the
   card is on a dashboard - which is where this card has broken before - is
   caught by hand or not at all.
-- **The card's own `tap_action` in string form does nothing** (#234). An indicator's
-  string is normalised to `{ action: <string> }`; the card's own is not, so the
-  user's string replaces the default object wholesale, and `handleClick` then
-  reads `config.action` off a string and returns. Every value but `none`
-  is a dead click.
-- **Whether the card looks clickable has nothing to do with `tap_action`**
-  (#234).
-  `.entity__info__name_wrap` carries `cursor: pointer` unconditionally, so a
-  card configured to do nothing still invites a click. `computeClasses`
-  computes a `--more-info` class for this and gets it wrong twice over: it
-  compares the whole option against the string `'none'`, which an object never
-  equals, and no stylesheet uses the class at all.
 - **`updateTemperature` compared a property `TemperatureObject` never had**
   (#233). The dead clause is gone; what it was meant to say is still open.
 - **`getIndicatorConfig` spells the default source key `enitity`.** Harmless
