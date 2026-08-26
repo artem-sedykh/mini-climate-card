@@ -1,23 +1,26 @@
 import define from '../utils/define';
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, type TemplateResult } from 'lit';
 
 import { styleMap } from 'lit/directives/style-map.js';
 import handleClick from '../utils/handleClick';
 import { TAP_ACTIONS } from '../const';
+import type IndicatorObject from '../models/indicator';
 
 export default class ClimateIndicators extends LitElement {
-  static get properties() {
+  indicators!: Record<string, IndicatorObject>;
+
+  static override get properties() {
     return {
       indicators: { type: Object },
     };
   }
 
-  handlePopup(e, indicator) {
+  handlePopup(e: Event, indicator: IndicatorObject): void {
     e.stopPropagation();
     handleClick(this, indicator.hass, indicator.config.tap_action, indicator.entity.entity_id);
   }
 
-  renderIcon(indicator) {
+  renderIcon(indicator: IndicatorObject): TemplateResult | string {
     const { icon } = indicator;
 
     if (!icon) return '';
@@ -25,20 +28,20 @@ export default class ClimateIndicators extends LitElement {
     return html`<ha-icon style=${styleMap(indicator.iconStyle)} class='state__value_icon' .icon=${icon}></ha-icon>`;
   }
 
-  renderUnit(indicator) {
+  renderUnit(indicator: IndicatorObject): TemplateResult | string {
     if (!indicator.unit) return '';
 
     return html`<span class='state__uom' style=${styleMap(indicator.valueStyle)}>${indicator.unit}</span>`;
   }
 
-  renderIndicator(indicator) {
+  renderIndicator(indicator: IndicatorObject): TemplateResult | string {
     if (!indicator) return '';
     const action =
       indicator.config && indicator.config.tap_action && indicator.config.tap_action.action;
     const cls = action && TAP_ACTIONS.includes(action) ? 'pointer' : '';
 
     return html`
-       <div class='state ${cls}' @click=${e => this.handlePopup(e, indicator)}>
+       <div class='state ${cls}' @click=${(e: Event) => this.handlePopup(e, indicator)}>
          ${this.renderIcon(indicator)}
          <span class='state__value' style=${styleMap(indicator.valueStyle)}>${indicator.value}</span>
          ${this.renderUnit(indicator)}
@@ -46,21 +49,19 @@ export default class ClimateIndicators extends LitElement {
     `;
   }
 
-  render() {
+  override render(): TemplateResult {
     const indicatorsToShow = Object.entries(this.indicators)
       .map(entry => entry[1])
       .filter(indicator => !indicator.hide);
 
-    const context = this;
-
     return html`
      <div class='mc-indicators__container'>
-       ${indicatorsToShow.map(i => context.renderIndicator(i))}
+       ${indicatorsToShow.map(i => this.renderIndicator(i))}
      </div>
     `;
   }
 
-  static get styles() {
+  static override get styles() {
     return css`
      :host {
         position: relative;

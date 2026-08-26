@@ -1,18 +1,30 @@
 import define from '../utils/define';
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, type TemplateResult } from 'lit';
 import './fan-mode-secondary';
 import sharedStyle from '../sharedStyle';
+import type ButtonObject from '../models/button';
+import type ClimateObject from '../models/climate';
+import type HvacModeObject from '../models/hvac-mode';
+import type { CardConfig, SourceItem } from '../types';
 
 export default class ClimateSecondaryInfo extends LitElement {
+  fanMode!: ButtonObject;
+
+  hvacMode!: HvacModeObject;
+
+  config!: CardConfig;
+
+  climate!: ClimateObject;
+
   constructor() {
     super();
-    this.fanMode = {};
-    this.hvacMode = {};
-    this.config = {};
-    this.climate = {};
+    this.fanMode = {} as ButtonObject;
+    this.hvacMode = {} as HvacModeObject;
+    this.config = {} as CardConfig;
+    this.climate = {} as ClimateObject;
   }
 
-  static get properties() {
+  static override get properties() {
     return {
       fanMode: { type: Object },
       config: { type: Object },
@@ -21,7 +33,7 @@ export default class ClimateSecondaryInfo extends LitElement {
     };
   }
 
-  renderHvacAction() {
+  renderHvacAction(): TemplateResult | string {
     const action = this.climate.hvacAction;
     if (!action) return '';
 
@@ -34,9 +46,9 @@ export default class ClimateSecondaryInfo extends LitElement {
       `;
   }
 
-  renderHvacMode() {
+  renderHvacMode(): TemplateResult {
     const { hvacMode } = this;
-    const mode = hvacMode.selected || {};
+    const mode = hvacMode.selected || ({} as SourceItem);
     const icon = mode.icon ? mode.icon : this.config.secondary_info.icon;
 
     return html`
@@ -45,7 +57,7 @@ export default class ClimateSecondaryInfo extends LitElement {
       `;
   }
 
-  render() {
+  override render(): TemplateResult | string {
     const { type } = this.config.secondary_info;
 
     switch (type) {
@@ -62,7 +74,7 @@ export default class ClimateSecondaryInfo extends LitElement {
     }
   }
 
-  static get styles() {
+  static override get styles() {
     return [
       sharedStyle,
       css`

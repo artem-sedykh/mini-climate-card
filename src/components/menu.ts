@@ -1,5 +1,6 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, type PropertyValues, type TemplateResult } from 'lit';
 import define from '../utils/define';
+import type { SourceItem } from '../types';
 
 // The menu behind every dropdown on the card: a list of options, one of which
 // is the current one, opened against an anchor element.
@@ -18,7 +19,22 @@ import define from '../utils/define';
 const MENU_MARGIN = 8;
 
 export default class ClimateMenu extends LitElement {
-  static get properties() {
+  items: SourceItem[];
+
+  selected!: string;
+
+  open: boolean;
+
+  /** The element the menu is drawn against. Whoever calls `show()` sets it. */
+  anchor: HTMLElement | null;
+
+  private onDocumentPointerDown: (event: Event) => void;
+
+  private onDocumentKeydown: (event: KeyboardEvent) => void;
+
+  private onViewportChange: () => void;
+
+  static override get properties() {
     return {
       items: { type: Array },
       selected: { type: String },
@@ -31,43 +47,43 @@ export default class ClimateMenu extends LitElement {
     this.items = [];
     this.open = false;
     this.anchor = null;
-    this.onDocumentPointerDown = event => this.handleDocumentPointerDown(event);
-    this.onDocumentKeydown = event => this.handleDocumentKeydown(event);
+    this.onDocumentPointerDown = (event: Event) => this.handleDocumentPointerDown(event);
+    this.onDocumentKeydown = (event: KeyboardEvent) => this.handleDocumentKeydown(event);
     this.onViewportChange = () => this.close();
   }
 
-  disconnectedCallback() {
+  override disconnectedCallback(): void {
     // The listeners below live on the document, so a card removed while its
     // menu is open would leave them behind.
     this.stopListening();
     super.disconnectedCallback();
   }
 
-  get selectedIndex() {
+  get selectedIndex(): number {
     if (this.selected === undefined || this.selected === null) return -1;
 
     return this.items.map(item => item.id).indexOf(this.selected);
   }
 
-  get surface() {
+  get surface(): HTMLElement | null {
     return this.shadowRoot && this.shadowRoot.getElementById('surface');
   }
 
-  get options() {
-    return this.surface ? [...this.surface.querySelectorAll('.mc-menu__item')] : [];
+  get options(): HTMLElement[] {
+    return this.surface ? [...this.surface.querySelectorAll<HTMLElement>('.mc-menu__item')] : [];
   }
 
-  show() {
+  show(): void {
     this.open = true;
   }
 
-  close() {
+  close(): void {
     if (!this.open) return;
 
     this.open = false;
   }
 
-  select(index) {
+  select(index: number): void {
     this.close();
 
     if (!this.items[index]) return;
@@ -77,11 +93,11 @@ export default class ClimateMenu extends LitElement {
 
   // Keys inside the menu. The anchor's own Enter and Space are its business,
   // not this element's.
-  handleKeydown(event) {
+  handleKeydown(event: KeyboardEvent): void {
     const { options } = this;
-    const current = options.indexOf(this.shadowRoot.activeElement);
+    const current = options.indexOf(this.shadowRoot!.activeElement as HTMLElement);
 
-    const focus = index => {
+    const focus = (index: number) => {
       event.preventDefault();
       const option = options[(index + options.length) % options.length];
       if (option) option.focus();
@@ -110,7 +126,7 @@ export default class ClimateMenu extends LitElement {
     }
   }
 
-  handleDocumentKeydown(event) {
+  handleDocumentKeydown(event: KeyboardEvent): void {
     if (event.key !== 'Escape') return;
 
     event.stopPropagation();
@@ -118,7 +134,7 @@ export default class ClimateMenu extends LitElement {
     if (this.anchor && this.anchor.focus) this.anchor.focus();
   }
 
-  handleDocumentPointerDown(event) {
+  handleDocumentPointerDown(event: Event): void {
     // `composedPath` sees through the shadow root, which a click target does
     // not: without it every click looks like it came from the card. The anchor
     // is checked as well, because it lives in another shadow root and its own
@@ -129,7 +145,7 @@ export default class ClimateMenu extends LitElement {
     this.close();
   }
 
-  startListening() {
+  startListening(): void {
     document.addEventListener('pointerdown', this.onDocumentPointerDown, true);
     document.addEventListener('keydown', this.onDocumentKeydown, true);
     // Closing beats following the anchor around: a menu is a decision, and the
@@ -138,7 +154,7 @@ export default class ClimateMenu extends LitElement {
     window.addEventListener('resize', this.onViewportChange);
   }
 
-  stopListening() {
+  stopListening(): void {
     document.removeEventListener('pointerdown', this.onDocumentPointerDown, true);
     document.removeEventListener('keydown', this.onDocumentKeydown, true);
     window.removeEventListener('scroll', this.onViewportChange, true);
@@ -146,7 +162,7 @@ export default class ClimateMenu extends LitElement {
   }
 
   // Position and focus, after the surface is in the DOM and can be measured.
-  updated(changedProps) {
+  override updated(changedProps: PropertyValues): void {
     if (!changedProps.has('open')) return;
 
     if (!this.open) {
@@ -181,7 +197,7 @@ export default class ClimateMenu extends LitElement {
   // An engine that has never heard of the attribute needs none of this - an
   // unknown attribute is inert, and the surface is an ordinary fixed box. It
   // is the half-way case this guards.
-  showAsPopover(surface) {
+  showAsPopover(surface: HTMLElement): void {
     if (!surface.showPopover) return;
 
     try {
@@ -193,7 +209,7 @@ export default class ClimateMenu extends LitElement {
     }
   }
 
-  position() {
+  position(): void {
     const { surface, anchor } = this;
     if (!surface || !anchor) return;
 
@@ -214,7 +230,7 @@ export default class ClimateMenu extends LitElement {
     surface.style.top = `${top}px`;
   }
 
-  render() {
+  override render(): TemplateResult {
     if (!this.open) return html``;
 
     return html`
@@ -243,7 +259,7 @@ export default class ClimateMenu extends LitElement {
     `;
   }
 
-  static get styles() {
+  static override get styles() {
     return css`
       /* The surface. The colours are Home Assistant's own menu colours, so
          this follows the theme the same way the menu it replaces did. */

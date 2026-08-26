@@ -1,17 +1,21 @@
 import define from '../utils/define';
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, type PropertyDeclarations, type TemplateResult } from 'lit';
 import sharedStyle from '../sharedStyle';
+import type ButtonObject from '../models/button';
 import './button';
 import './dropdown';
 
 export default class ClimateButtons extends LitElement {
-  static get properties() {
+  buttons!: Record<string, ButtonObject>;
+
+  // `{ type: Object }` rather than the bare `{}` this used to name - see #230.
+  static override get properties(): PropertyDeclarations {
     return {
-      buttons: {},
+      buttons: { type: Object },
     };
   }
 
-  renderButton(button) {
+  renderButton(button: ButtonObject): TemplateResult | string {
     if (button.isUnavailable) return '';
 
     return html`
@@ -22,7 +26,7 @@ export default class ClimateButtons extends LitElement {
     `;
   }
 
-  renderDropdown(dropdown) {
+  renderDropdown(dropdown: ButtonObject): TemplateResult | string {
     return html`
       <mc-dropdown
         .dropdown=${dropdown}>
@@ -30,22 +34,27 @@ export default class ClimateButtons extends LitElement {
     `;
   }
 
-  renderInternal(button) {
+  renderInternal(button: ButtonObject): TemplateResult | string {
     if (button.type === 'dropdown') return this.renderDropdown(button);
 
     return this.renderButton(button);
   }
 
-  render() {
-    const context = this;
+  override render(): TemplateResult {
     return html`${Object.entries(this.buttons)
       .map(b => b[1])
       .filter(b => b.location !== 'main' && !b.hide)
-      .sort((a, b) => (a.order > b.order ? 1 : b.order > a.order ? -1 : 0))
-      .map(button => context.renderInternal(button))}`;
+      .sort((a, b) =>
+        (a.order as number) > (b.order as number)
+          ? 1
+          : (b.order as number) > (a.order as number)
+            ? -1
+            : 0,
+      )
+      .map(button => this.renderInternal(button))}`;
   }
 
-  static get styles() {
+  static override get styles() {
     return [
       sharedStyle,
       css`

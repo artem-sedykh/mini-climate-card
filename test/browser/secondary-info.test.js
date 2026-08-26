@@ -29,6 +29,32 @@ describe('the fan mode under the name', () => {
     expect(getComputedStyle(button).display).to.not.equal('inline');
   });
 
+  it('still sends a command when the current mode is not in the source list', async () => {
+    // A narrowed `source` - or an integration that added a mode after the card
+    // was configured - leaves the entity reporting something the list does not
+    // contain, and `fanMode.selected` is then undefined. Reading `.id` off it
+    // threw inside the click handler, so the pick did nothing at all and said
+    // nothing about it. See #231.
+    const { card, hass } = await mountCard({
+      config: {
+        secondary_info: 'fan-mode-dropdown',
+        fan_mode: { source: { low: 'Low', high: 'High' } },
+      },
+    });
+    const host = secondary(card);
+
+    host.shadowRoot.getElementById('button').click();
+    const menu = host.shadowRoot.getElementById('menu');
+    await menu.updateComplete;
+    await nextFrame();
+
+    menu.shadowRoot.querySelector('[data-value="high"]').click();
+    await settle(card);
+
+    expect(hass.calls).to.have.lengthOf(1);
+    expect(hass.calls[0].options.fan_mode).to.equal('high');
+  });
+
   it('opens its menu and sends one command', async () => {
     const { card, hass } = await mountCard({ config: { secondary_info: 'fan-mode-dropdown' } });
     const host = secondary(card);

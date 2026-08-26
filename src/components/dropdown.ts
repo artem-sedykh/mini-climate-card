@@ -1,23 +1,32 @@
 import define from '../utils/define';
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, type PropertyValues, type TemplateResult } from 'lit';
 import sharedStyle from '../sharedStyle';
+import type ButtonObject from '../models/button';
 import './dropdown-base';
 
 export default class ClimateDropDown extends LitElement {
+  dropdown!: ButtonObject;
+
+  private timer: ReturnType<typeof setTimeout> | undefined;
+
+  /** What the dropdown is showing, which a pick changes before the device
+   * confirms it. `actionTimeout` puts it back if nothing comes. */
+  private _state: string | undefined;
+
   constructor() {
     super();
-    this.dropdown = {};
+    this.dropdown = {} as ButtonObject;
     this.timer = undefined;
     this._state = undefined;
   }
 
-  static get properties() {
+  static override get properties() {
     return {
       dropdown: { type: Object },
     };
   }
 
-  handleChange(e) {
+  handleChange(e: CustomEvent): void {
     e.stopPropagation();
 
     const selected = e.detail.id;
@@ -42,11 +51,11 @@ export default class ClimateDropDown extends LitElement {
     this.requestUpdate('_state');
   }
 
-  render() {
+  override render(): TemplateResult {
     return html`
       <mc-dropdown-base
         .iconStyle=${this.dropdown.style}
-        @change=${e => this.handleChange(e)}
+        @change=${(e: CustomEvent) => this.handleChange(e)}
         .items=${this.dropdown.source}
         .icon=${this.dropdown.icon}
         .disabled="${this.dropdown.disabled}"
@@ -58,7 +67,7 @@ export default class ClimateDropDown extends LitElement {
 
   // See the note in button.js: derived before the render rather than after
   // it, so one state change costs one pass.
-  willUpdate(changedProps) {
+  override willUpdate(changedProps: PropertyValues): void {
     if (changedProps.has('dropdown')) {
       this._state =
         this.dropdown.state !== undefined && this.dropdown.state !== null
@@ -69,7 +78,7 @@ export default class ClimateDropDown extends LitElement {
     }
   }
 
-  static get styles() {
+  static override get styles() {
     return [
       sharedStyle,
       css`

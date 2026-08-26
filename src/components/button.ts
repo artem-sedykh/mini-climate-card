@@ -1,22 +1,31 @@
 import define from '../utils/define';
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, type PropertyValues, type TemplateResult } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
 import sharedStyle from '../sharedStyle';
+import type ButtonObject from '../models/button';
 
 export default class ClimateButton extends LitElement {
+  button!: ButtonObject;
+
+  /** The state the button is showing, which a press flips before the device
+   * confirms it. `actionTimeout` puts it back if nothing comes. */
+  private _isOn: boolean;
+
+  private timer: ReturnType<typeof setTimeout> | undefined;
+
   constructor() {
     super();
     this._isOn = false;
     this.timer = undefined;
   }
 
-  static get properties() {
+  static override get properties() {
     return {
       button: { type: Object },
     };
   }
 
-  handleToggle(e) {
+  handleToggle(e: Event): void {
     e.stopPropagation();
     const { entity } = this.button;
 
@@ -34,12 +43,12 @@ export default class ClimateButton extends LitElement {
     this.requestUpdate('_isOn');
   }
 
-  render() {
+  override render(): TemplateResult {
     return html`
        <ha-icon-button
          style=${styleMap(this.button.style)}
          .icon=${this.button.icon}
-         @click=${e => this.handleToggle(e)}
+         @click=${(e: Event) => this.handleToggle(e)}
          ?disabled="${this.button.disabled || this.button.isUnavailable}"
          ?color=${this._isOn}>
            <ha-icon .icon=${this.button.icon}></ha-icon>
@@ -51,7 +60,7 @@ export default class ClimateButton extends LitElement {
   // card just handed down, so it is already knowable when the update starts;
   // assigning it in `updated()` asked for a second pass over a value nothing
   // had learned in between.
-  willUpdate(changedProps) {
+  override willUpdate(changedProps: PropertyValues): void {
     if (changedProps.has('button')) {
       this._isOn = this.button.isOn;
 
@@ -59,7 +68,7 @@ export default class ClimateButton extends LitElement {
     }
   }
 
-  static get styles() {
+  static override get styles() {
     return [
       sharedStyle,
       css`
