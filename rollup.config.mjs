@@ -13,6 +13,11 @@ export default {
     file: 'dist/mini-climate-card-bundle.js',
     format: 'umd',
     name: 'MiniClimate',
+    // Development only, and deliberately so. The bench's coverage report maps
+    // what the browser executed back to src/ through this map, and the
+    // release bundle has to stay exactly what it was: a map there would add a
+    // file beside it and a comment inside it, which `check:bundle` measures.
+    sourcemap: development,
   },
   plugins: [
     // The export condition is pinned deliberately. Left to itself,

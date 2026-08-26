@@ -39,7 +39,7 @@ describe('the card on a dashboard', () => {
   });
 
   after(async () => {
-    if (session) await session.browser.close();
+    if (session) await session.close();
   });
 
   it('renders every card the manifest asks for', async () => {

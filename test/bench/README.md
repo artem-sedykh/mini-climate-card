@@ -79,6 +79,26 @@ Two views, and the difference between them is the point:
 A card with nothing but an `entity` exercises almost none of what the tracker
 asks about, which is why the second view exists.
 
+## What the scenarios reach
+
+```
+npm run dev             # unminified, and the sourcemap the report maps through
+npm run bench up
+npm run bench:coverage  # runs the scenarios, then reports against src/
+```
+
+It answers one question - which parts of `src/` a browser driving a real
+dashboard never reaches - and it is **a diagnostic, not a metric**: no
+threshold, no badge, nothing fails on it.
+
+It is also not comparable with `npm run test:coverage`. That number is the unit
+layer, which excludes `src/components/**` because those only run in a browser;
+this one is mostly about exactly those files. One percentage speaking for both
+would be a number nobody could act on.
+
+The unminified build is why it is a separate run: what ships is the minified
+one, and that is what the scenarios normally exercise.
+
 ## What it is not
 
 It is **not** where geometry is measured. `test/browser/` renders the card in
