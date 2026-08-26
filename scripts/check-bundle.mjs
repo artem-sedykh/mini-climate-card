@@ -42,8 +42,8 @@ const baseline = JSON.parse(read(path.join(root, 'scripts', 'bundle-baseline.jso
 
 // The component ids are read out of the source rather than imported: these are
 // ES modules with lit in them, so node cannot load them. Every component
-// declares its own tag in a static `defineId`, so the directory is the list -
-// nothing to keep in step by hand.
+// registers its own tag at the bottom of its module, so the directory is the
+// list - nothing to keep in step by hand.
 //
 // An empty list is treated as a broken parser rather than a passing build.
 // `every` over an empty list is true, so without this guard a parse that stops
@@ -56,7 +56,7 @@ const componentIds = (() => {
     if (!entry.isFile() || !entry.name.endsWith('.js')) continue;
 
     const source = read(path.join(entry.parentPath, entry.name));
-    const match = source.match(/get defineId\(\)\s*{\s*return\s*'([^']+)'/);
+    const match = source.match(/^define\('([^']+)'/m);
 
     if (match) ids.push(match[1]);
   }
@@ -109,8 +109,15 @@ const checks = [
   },
   {
     name: 'registers the mini-climate element',
-    ok: () => /customElements\.define\(\s*['"]mini-climate['"]/.test(bundle),
-    detail: () => 'customElements.define("mini-climate", ...) is missing',
+    // Two halves rather than one pattern, because registration goes through
+    // src/utils/define.js now and the minifier renames it - so there is no
+    // literal `customElements.define("mini-climate"` to match. What is still
+    // literal is the tag name and the one call inside the helper.
+    ok: () =>
+      bundle.includes('customElements.define(') &&
+      /['"]mini-climate['"]/.test(bundle) &&
+      bundle.includes('customElements.get('),
+    detail: () => 'nothing in the bundle registers a custom element named mini-climate',
   },
   {
     name: 'registers itself with the card picker',

@@ -1,19 +1,15 @@
 /**
  * @vitest-environment jsdom
  */
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
-import ClimateMenu from '../src/components/menu';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+// Imported for the side effect as well as the class: the module registers
+// <mc-menu> when it loads, which is how the card gets it too.
+import '../src/components/menu';
 
 // The menu is a component, so most of it belongs to a browser. What is
 // testable here is the part that fails silently: when it opens, when it
 // closes, and what it says when an option is picked. Positioning is not -
 // jsdom measures every element as zero.
-beforeAll(() => {
-  // The card registers this in its scoped registry rather than globally, so
-  // the test defines it under a name of its own.
-  customElements.define('mc-menu-under-test', ClimateMenu);
-});
-
 const items = [
   { id: 'auto', name: 'Auto' },
   { id: 'low', name: 'Low' },
@@ -21,7 +17,7 @@ const items = [
 ];
 
 const mount = async (props = {}) => {
-  const menu = document.createElement('mc-menu-under-test');
+  const menu = document.createElement('mc-menu');
   menu.items = items;
   Object.assign(menu, props);
   document.body.appendChild(menu);

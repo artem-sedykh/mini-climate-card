@@ -1,25 +1,9 @@
+import define from '../utils/define';
 import { LitElement, html, css } from 'lit';
-import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import sharedStyle from '../sharedStyle';
-import ClimateMenu from './menu';
-import buildElementDefinitions from '../utils/buildElementDefinitions';
+import './menu';
 
-export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitElement) {
-  static get defineId() {
-    return 'mc-fan-mode-secondary';
-  }
-
-  static get elementDefinitions() {
-    return buildElementDefinitions(
-      // 'ha-icon-button' was missing here, and the tag it names is in the
-      // template below. With the scoped registry that means it never upgrades:
-      // an inert unknown element, `display: inline`, and `disabled` with no
-      // effect on it. Measured on a live Home Assistant 2026.8.3.
-      ['ha-icon', 'ha-icon-button', ClimateMenu],
-      ClimateFanModeSecondary,
-    );
-  }
-
+export default class ClimateFanModeSecondary extends LitElement {
   constructor() {
     super();
     this.fanMode = {};
@@ -103,10 +87,6 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
   }
 
   render() {
-    if (!ClimateFanModeSecondary.elementDefinitionsLoaded) {
-      return html``;
-    }
-
     const { type } = this.config.secondary_info;
 
     if (type === 'fan-mode-dropdown') {
@@ -149,3 +129,5 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
     ];
   }
 }
+
+define('mc-fan-mode-secondary', ClimateFanModeSecondary);

@@ -1,21 +1,9 @@
+import define from '../utils/define';
 import { LitElement, html, css } from 'lit';
-import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
-import ClimateFanModeSecondary from './fan-mode-secondary';
+import './fan-mode-secondary';
 import sharedStyle from '../sharedStyle';
-import buildElementDefinitions from '../utils/buildElementDefinitions';
 
-export default class ClimateSecondaryInfo extends ScopedRegistryHost(LitElement) {
-  static get defineId() {
-    return 'mc-secondary-info';
-  }
-
-  static get elementDefinitions() {
-    return buildElementDefinitions(
-      ['ha-icon', 'ha-relative-time', ClimateFanModeSecondary],
-      ClimateSecondaryInfo,
-    );
-  }
-
+export default class ClimateSecondaryInfo extends LitElement {
   constructor() {
     super();
     this.fanMode = {};
@@ -58,10 +46,6 @@ export default class ClimateSecondaryInfo extends ScopedRegistryHost(LitElement)
   }
 
   render() {
-    if (!ClimateSecondaryInfo.elementDefinitionsLoaded) {
-      return html``;
-    }
-
     const { type } = this.config.secondary_info;
 
     switch (type) {
@@ -103,3 +87,5 @@ export default class ClimateSecondaryInfo extends ScopedRegistryHost(LitElement)
     ];
   }
 }
+
+define('mc-secondary-info', ClimateSecondaryInfo);

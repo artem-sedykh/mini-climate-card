@@ -163,7 +163,7 @@ src/
   models/            wrappers that turn raw hass state into what a component
                      renders (climate, button, indicator, temperature,
                      target-temperature, hvac-mode)
-  utils/             template compilation, click handling, element registration
+  utils/             template compilation, click handling, define()
   const.js           icons, the off/unavailable state lists, tap action names
   style.js           card styles
   sharedStyle.js     styles shared with the sub-elements
@@ -215,37 +215,31 @@ Two shorthands are normalised, and they are not normalised the same way:
 
 ## Registering the elements
 
-Every component extends `ScopedRegistryHost(LitElement)` and declares what it
-may render in a static `elementDefinitions`, built by
-`src/utils/buildElementDefinitions.js`. Read this section before adding a tag
-to any component's template.
+Every component registers itself at the bottom of its own module -
+`define('mc-button', ClimateButton)` - and `main.js` imports those modules for
+that alone. `src/utils/define.js` is `customElements.define` without the throw
+when the name is already taken, which is what a page that loads the bundle
+twice does.
 
-**The scoping is real, and it is not the browser's.**
-`@lit-labs/scoped-registry-mixin` calls `attachShadow({ customElements })`,
-which no browser implements - it is the API of a polyfill this card does not
-ship. Home Assistant happens to load `scoped-custom-element-registry`, and that
-is what makes it work. Measured in a live 2026.8.3 frontend:
-`CustomElementRegistry` in the page is not native, and `attachShadow` with a
-registry is honoured.
+**The names are global**, which is why they are prefixed. They were not until
+the scoped element registry came out. Every component used to extend
+`ScopedRegistryHost(LitElement)` and declare what it could render in a static
+`elementDefinitions`, and that had two silent failure modes:
 
-Two consequences, and both have bitten:
+- **`@lit-labs/scoped-registry-mixin` calls `attachShadow({ customElements })`,
+  which no browser implements.** It is the API of a polyfill this card never
+  shipped and Home Assistant happened to load. Where that polyfill was missing
+  the card mounted as an empty shell and said nothing, which is what the "card
+  is not visible" reports read like.
+- **Where it was present, a tag a component forgot to declare never upgraded** -
+  also silently, as an inert unknown element with `disabled` having no effect
+  on it. That was live in `fan-mode-secondary.js`, measured on a running Home
+  Assistant.
 
-- **Where the polyfill is absent, the whole card mounts as an empty shell**
-  and says nothing. That is what the "card is not visible" reports look like.
-- **Where it is present, a tag a component did not declare never upgrades** -
-  also silently. It stays an unknown element: `display: inline`, no shadow
-  root, no behaviour. `disabled` does nothing, because what implements
-  `disabled` is the element that never came up.
-
-`buildElementDefinitions` also handles the case where a Home Assistant element
-is not defined yet: it waits on `customElements.whenDefined` and flips
-`elementDefinitionsLoaded` when they all arrive. Components render an empty
-template until then - which is why several of them start with
-`if (!X.elementDefinitionsLoaded) return html``;`.
-
-All of this machinery exists to avoid colliding with Home Assistant's own
-element names. Removing it in favour of prefixed global names is issue #198;
-the sister card did exactly that and the empty-shell failure went with it.
+**Home Assistant's elements are simply used.** `ha-card`, `ha-icon` and
+`ha-icon-button` are defined globally by the frontend, so a template can name
+them. There is no longer any machinery waiting for them to appear, and no
+`render` that returns an empty template until it has.
 
 ## The dropdown
 
@@ -422,13 +416,6 @@ Tracked under #198, which is also the order the work is meant to happen in.
   models; there is no component layer, so anything that only shows up once the
   card is on a dashboard - which is where this card has broken before - is
   caught by hand or not at all.
-- **`@lit-labs/scoped-registry-mixin`** and the two silent failure modes above.
-  `src/components/fan-mode-secondary.js` was one: it rendered an
-  `ha-icon-button` it never declared, so with
-  `secondary_info: { type: fan-mode-dropdown }` that button did not upgrade -
-  measured live, `display: inline`, no shadow root, and `disabled` with no
-  effect on it. Fixed by declaring it; the mechanism that allows the mistake is
-  still here.
 - **The card's own `tap_action` in string form does nothing.** An indicator's
   string is normalised to `{ action: <string> }`; the card's own is not, so the
   user's string replaces the default object wholesale, and `handleClick` then

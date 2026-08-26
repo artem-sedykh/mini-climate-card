@@ -1,8 +1,8 @@
 import { html, LitElement } from 'lit';
+import define from './utils/define';
 import ResizeObserver from 'resize-observer-polyfill';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
-import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import style from './style';
 import sharedStyle from './sharedStyle';
 import handleClick from './utils/handleClick';
@@ -17,36 +17,16 @@ import IndicatorObject from './models/indicator';
 import ClimateObject from './models/climate';
 import HvacModeObject from './models/hvac-mode';
 import ICON from './const';
-import ClimateTemperature from './components/temperature';
-import ClimateTargetTemperature from './components/target-temperature';
-import ClimateModeMenu from './components/mode-menu';
-import ClimateIndicators from './components/indicators';
-import ClimateDropDown from './components/dropdown';
-import ClimateButtons from './components/buttons';
-import ClimateButton from './components/button';
-import ClimateSecondaryInfo from './components/secondary-info';
-import buildElementDefinitions from './utils/buildElementDefinitions';
+import './components/temperature';
+import './components/target-temperature';
+import './components/mode-menu';
+import './components/indicators';
+import './components/dropdown';
+import './components/buttons';
+import './components/button';
+import './components/secondary-info';
 
-class MiniClimate extends ScopedRegistryHost(LitElement) {
-  static get elementDefinitions() {
-    return buildElementDefinitions(
-      [
-        'ha-card',
-        'ha-icon',
-        'ha-icon-button',
-        ClimateButton,
-        ClimateButtons,
-        ClimateDropDown,
-        ClimateIndicators,
-        ClimateModeMenu,
-        ClimateSecondaryInfo,
-        ClimateTargetTemperature,
-        ClimateTemperature,
-      ],
-      MiniClimate,
-    );
-  }
-
+class MiniClimate extends LitElement {
   static getStubConfig(hass, unusedEntities, allEntities) {
     let entity = unusedEntities.find(eid => eid.split('.')[0] === 'climate');
     if (!entity) {
@@ -542,10 +522,6 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
   }
 
   render() {
-    if (!MiniClimate.elementDefinitionsLoaded) {
-      return html``;
-    }
-
     const handle = this.config.secondary_info.type !== 'fan-mode-dropdown';
     return html`
       <ha-card
@@ -751,7 +727,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
   }
 }
 
-customElements.define('mini-climate', MiniClimate);
+define('mini-climate', MiniClimate);
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: 'mini-climate',

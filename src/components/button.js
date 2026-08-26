@@ -1,18 +1,9 @@
+import define from '../utils/define';
 import { LitElement, html, css } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
-import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import sharedStyle from '../sharedStyle';
-import buildElementDefinitions from '../utils/buildElementDefinitions';
 
-export default class ClimateButton extends ScopedRegistryHost(LitElement) {
-  static get defineId() {
-    return 'mc-button';
-  }
-
-  static get elementDefinitions() {
-    return buildElementDefinitions(['ha-icon', 'ha-icon-button'], ClimateButton);
-  }
-
+export default class ClimateButton extends LitElement {
   constructor() {
     super();
     this._isOn = false;
@@ -44,9 +35,6 @@ export default class ClimateButton extends ScopedRegistryHost(LitElement) {
   }
 
   render() {
-    if (!ClimateButton.elementDefinitionsLoaded) {
-      return html``;
-    }
     return html`
        <ha-icon-button
          style=${styleMap(this.button.style)}
@@ -93,3 +81,5 @@ export default class ClimateButton extends ScopedRegistryHost(LitElement) {
     ];
   }
 }
+
+define('mc-button', ClimateButton);
