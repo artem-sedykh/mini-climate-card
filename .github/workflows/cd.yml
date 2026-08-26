@@ -5,50 +5,114 @@ on:
     tags:
       - 'v*.*.*'
 
+permissions:
+  contents: write
+  # For the attestation: `id-token` mints the OIDC token that Sigstore issues a
+  # short-lived signing certificate against, `attestations` persists the result.
+  id-token: write
+  attestations: write
+
 jobs:
   cd:
+    name: Build and publish release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
+
       - name: Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7
         with:
-          node-version: 18.x
-      - name: Cahce dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-          key: ${{ runner.OS }}-node-18.x-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-node-18.x
-            ${{ runner.OS }}-
+          node-version-file: .nvmrc
+          cache: npm
+
       - name: Install dependencies
-        run: |
-          npm install
-      - name: Lint and build
-        run: |
-          npm run lint
-          npm run rollup
-          npm run babel
+        run: npm ci
+
       - name: Set the release version
-        shell: bash
-        run: echo "RELEASE_VERSION=${GITHUB_REF:11}" >> $GITHUB_ENV
+        run: echo "RELEASE_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+
+      - name: Version in package.json must match the tag
+        run: |
+          # The tag is what HACS installs; package.json feeds the README badge.
+          # If they drift, the badge advertises a version nobody can install.
+          pkg=$(node -p "require('./package.json').version.replace(/^v/, '')")
+          if [ "$pkg" != "$RELEASE_VERSION" ]; then
+            echo "package.json says $pkg, tag says $RELEASE_VERSION"
+            exit 1
+          fi
+
+      - name: Lint and build
+        run: npm run build
+
+      - name: Attest the bundle
+        # The release asset is the product: what HACS downloads is this file,
+        # and until now nothing tied the file on the releases page to the run
+        # that produced it. This publishes a signed statement binding its
+        # digest to this repository, this workflow and this tag, which
+        #
+        #   gh attestation verify mini-climate-card-bundle.js -R artem-sedykh/mini-climate-card
+        #
+        # checks against GitHub. A file that is not what this workflow built
+        # has no symptom until someone hits the bug it carries.
+        #
+        # actions/attest rather than actions/attest-build-provenance: since v4
+        # the latter is a wrapper over this one, and with only `subject-path`
+        # given this action generates the same SLSA build provenance.
+        uses: actions/attest@v4
+        with:
+          subject-path: dist/mini-climate-card-bundle.js
+
       - name: Set the release body
         id: release
-        shell: bash
         run: |
-          r=$(cat release_notes/v${{ env.RELEASE_VERSION }}.md)
-          r="${r//'%'/'%25'}"                               # Multiline escape sequences for %
-          r="${r//$'\n'/'%0A'}"                             # Multiline escape sequences for '\n'
-          r="${r//$'\r'/'%0D'}"                             # Multiline escape sequences for '\r'
-          echo "::set-output name=RELEASE_BODY::$r"
+          notes="release_notes/v${RELEASE_VERSION}.md"
+          if [ ! -f "$notes" ]; then
+            echo "Missing $notes - add the release notes before tagging."
+            exit 1
+          fi
+          # Heredoc into $GITHUB_OUTPUT. The old ::set-output command with %0A
+          # escaping is deprecated and mangles multiline markdown - which this
+          # is, and which HACS shows in its update dialog.
+          #
+          # The digest goes on the page after the notes. The attestation is
+          # the real check, but it needs the gh CLI; a number on the page makes
+          # it one command for someone who has neither the tooling nor any
+          # interest in installing it. Kept short, and to inline code rather
+          # than a fenced block, because that dialog is narrow and most people
+          # are reading it to decide whether to press update.
+          sha=$(sha256sum dist/mini-climate-card-bundle.js | cut -d' ' -f1)
+          run="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          {
+            echo 'RELEASE_BODY<<RELEASE_NOTES_EOF'
+            cat "$notes"
+            # Two newlines, not one: a release note that happens to end without
+            # a trailing newline would otherwise put `---` on the line straight
+            # after its last line of text, which markdown reads as a setext
+            # heading rather than a rule.
+            echo ''
+            echo ''
+            cat <<PROVENANCE_EOF
+          ---
+
+          \`mini-climate-card-bundle.js\`, built by [this run]($run):
+
+          sha256 \`$sha\`
+
+          The build is signed: \`gh attestation verify mini-climate-card-bundle.js -R ${GITHUB_REPOSITORY}\` checks the file you downloaded against this repository and this tag.
+          PROVENANCE_EOF
+            echo 'RELEASE_NOTES_EOF'
+          } >> "$GITHUB_OUTPUT"
+
       - name: Upload the release file
-        uses: svenstaro/upload-release-action@2.6.1
+        uses: svenstaro/upload-release-action@v2
         with:
           file: dist/*
           file_glob: true
           overwrite: true
           promote: true
-          body: |
-            ${{ steps.release.outputs.RELEASE_BODY }}
+          # Without this the release is published with an empty title and the
+          # releases page shows a blank entry. Every release so far is titled
+          # with its tag, so keep that.
+          release_name: ${{ github.ref_name }}
+          body: ${{ steps.release.outputs.RELEASE_BODY }}

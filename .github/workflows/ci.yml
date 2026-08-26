@@ -9,27 +9,48 @@ on:
     # checks at all - without saying so anywhere. The push trigger keeps `*`
     # deliberately, otherwise every pull request runs everything twice.
     branches: ['**']
+  # Nothing in this repository changes on its own - but everything it is built
+  # against does: transitive dependencies, the runner image, the browsers the
+  # tests will run in. A weekly run on master finds a break nobody caused
+  # before an outside contributor runs into it on their own pull request and
+  # assumes it is theirs.
+  #
+  # Monday morning UTC, and deliberately not on the hour: GitHub queues
+  # scheduled runs across every repository at once, and a job asking for a
+  # popular minute waits longer for it.
+  #
+  # Worth knowing: GitHub disables scheduled workflows in a repository with no
+  # activity for 60 days, and emails the owner when it does. A quiet stretch
+  # therefore turns this off rather than failing loudly.
+  schedule:
+    - cron: '23 6 * * 1'
+  # So the same run can be triggered by hand when something outside is
+  # suspected - a Home Assistant frontend change, a dependency release.
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
+    name: Lint and build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           # From .nvmrc, so this file and a contributor's shell cannot drift
-          # apart. eslint 10 needs node 20 or newer, which is what the pinned
-          # 18 here would have failed on.
+          # apart.
           node-version-file: .nvmrc
           cache: npm
 
       - name: Install dependencies
         # `npm ci` rather than `npm install`: it installs exactly what the
         # lockfile says and fails when the lockfile and package.json disagree,
-        # instead of quietly resolving something else and updating the file.
+        # instead of quietly resolving something else and rewriting the file.
         run: npm ci
 
       - name: Lint
@@ -42,3 +63,12 @@ jobs:
         run: |
           npm run rollup
           npm run babel
+
+      - name: Upload bundle
+        # So a change to the card can be tried without building it yourself.
+        # This is also what the bundle assertions of #198 will run against.
+        uses: actions/upload-artifact@v7
+        with:
+          name: mini-climate-card-bundle
+          path: dist/mini-climate-card-bundle.js
+          if-no-files-found: error
