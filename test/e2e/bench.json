@@ -80,6 +80,14 @@
               }
             }
           }
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": "Fan mode dropdown",
+          "secondary_info": {
+            "type": "fan-mode-dropdown"
+          }
         }
       ]
     }

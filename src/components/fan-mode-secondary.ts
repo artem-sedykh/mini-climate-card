@@ -137,10 +137,20 @@ export default class ClimateFanModeSecondary extends LitElement {
       }
       .icon {
         color: var(--mc-icon-color);
-        height: calc(var(--mc-unit) * .475);
+        /* Square, and the same size as the button and the glyph inside it.
+           The height was .475 against a width of .5 - 19px against 20px - so
+           whatever the button did, it could not sit inside the host. */
+        height: calc(var(--mc-unit) * .5);
         width: calc(var(--mc-unit) * .5);
         min-width: calc(var(--mc-unit) * .5);
         --mdc-icon-size: calc(var(--mc-unit) * 0.5);
+        /* The button inside ha-icon-button is sized by these, not by the host:
+           without them it keeps whatever it inherits - 30px against a 20px
+           host on 2026.8.3 - and spills out of the secondary info line. Both
+           spellings, like everywhere else in this card: --mdc-icon-button-size
+           is the pre-2026 knob and --ha-icon-button-size the current one. */
+        --mdc-icon-button-size: calc(var(--mc-unit) * .5);
+        --ha-icon-button-size: calc(var(--mc-unit) * .5);
       }
     `,
     ];
