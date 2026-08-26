@@ -24,10 +24,6 @@ export default defineConfig({
         'src/const.js',
         // A console banner.
         'src/initialize.js',
-        // Element registration: it runs when a component is constructed,
-        // which needs a browser. It is also the first thing to go when the
-        // scoped registry does.
-        'src/utils/buildElementDefinitions.js',
       ],
       thresholds: {
         // Set to what the suite reaches today, not to a round number, so they

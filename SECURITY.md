@@ -59,12 +59,10 @@ vulnerability worth reporting.
 
 ## Dependencies
 
-The bundle ships [lit](https://lit.dev), `@material/mwc-*`,
-`@lit-labs/scoped-registry-mixin` and `resize-observer-polyfill`. Everything
-else in `package.json` is a build tool and never reaches a browser. Dependabot
-watches both, monthly, and a vulnerability in a bundled dependency that affects
-this card is in scope above.
-
-The mwc packages are end of life and are being removed
-([#198](https://github.com/artem-sedykh/mini-climate-card/issues/198)), which
-is worth knowing when reading a dependency alert against them.
+The bundle ships [lit](https://lit.dev) and nothing else. `@material/mwc-*`,
+`@lit-labs/scoped-registry-mixin` and `resize-observer-polyfill` were all
+removed under
+[#198](https://github.com/artem-sedykh/mini-climate-card/issues/198).
+Everything else in `package.json` is a build tool and never reaches a browser.
+Dependabot watches both, monthly, and a vulnerability in a bundled dependency
+that affects this card is in scope above.
