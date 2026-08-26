@@ -1,6 +1,5 @@
 import { html, LitElement } from 'lit';
 import define from './utils/define';
-import ResizeObserver from 'resize-observer-polyfill';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import style from './style';

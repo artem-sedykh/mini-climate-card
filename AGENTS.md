@@ -427,8 +427,6 @@ Tracked under #198, which is also the order the work is meant to happen in.
   computes a `--more-info` class for this and gets it wrong twice over: it
   compares the whole option against the string `'none'`, which an object never
   equals, and no stylesheet uses the class at all.
-- **`resize-observer-polyfill`** is bundled for a `ResizeObserver` every target
-  browser has had for years.
 - **`getIndicatorConfig` spells the default source key `enitity`.** Harmless
   today, because a user-supplied `source` replaces the whole object, but it is
   the kind of typo that makes a working option look unsupported.
