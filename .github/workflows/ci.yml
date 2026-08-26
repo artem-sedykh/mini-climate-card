@@ -60,9 +60,7 @@ jobs:
         run: npm run format:check
 
       - name: Build
-        run: |
-          npm run rollup
-          npm run babel
+        run: npm run rollup
 
       - name: Bundle assertions
         # Everything that has gone wrong in the sister card went wrong in the

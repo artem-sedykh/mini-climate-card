@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
 
-import { styleMap } from 'lit/directives/style-map';
+import { styleMap } from 'lit/directives/style-map.js';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import handleClick from '../utils/handleClick';
 import { TAP_ACTIONS } from '../const';
