@@ -79,6 +79,7 @@ npm run test:e2e      # the scenarios against that instance (needs a bench up)
 npm run rollup        # bundle src/main.ts -> dist/mini-climate-card-bundle.js
 npm run dev           # the same bundle, unminified
 npm run check:bundle  # assertions on the built bundle (needs a build first)
+npm run check:options # every option the card reads is documented, and vice versa
 npm run build         # lint + format:check + test + rollup + check:bundle
 npm run watch         # unminified, rebuilding on save
 ```
@@ -137,6 +138,20 @@ exists because six paths in this file said `.js` for the whole of the
 TypeScript migration and nothing noticed - `mkdocs build --strict` checks the
 links between pages of the site, not the paths a sentence names, and it never
 sees this file at all.
+
+**`npm run check:options`** - `scripts/check-docs-options.mjs`, over the keys
+of `RawCardConfig`, the `secondary_info` types the component switches on, and
+the option table in `docs/configuration.md`. Every option the card reads has to
+be documented, and every option the table names has to be read.
+
+The second direction is the one that matters: a row describing an option the
+card does not have is worse than a missing row, because a reader trusts it. The
+first direction found `collapse`, which was declared and read from the first
+commit of this repository, was never styled by anything, and appeared in no
+documentation for six years. It is gone.
+
+Both directions were seen to fail: an invented key in `RawCardConfig`, and an
+invented row in the table.
 
 ## TypeScript
 
