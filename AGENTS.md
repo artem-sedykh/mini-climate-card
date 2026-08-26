@@ -40,7 +40,18 @@ This is a constraint on what may be changed, not just a description of what is:
   `setConfig` time, before the card has a `hass`, which is why the context
   passes `call_service` as a closure rather than a value.
 
-### The template context
+#### Better a short answer than a wrong link
+
+When pointing a reader at documentation, verify the anchor is there before
+writing it. Two of these replies in one day pointed at a section that did not
+yet exist and at an option that was not in the docs - and a dead link is worse
+than no link, because it sends a person to a page that does not have what was
+promised. The rule here is the same as for the answers themselves: an answer is
+not real until a test holds it up. A documentation link is not real until a
+check says it exists - and `check:docs` cannot be the one to say it, because it
+does not know prose.
+
+## The template context
 
 Every compiled template is called with `this` bound to a context built in
 `src/main.ts`, and the context is `{ ...value }` - **the option's own YAML

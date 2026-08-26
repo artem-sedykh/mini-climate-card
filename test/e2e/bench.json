@@ -218,6 +218,46 @@
           "entity": "climate.not_here",
           "name": "Missing and icon templated",
           "hide_icon": "(climate_entity) => climate_entity.state === 'unavailable'"
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": "Preset buttons",
+          "buttons": {
+            "eco": {
+              "icon": "mdi:leaf",
+              "state": {
+                "attribute": "preset_mode",
+                "mapper": "state => state === 'eco' ? 'on' : 'off'"
+              },
+              "active": "state => state === 'on'",
+              "toggle_action": "(state, entity) => this.call_service('climate', 'set_preset_mode', { entity_id: entity.entity_id, preset_mode: state === 'on' ? 'none' : 'eco' })"
+            },
+            "boost": {
+              "icon": "mdi:weather-hurricane",
+              "state": {
+                "attribute": "preset_mode",
+                "mapper": "state => state === 'boost' ? 'on' : 'off'"
+              },
+              "active": "state => state === 'on'",
+              "toggle_action": "(state, entity) => this.call_service('climate', 'set_preset_mode', { entity_id: entity.entity_id, preset_mode: state === 'on' ? 'none' : 'boost' })"
+            }
+          }
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": " ",
+          "hide_icon": true,
+          "toggle": {
+            "hide": true
+          },
+          "fan_mode": {
+            "hide": true
+          },
+          "secondary_info": {
+            "hide": "() => true"
+          }
         }
       ]
     },
