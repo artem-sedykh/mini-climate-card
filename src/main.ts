@@ -780,7 +780,6 @@ class MiniClimate extends LitElement {
   computeClasses({ config } = this) {
     return classMap({
       '--initial': this.initial,
-      '--collapse': config.collapse,
       '--group': config.group,
       '--more-info': config.tap_action.action !== 'none',
       '--inactive': !this.climate.isActive,

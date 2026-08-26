@@ -156,7 +156,6 @@ export interface RawCardConfig {
   name?: string;
   icon?: string;
   scale?: number;
-  collapse?: boolean;
   group?: boolean;
   swap_temperatures?: boolean;
   hide_icon?: boolean | string;

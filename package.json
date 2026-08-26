@@ -43,7 +43,7 @@
     "vitest": "^4.1.11"
   },
   "scripts": {
-    "build": "npm run lint && npm run typecheck && npm run format:check && npm run check:docs && npm run test && npm run rollup && npm run check:bundle",
+    "build": "npm run lint && npm run typecheck && npm run format:check && npm run check:docs && npm run check:options && npm run test && npm run rollup && npm run check:bundle",
     "rollup": "rollup -c",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src test scripts",
@@ -53,6 +53,7 @@
     "watch": "rollup -c --watch --environment BUILD:development",
     "check:bundle": "node scripts/check-bundle.mjs",
     "check:docs": "node scripts/check-docs-paths.mjs",
+    "check:options": "node scripts/check-docs-options.mjs",
     "dev": "rollup -c --environment BUILD:development",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
