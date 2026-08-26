@@ -1,0 +1,34 @@
+name: Feature request
+description: Suggest something the card cannot do yet
+labels: ['enhancement']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Worth checking first: indicators, buttons and most of the card accept
+        javascript templates, so a surprising amount is configurable without a
+        code change - icons, colours, what a control does when pressed, and
+        when it is hidden. See the
+        [README](https://github.com/artem-sedykh/mini-climate-card#readme).
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What you are trying to do
+      description: The situation, not the solution. It often has a bearing on the answer.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you would like the card to do
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you tried instead
+      description: Configuration you already attempted, and how it fell short.
+      render: yaml

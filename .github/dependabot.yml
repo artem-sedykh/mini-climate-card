@@ -1,0 +1,20 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+    groups:
+      # One pull request per ecosystem bump instead of a dozen: the build
+      # toolchain is not worth a review round each. Dependabot has been opening
+      # them one per package here.
+      dev-dependencies:
+        dependency-type: development
+      production-dependencies:
+        dependency-type: production
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
