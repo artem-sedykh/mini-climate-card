@@ -88,7 +88,10 @@ the card; see "Known debt".
 
 ## Checks
 
-Two layers, both run by CI, in the order of how much they cost to run.
+Three layers, all run by CI, in the order of how much they cost to run:
+assertions on the built bundle, unit tests, and the card rendered in two
+browser engines. The first is here; the other two are under "Tests", after the
+TypeScript settings they are built with.
 
 **`npm run check:bundle`** - `scripts/check-bundle.mjs`, assertions on
 `dist/mini-climate-card-bundle.js` after a build. It is deliberately the first
@@ -144,6 +147,8 @@ components and `main.ts` came to +57 and -36 bytes, each of which is an
 enumerated change rather than a surprise. That comparison is the reason the
 steps were small.
 
+## Tests
+
 **`npm test`** - vitest over `test/`, node environment. It covers the six
 model classes in `src/models/`, the helpers in `src/utils/`, every branch of
 `handleClick` - which is the whole of what `tap_action` does - and the
@@ -160,7 +165,7 @@ Two things that suite pins down are worth knowing before changing them:
 - **A template reaches its context only if it is an arrow function.**
   `compileTemplate` calls the *wrapper* with `this` set to the context, so an
   arrow captures it - and a `function` expression, which gets its own `this`
-  when called, does not. Every example in `README.md` is an arrow.
+  when called, does not. Every example in `docs/` is an arrow.
 - **The fan mode and hvac mode dropdowns fill their options in
   `firstUpdated`, not in `setConfig`.** They come from the entity's
   `fan_modes` and `hvac_modes`, and `setConfig` runs before the card has a
@@ -238,8 +243,8 @@ src/
                      target-temperature, hvac-mode)
   utils/             template compilation, click handling, define()
   const.ts           icons, the off/unavailable state lists, tap action names
-  style.js           card styles
-  sharedStyle.js     styles shared with the sub-elements
+  style.ts           card styles
+  sharedStyle.ts     styles shared with the sub-elements
 release_notes/       one file per version, read by the release workflow
 ```
 
@@ -290,7 +295,7 @@ Three shorthands are normalised, all of them to the shape the card reads:
 
 Every component registers itself at the bottom of its own module -
 `define('mc-button', ClimateButton)` - and `main.ts` imports those modules for
-that alone. `src/utils/define.js` is `customElements.define` without the throw
+that alone. `src/utils/define.ts` is `customElements.define` without the throw
 when the name is already taken, which is what a page that loads the bundle
 twice does.
 
@@ -306,7 +311,7 @@ the scoped element registry came out. Every component used to extend
   is not visible" reports read like.
 - **Where it was present, a tag a component forgot to declare never upgraded** -
   also silently, as an inert unknown element with `disabled` having no effect
-  on it. That was live in `fan-mode-secondary.js`, measured on a running Home
+  on it. That was live in `fan-mode-secondary.ts`, measured on a running Home
   Assistant.
 
 **Home Assistant's elements are simply used.** `ha-card`, `ha-icon` and
@@ -316,7 +321,7 @@ them. There is no longer any machinery waiting for them to appear, and no
 
 ## The dropdown
 
-`src/components/menu.js` is the card's own menu, and it is worth knowing why
+`src/components/menu.ts` is the card's own menu, and it is worth knowing why
 rather than reaching for a component library again.
 
 It used to be `@material/mwc-menu` and `@material/mwc-list`, wrapped in
@@ -381,9 +386,11 @@ When you touch anything that talks to a Home Assistant element:
 
 ## Verifying a change by hand
 
-There are no tests yet, so this is the whole of verification. It is also worth
-doing after the tests exist: they will render against stand-ins, and what
-breaks this card is Home Assistant's own elements.
+The three layers above do not replace this, and were never going to: they
+render the card against stand-ins for `ha-card`, `ha-icon` and
+`ha-icon-button`, and what breaks this card is Home Assistant's own elements,
+which change from release to release. A green run means the logic holds, not
+that the card works on a dashboard.
 
 1. `npm run dev` - the same bundle unminified, which is far easier to debug in
    a browser and loads exactly the same.
@@ -395,7 +402,7 @@ breaks this card is Home Assistant's own elements.
    stale bundle looks exactly like a change that did nothing.
 
 **Prove which build is running before drawing any conclusion.** The card prints
-its version to the console at load (`src/initialize.js`), so make the version
+its version to the console at load (`src/initialize.ts`), so make the version
 distinguishable in the copy being tested rather than trusting a reload.
 
 Much can also be checked without deploying anything, from the browser console
@@ -505,10 +512,6 @@ Two consequences worth remembering:
 
 Tracked under #198, which is also the order the work is meant to happen in.
 
-- **Nothing renders the card.** The unit layer stops at `setConfig` and the
-  models; there is no component layer, so anything that only shows up once the
-  card is on a dashboard - which is where this card has broken before - is
-  caught by hand or not at all.
 - **`updateTemperature` compared a property `TemperatureObject` never had**
   (#233). The dead clause is gone; what it was meant to say is still open.
 - **`getIndicatorConfig` spells the default source key `enitity`.** Harmless
