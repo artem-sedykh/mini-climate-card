@@ -9,3 +9,7 @@ images
 # width of the widest one - which makes the source unreadable and every
 # documentation diff enormous.
 *.md
+
+# The MkDocs theme override is a Jinja template, not HTML: prettier reflows the
+# `{% block %}` tags as if they were text.
+overrides

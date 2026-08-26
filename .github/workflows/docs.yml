@@ -1,0 +1,86 @@
+name: Documentation site
+
+# The site is `docs/` rendered, and nothing else (#238). It is built on every
+# pull request that touches it - with `--strict`, so a link to a page that does
+# not exist fails the run instead of shipping a 404 - and published only from
+# master.
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - 'mkdocs.yml'
+      - 'overrides/**'
+      - 'scripts/mkdocs_hooks.py'
+      - 'requirements-docs.txt'
+      - '.github/workflows/docs.yml'
+  pull_request:
+    branches: ['**']
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - 'mkdocs.yml'
+      - 'overrides/**'
+      - 'scripts/mkdocs_hooks.py'
+      - 'requirements-docs.txt'
+      - '.github/workflows/docs.yml'
+  # For rebuilding the site when nothing in that list changed - a badge, a
+  # release, or a theme update.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Deploys queue behind each other: the newer commit is the one worth
+# publishing, but not at the cost of cancelling a deploy half way through.
+# Pull requests get a group of their own per branch and do cancel, because a
+# superseded preview build is worth nothing.
+concurrency:
+  group: pages-${{ github.event_name == 'push' && 'master' || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-docs.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements-docs.txt
+
+      - name: Build
+        run: mkdocs build --strict
+
+      - name: Upload the site
+        if: github.ref == 'refs/heads/master'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+  deploy:
+    name: Deploy
+    if: github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
+    # Only this job gets to write, and only Pages. The build above stays
+    # read-only.
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

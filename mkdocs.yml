@@ -1,0 +1,102 @@
+# The documentation site, built from `docs/` (#238). Nothing content-bearing
+# lives here: this file only says how those files are rendered, which is the
+# whole difference between a site and a wiki - a wiki would have been a second
+# copy to keep level with the first.
+#
+# Build it locally with `pip install -r requirements-docs.txt` and then
+# `mkdocs serve`. CI builds it with `--strict`, so a link to a page that does
+# not exist fails the run rather than shipping a 404.
+site_name: Mini Climate Card
+site_description: A minimalistic yet customizable climate card for the Home Assistant Lovelace UI.
+site_url: https://artem-sedykh.github.io/mini-climate-card/
+site_author: artem-sedykh
+
+repo_url: https://github.com/artem-sedykh/mini-climate-card
+repo_name: artem-sedykh/mini-climate-card
+edit_uri: edit/master/docs/
+
+copyright: MIT
+
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  custom_dir: overrides
+  language: en
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    # The card is configured by copying YAML, so the copy button is not a
+    # decoration here.
+    - content.code.copy
+    - content.action.edit
+    - navigation.top
+    - navigation.tracking
+    - navigation.instant
+    - navigation.instant.progress
+    - search.suggest
+    - search.highlight
+    - toc.follow
+  palette:
+    # Follows the reader's system setting first, and can be overridden from the
+    # header - the same way the Home Assistant frontend behaves.
+    - media: '(prefers-color-scheme)'
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: '(prefers-color-scheme: light)'
+      scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: '(prefers-color-scheme: dark)'
+      scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+
+hooks:
+  - scripts/mkdocs_hooks.py
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/artem-sedykh/mini-climate-card
+      name: The repository
+  # Rendered in the announcement bar by overrides/main.html.
+  releases_url: https://github.com/artem-sedykh/mini-climate-card/releases/latest
+
+nav:
+  - Home: index.md
+  - Configuration: configuration.md
+  - Controls: controls.md
+  - Indicators: indicators.md
+  - Buttons: buttons.md
+  - Tap action: tap-action.md
+  - Secondary info: secondary-info.md
+  - Examples: examples.md
+  - Development: development.md
