@@ -170,6 +170,7 @@ const style = css`
   .ctl-wrap {
     display: flex;
     flex-direction: row;
+    flex: 0 0 auto;
     margin-left: auto;
     margin-top: auto;
     margin-bottom: 0;
@@ -181,8 +182,7 @@ const style = css`
   }
   .entity__info__name_wrap {
     margin-right: 10px;
-    max-width: calc(calc(var(--mc-card-width) - 191.3px) / 1.43);
-    min-width: calc(var(--mc-unit) * 2.5);
+    min-width: 0;
     height: var(--mc-unit);
   }
   .--more-info .entity__info__name_wrap {
