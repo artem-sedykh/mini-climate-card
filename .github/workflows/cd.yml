@@ -42,7 +42,7 @@ jobs:
             exit 1
           fi
 
-      - name: Lint and build
+      - name: Lint, test and build
         run: npm run build
 
       - name: Attest the bundle
