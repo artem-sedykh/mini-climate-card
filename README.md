@@ -5,6 +5,7 @@
 [![Downloads](https://img.shields.io/github/downloads/artem-sedykh/mini-climate-card/total)](https://github.com/artem-sedykh/mini-climate-card/releases)
 [![Stars](https://img.shields.io/github/stars/artem-sedykh/mini-climate-card)](https://github.com/artem-sedykh/mini-climate-card/stargazers)
 [![CI](https://img.shields.io/github/actions/workflow/status/artem-sedykh/mini-climate-card/ci.yml?branch=master&label=CI)](https://github.com/artem-sedykh/mini-climate-card/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fartem-sedykh%2Fmini-climate-card%2Fbadges%2Fcoverage.json)](https://github.com/artem-sedykh/mini-climate-card/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/artem-sedykh/mini-climate-card/blob/master/LICENSE)
 
 A minimalistic yet customizable climate card for [Home Assistant](https://home-assistant.io/) Lovelace UI.  

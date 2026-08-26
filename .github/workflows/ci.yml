@@ -2,7 +2,13 @@ name: Continuous Integration
 
 on:
   push:
-    branches: ['*']
+    # `!badges` is belt and braces. That branch holds one JSON file written by
+    # the badge job below, and a run of this workflow against it would fail at
+    # `npm ci`. A push made with GITHUB_TOKEN does not trigger workflows in the
+    # first place - GitHub blocks that to stop them recursing - so today the
+    # exclusion changes nothing; it is here so the badge cannot start posting
+    # red runs if that ever changes.
+    branches: ['*', '!badges']
   pull_request:
     # `**`, not `*`: a single star stops at a slash, so a pull request whose
     # base is a branch like `refactor/models` matches nothing and runs no
@@ -124,9 +130,64 @@ jobs:
 
       - name: Upload bundle
         # So a change to the card can be tried without building it yourself.
-        # This is also what the bundle assertions of #198 will run against.
         uses: actions/upload-artifact@v7
         with:
           name: mini-climate-card-bundle
           path: dist/mini-climate-card-bundle.js
           if-no-files-found: error
+
+      - name: Upload the coverage summary
+        # Only what the badge job needs, and only on the runs that feed it.
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-summary
+          path: coverage/coverage-summary.json
+          if-no-files-found: error
+
+  # The README badge (#240). Kept out of the job above so that job keeps its
+  # read-only token: this one needs `contents: write` to push, and a pull
+  # request run has no business holding that.
+  #
+  # The number lives in this repository, on a branch of its own, rather than in
+  # a third-party service - which would mean an account and a standing
+  # credential in the secrets. shields.io renders it and holds nothing.
+  badge:
+    name: Coverage badge
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Download the coverage summary
+        uses: actions/download-artifact@v7
+        with:
+          name: coverage-summary
+          path: coverage
+
+      - name: Publish the badge
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          node scripts/coverage-badge.mjs "$RUNNER_TEMP/coverage.json"
+
+          # An orphan branch built from scratch and force-pushed: one file, one
+          # commit, no history to grow. Nothing reads the branch but shields.
+          mkdir "$RUNNER_TEMP/badges"
+          mv "$RUNNER_TEMP/coverage.json" "$RUNNER_TEMP/badges/"
+          cd "$RUNNER_TEMP/badges"
+          git init -q -b badges
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add coverage.json
+          git commit -q -m "ci: coverage badge for ${GITHUB_SHA}"
+          git push -q -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}" badges

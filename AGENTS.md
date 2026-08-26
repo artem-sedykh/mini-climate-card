@@ -168,7 +168,13 @@ Two things that suite pins down are worth knowing before changing them:
   like a bug from either side.
 
 `npm run test:coverage` is the same run with `@vitest/coverage-v8` on, and CI
-uses it in place of `npm test`. It measures the unit layer only, and the
+uses it in place of `npm test`. On master it also feeds the README badge:
+`scripts/coverage-badge.mjs` turns the summary into the JSON shields.io reads,
+and CI force-pushes that one file to an orphan `badges` branch. The number is
+**line coverage of the unit layer** - the component layer reports separately,
+and a percentage speaking for both would be one nobody could act on. The script
+refuses to write anything when the summary is missing or has no line coverage
+in it. It measures the unit layer only, and the
 thresholds are set to what the suite reaches today rather than to a round
 number. The number is held down by `src/main.ts` at 68%, half of which is
 render methods that only run in a browser; the models are at 95%.
