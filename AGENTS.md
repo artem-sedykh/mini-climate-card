@@ -458,13 +458,33 @@ fault that shows up as a doubled call rather than as an error.
 3. Tag `v<version>` and push the tag. `.github/workflows/cd.yml` builds and
    publishes the bundle with that file as the release body.
 
+### The documentation
+
+`docs/` is the documentation, one page per subject, and `README.md` is what a
+reader arriving from HACS needs: what the card is, install, update, and where
+the rest is. The two are read in three places and the arrangement follows from
+that:
+
+- **on GitHub**, where there is no navigation, so every page in `docs/` carries
+  a hand-written breadcrumb under its title;
+- **on the site** (`mkdocs.yml`, built to GitHub Pages by `docs.yml`), where
+  the sidebar does that job - `scripts/mkdocs_hooks.py` strips the breadcrumb,
+  repoints links that leave `docs/`, and writes `docs/index.md` from
+  `README.md` so the front page and the README cannot drift apart. That file is
+  git-ignored;
+- **in HACS**, which sees only `README.md`, and only from the installed tag.
+
+`mkdocs build --strict` is what CI runs: a link to a page that does not exist
+fails the run rather than shipping a 404. Locally,
+`pip install -r requirements-docs.txt` and then `mkdocs serve`.
+
 ### What HACS shows
 
 HACS renders **`README.md`**, and only that. The `info.md` convention is dead:
 `async_get_info_file_contents` in HACS hardcodes the filename list to variants
 of `readme`, so `info.md` is never read and the `render_readme` manifest key no
-longer changes anything. Both are still present in this repository and should
-go.
+longer changes anything. Both were removed in #238, and HACS's own publishing
+documentation lists neither.
 
 Two consequences worth remembering:
 
@@ -500,4 +520,3 @@ Tracked under #198, which is also the order the work is meant to happen in.
 - **`getIndicatorConfig` spells the default source key `enitity`.** Harmless
   today, because a user-supplied `source` replaces the whole object, but it is
   the kind of typo that makes a working option look unsupported.
-- **`README.md` is 55 KB** and is the only documentation there is.

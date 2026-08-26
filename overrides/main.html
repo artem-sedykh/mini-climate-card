@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+<!--
+  The site is built from master; what a reader has installed came from HACS,
+  which ships release assets. The two can disagree, and saying so is cheaper
+  and more honest than versioning the site.
+-->
+{% block announce %}
+  This site documents <strong>master</strong>, which can be ahead of the version you have installed.
+  See the <a href="{{ config.extra.releases_url }}">latest release</a>.
+{% endblock %}

@@ -1,0 +1,65 @@
+# Tap action
+
+[Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Examples](examples.md) | [Development](development.md)
+
+## tap action object
+
+| Name            |  Type  |   Default   |                                    Options                                    | Description                                                                       |
+|-----------------|:------:|:-----------:|:-----------------------------------------------------------------------------:|-----------------------------------------------------------------------------------|
+| action          | string | `more-info` | `more-info` / `navigate` / `call-service` / `fire-dom-event` / `url` / `none` | Action to perform.                                                                |
+| entity          | string |             |                                 Any entity id                                 | Override default entity of `more-info`, when  `action` is defined as `more-info`. |
+| service         | string |             |                                  Any service                                  | Service to call (e.g. `fan.turn_on`) when `action` is defined as `call-service`   |
+| service_data    | object |             |                               Any service data                                | Service data to include with the service call.                                    |
+| navigation_path | string |             |                                   Any path                                    | Path to navigate to (e.g. `/lovelace/0/`) when `action` is defined as `navigate`. |
+| url             | string |             |                                    Any URL                                    | URL to open when `action` is defined as `url`.                                    |
+
+## tap action example
+```yaml
+# toggle example
+# call-service example
+type: custom:mini-climate
+entity: climate.my_ac
+tap_action:
+  action: call-service
+  service: climate.set_hvac_mode
+  service_data:
+    entity_id: climate.my_ac
+    hvac_mode: 'off'
+
+# fire-dom-event + browser mod example
+type: custom:mini-climate
+entity: climate.my_ac
+tap_action:
+  action: fire-dom-event
+  browser_mod:
+    service: browser_mod.popup
+    data:
+      title: My title
+      content: test
+
+# navigate example
+type: custom:mini-climate
+entity: climate.my_ac
+tap_action:
+  action: navigate
+  navigation_path: '/lovelace/4'
+
+# navigate example
+type: custom:mini-climate
+entity: climate.my_ac
+tap_action:
+  action: url
+  url: 'https://www.google.com/'
+
+# none example
+type: custom:mini-climate
+entity: climate.my_ac
+tap_action: none
+
+# more-info for custom entity example
+type: custom:mini-climate
+entity: climate.my_ac
+tap_action:
+  action: more-info
+  entity: sensor.humidity
+```

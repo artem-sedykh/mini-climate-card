@@ -105,3 +105,12 @@ dist
 .idea/
 dist/
 /icons.txt
+
+# The documentation site, built from docs/ (see mkdocs.yml)
+site/
+
+# MkDocs imports scripts/mkdocs_hooks.py, and python leaves this behind
+__pycache__/
+
+# The site front page, written from README.md at build time
+docs/index.md
