@@ -136,3 +136,38 @@ describe('ClimateObject.callService', () => {
     expect(callService).toHaveBeenCalledWith('switch', 'toggle', { entity_id: 'switch.b' });
   });
 });
+
+describe('ClimateObject built without an entity', () => {
+  // What Home Assistant hands the card when `config.entity` names an entity
+  // that is not in `hass.states`: renamed, deleted, or dropped by an
+  // integration that removes entities rather than marking them unavailable
+  // (#46).
+  const missing = () => new ClimateObject(hass, {}, undefined);
+
+  it('is unavailable, and neither on nor off', () => {
+    const c = missing();
+    expect(c.isUnavailable).toBe(true);
+    expect(c.isOn).toBe(false);
+    expect(c.isOff).toBe(false);
+    expect(c.isActive).toBe(false);
+  });
+
+  it('answers for the entity rather than throwing', () => {
+    const c = missing();
+    expect(c.id).toBeUndefined();
+    expect(c.state).toBeUndefined();
+    expect(c.name).toBe('');
+    expect(c.lastChanged).toBeUndefined();
+    expect(c.lastUpdated).toBeUndefined();
+  });
+
+  it('still carries the attribute defaults the components read', () => {
+    // The components render from these; the card only stops before them
+    // because `isUnavailable` is true, and a default that is missing rather
+    // than empty is one exception away from being visible again.
+    const c = missing();
+    expect(c.defaultHvacModes).toEqual([]);
+    expect(c.defaultFanModes).toEqual({});
+    expect(c.hvacAction).toEqual({ id: '', name: '' });
+  });
+});
