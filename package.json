@@ -61,7 +61,8 @@
     "bench": "node test/bench/cli.mjs",
     "test:e2e": "node --test --test-concurrency=1 \"test/e2e/*.test.mjs\"",
     "bench:coverage": "node test/bench/coverage.mjs",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "changelog": "node scripts/build-changelog.mjs"
   },
   "engines": {
     "node": ">=22"
