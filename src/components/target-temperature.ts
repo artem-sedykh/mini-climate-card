@@ -1,19 +1,28 @@
 import define from '../utils/define';
-import { LitElement, html, css } from 'lit';
+import type TargetTemperatureObject from '../models/target-temperature';
+import { LitElement, html, css, type TemplateResult } from 'lit';
 
 export default class ClimateTargetTemperature extends LitElement {
+  targetTemperature!: TargetTemperatureObject;
+
+  /** How long the control waits after the last press before it sends. */
+  timeout: number;
+
+  /** When the last press was, or null once what it added up to has been sent. */
+  temp_last_changed: number | null | undefined;
+
   constructor() {
     super();
     this.timeout = 800;
   }
 
-  static get properties() {
+  static override get properties() {
     return {
       targetTemperature: { type: Object },
     };
   }
 
-  increment(e) {
+  increment(e: Event): void {
     e.stopPropagation();
     const changed = this.targetTemperature.increment();
 
@@ -23,7 +32,7 @@ export default class ClimateTargetTemperature extends LitElement {
     }
   }
 
-  decrement(e) {
+  decrement(e: Event): void {
     e.stopPropagation();
 
     const changed = this.targetTemperature.decrement();
@@ -34,13 +43,13 @@ export default class ClimateTargetTemperature extends LitElement {
     }
   }
 
-  sendChangeEvent(changing) {
+  sendChangeEvent(changing: boolean): void {
     const data = { detail: { changing } };
     const event = new CustomEvent('changing', data);
     this.dispatchEvent(event);
   }
 
-  targetTemperatureChanged() {
+  targetTemperatureChanged(): void {
     if (!this.temp_last_changed) return;
 
     this.sendChangeEvent(true);
@@ -65,26 +74,26 @@ export default class ClimateTargetTemperature extends LitElement {
     }, this.timeout + 10);
   }
 
-  render() {
+  override render(): TemplateResult | string {
     if (!this.targetTemperature) return '';
 
     return html`
       <div class='controls-wrap'>
         <ha-icon-button class='temp --up'
           .icon=${this.targetTemperature.icons.up}
-          @click=${e => this.increment(e)}>
+          @click=${(e: Event) => this.increment(e)}>
           <ha-icon .icon=${this.targetTemperature.icons.up}></ha-icon>
         </ha-icon-button>
         <ha-icon-button class='temp --down'
           .icon=${this.targetTemperature.icons.down}
-          @click=${e => this.decrement(e)}>
+          @click=${(e: Event) => this.decrement(e)}>
            <ha-icon .icon=${this.targetTemperature.icons.down}></ha-icon>
         </ha-icon-button>
       </div>
     `;
   }
 
-  static get styles() {
+  static override get styles() {
     return css`
     .controls-wrap {
       display: flex;

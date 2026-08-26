@@ -1,19 +1,37 @@
 import define from '../utils/define';
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, type PropertyDeclarations, type TemplateResult } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
 
 import sharedStyle from '../sharedStyle';
+import type { SourceItem } from '../types';
+import type ClimateMenu from './menu';
 import './menu';
 
 export default class ClimateDropdownBase extends LitElement {
-  static get properties() {
+  items!: SourceItem[];
+
+  label!: string;
+
+  selected!: string;
+
+  icon!: string;
+
+  active!: boolean;
+
+  disabled!: boolean;
+
+  iconStyle: Record<string, string>;
+
+  // Each of these used to name a bare constructor, or - for `items` - an
+  // empty array, which lit reads no `type` off at all. See #230.
+  static override get properties(): PropertyDeclarations {
     return {
-      items: [],
-      label: String,
-      selected: String,
-      icon: String,
-      active: Boolean,
-      disabled: Boolean,
+      items: { type: Array },
+      label: { type: String },
+      selected: { type: String },
+      icon: { type: String },
+      active: { type: Boolean },
+      disabled: { type: Boolean },
       iconStyle: { type: Object },
     };
   }
@@ -23,11 +41,11 @@ export default class ClimateDropdownBase extends LitElement {
     this.iconStyle = {};
   }
 
-  get selectedId() {
+  get selectedId(): number {
     return this.items.map(item => item.id).indexOf(this.selected);
   }
 
-  onChange(e) {
+  onChange(e: CustomEvent): void {
     const { index } = e.detail;
     if (index !== this.selectedId && this.items[index]) {
       this.dispatchEvent(
@@ -38,13 +56,15 @@ export default class ClimateDropdownBase extends LitElement {
     }
   }
 
-  handleClick() {
-    const menu = this.shadowRoot.querySelector('#menu');
-    menu.anchor = this.shadowRoot.querySelector('#button');
+  handleClick(): void {
+    // Both live in this component's own shadow root, rendered unconditionally
+    // above - the assertions say that rather than guess it.
+    const menu = this.shadowRoot!.querySelector('#menu') as ClimateMenu;
+    menu.anchor = this.shadowRoot!.querySelector('#button') as HTMLElement;
     menu.show();
   }
 
-  render() {
+  override render(): TemplateResult {
     return html`
       <div class='mc-dropdown'>
         <ha-icon-button class='mc-dropdown__button icon'
@@ -65,7 +85,7 @@ export default class ClimateDropdownBase extends LitElement {
     `;
   }
 
-  static get styles() {
+  static override get styles() {
     return [
       sharedStyle,
       css`

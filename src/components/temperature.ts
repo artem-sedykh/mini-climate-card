@@ -1,14 +1,26 @@
 import define from '../utils/define';
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, type PropertyDeclarations, type TemplateResult } from 'lit';
 import { NO_TARGET_TEMPERATURE } from '../const';
+import type TemperatureObject from '../models/temperature';
 
 export default class ClimateTemperature extends LitElement {
-  static get properties() {
+  temperature!: TemperatureObject;
+
+  changing!: boolean;
+
+  target!: number | string;
+
+  swapTemperatures!: boolean;
+
+  // `{ type: X }` rather than the bare constructor this used to name. lit
+  // reads `type` off the declaration; a constructor has no such property, so
+  // every one of these was declared with the defaults instead - see #230.
+  static override get properties(): PropertyDeclarations {
     return {
-      temperature: Object,
-      changing: Boolean,
-      target: Number,
-      swapTemperatures: Boolean,
+      temperature: { type: Object },
+      changing: { type: Boolean },
+      target: { type: Number },
+      swapTemperatures: { type: Boolean },
     };
   }
 
@@ -22,7 +34,7 @@ export default class ClimateTemperature extends LitElement {
     return parts[1] ? targetNum.toFixed(parts[1].length) : targetStr;
   }
 
-  renderTemperature() {
+  renderTemperature(): TemplateResult | string {
     if (this.temperature.value === undefined || this.temperature.hide) return '';
 
     if (this.swapTemperatures) {
@@ -36,7 +48,7 @@ export default class ClimateTemperature extends LitElement {
       <span class='state__value'>${this.temperature.value}</span>`;
   }
 
-  render() {
+  override render(): TemplateResult {
     if (!this.temperature) {
       return html``;
     }
@@ -61,7 +73,7 @@ export default class ClimateTemperature extends LitElement {
     `;
   }
 
-  static get styles() {
+  static override get styles() {
     return css`
     .state {
       margin-top:calc(var(--mc-unit) * .15);

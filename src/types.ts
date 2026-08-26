@@ -96,7 +96,10 @@ export interface IndicatorConfig {
   icon?: string | { template?: string; style?: string };
   unit?: string;
   round?: number;
-  tap_action?: TapAction;
+  // Not optional: `getIndicatorConfig` normalises a missing one to
+  // `{ action: 'none' }`, so by the time an indicator model sees it there is
+  // always one.
+  tap_action: TapAction;
   functions: ConfigFunctions;
 }
 

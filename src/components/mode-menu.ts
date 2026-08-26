@@ -1,21 +1,25 @@
 import define from '../utils/define';
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, type TemplateResult } from 'lit';
 import ICON from '../const';
+import type HvacModeObject from '../models/hvac-mode';
+import type { SourceItem } from '../types';
 import './dropdown-base';
 
 export default class ClimateModeMenu extends LitElement {
+  mode!: HvacModeObject;
+
   constructor() {
     super();
-    this.mode = {};
+    this.mode = {} as HvacModeObject;
   }
 
-  static get properties() {
+  static override get properties() {
     return {
       mode: { type: Object },
     };
   }
 
-  get calcIcon() {
+  get calcIcon(): string {
     if (this.selected) {
       if (this.selected.icon) return this.selected.icon;
 
@@ -29,23 +33,23 @@ export default class ClimateModeMenu extends LitElement {
     return '';
   }
 
-  get selected() {
-    return this.mode.source.find(i => i.id === this.mode.state) || {};
+  get selected(): SourceItem {
+    return this.mode.source.find(i => i.id === this.mode.state) || ({} as SourceItem);
   }
 
-  get sources() {
+  get sources(): SourceItem[] {
     return this.mode.source
       .filter(s => !s.hide)
       .map(s => ({ name: s.name, id: s.id, type: 'source' }));
   }
 
-  handleChange(e) {
+  handleChange(e: CustomEvent): void {
     e.stopPropagation();
     const selected = e.detail.id;
     this.mode.handleChange(selected);
   }
 
-  render() {
+  override render(): TemplateResult {
     return html`
       <mc-dropdown-base
         @change=${this.handleChange}
@@ -58,7 +62,7 @@ export default class ClimateModeMenu extends LitElement {
     `;
   }
 
-  static get styles() {
+  static override get styles() {
     return css`
       :host {
         min-width: calc(var(--mc-unit) * .85);
