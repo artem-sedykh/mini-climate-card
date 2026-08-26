@@ -3,13 +3,12 @@ import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import buildElementDefinitions from '../utils/buildElementDefinitions';
 
 export default class ClimateTargetTemperature extends ScopedRegistryHost(LitElement) {
-  static get defineId() { return 'mc-target-temperature'; }
+  static get defineId() {
+    return 'mc-target-temperature';
+  }
 
   static get elementDefinitions() {
-    return buildElementDefinitions([
-      'ha-icon',
-      'ha-icon-button',
-    ], ClimateTargetTemperature);
+    return buildElementDefinitions(['ha-icon', 'ha-icon-button'], ClimateTargetTemperature);
   }
 
   constructor() {
@@ -51,8 +50,7 @@ export default class ClimateTargetTemperature extends ScopedRegistryHost(LitElem
   }
 
   targetTemperatureChanged() {
-    if (!this.temp_last_changed)
-      return;
+    if (!this.temp_last_changed) return;
 
     this.sendChangeEvent(true);
 
@@ -74,8 +72,7 @@ export default class ClimateTargetTemperature extends ScopedRegistryHost(LitElem
     if (!ClimateTargetTemperature.elementDefinitionsLoaded) {
       return html``;
     }
-    if (!this.targetTemperature)
-      return '';
+    if (!this.targetTemperature) return '';
 
     return html`
       <div class='controls-wrap'>

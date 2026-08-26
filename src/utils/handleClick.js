@@ -1,9 +1,7 @@
 export default (node, hass, config, entityId) => {
   let e;
-  if (!config)
-    return;
+  if (!config) return;
 
-  // eslint-disable-next-line default-case
   switch (config.action) {
     case 'more-info': {
       e = new Event('hass-more-info', { composed: true });

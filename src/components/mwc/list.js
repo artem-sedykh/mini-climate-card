@@ -5,7 +5,9 @@ import ClimateListItem from './list-item';
 import buildElementDefinitions from '../../utils/buildElementDefinitions';
 
 export default class ClimateList extends ScopedRegistryHost(ListBase) {
-  static get defineId() { return 'mwc-list'; }
+  static get defineId() {
+    return 'mwc-list';
+  }
 
   static get elementDefinitions() {
     return buildElementDefinitions([ClimateListItem], ClimateList);

@@ -1,1 +1,21 @@
-*.js text eol=lf
+# Baseline: git decides text vs binary, and every text file is stored and
+# checked out with LF. Without this line .gitattributes was a per-name
+# allowlist holding one entry, so everything that was not *.js - the
+# workflows, README.md, hacs.json - was stored however the committer's
+# machine happened to write it.
+* text=auto eol=lf
+
+# Explicit text declarations, so nothing here depends on git's heuristics.
+*.js       text eol=lf
+*.mjs      text eol=lf
+*.json     text eol=lf
+*.md       text eol=lf
+*.yml      text eol=lf
+*.yaml     text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# Binary: never touch EOL here.
+*.png binary
+*.jpg binary
+*.gif binary

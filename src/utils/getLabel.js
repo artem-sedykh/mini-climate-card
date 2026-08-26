@@ -3,8 +3,7 @@ const getLabel = (hass, labels, fallback = 'unknown') => {
     const label = labels[i];
     const resourceLabel = hass.localize(label);
 
-    if (resourceLabel !== '')
-      return resourceLabel;
+    if (resourceLabel !== '') return resourceLabel;
   }
 
   return fallback;

@@ -4,7 +4,9 @@ import buildElementDefinitions from '../utils/buildElementDefinitions';
 import { NO_TARGET_TEMPERATURE } from '../const';
 
 export default class ClimateTemperature extends ScopedRegistryHost(LitElement) {
-  static get defineId() { return 'mc-temperature'; }
+  static get defineId() {
+    return 'mc-temperature';
+  }
 
   static get elementDefinitions() {
     return buildElementDefinitions([], ClimateTemperature);
@@ -26,14 +28,11 @@ export default class ClimateTemperature extends ScopedRegistryHost(LitElement) {
       return NO_TARGET_TEMPERATURE;
     }
     const parts = this.temperature.step.toString().split('.');
-    return parts[1]
-      ? targetNum.toFixed(parts[1].length)
-      : targetStr;
+    return parts[1] ? targetNum.toFixed(parts[1].length) : targetStr;
   }
 
   renderTemperature() {
-    if (this.temperature.value === undefined || this.temperature.hide)
-      return '';
+    if (this.temperature.value === undefined || this.temperature.hide) return '';
 
     if (this.swapTemperatures) {
       return html`

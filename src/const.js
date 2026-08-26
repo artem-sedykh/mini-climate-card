@@ -1,4 +1,3 @@
-
 const ICON = {
   DEFAULT: 'mdi:air-conditioner',
   FAN: 'mdi:fan',

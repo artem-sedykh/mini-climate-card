@@ -16,8 +16,8 @@ export default function (userOptions = {}) {
     load(id) {
       return files.some(toIgnorePath => id.startsWith(toIgnorePath))
         ? {
-          code: '',
-        }
+            code: '',
+          }
         : null;
     },
   };

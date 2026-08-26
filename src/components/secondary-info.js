@@ -5,14 +5,15 @@ import sharedStyle from '../sharedStyle';
 import buildElementDefinitions from '../utils/buildElementDefinitions';
 
 export default class ClimateSecondaryInfo extends ScopedRegistryHost(LitElement) {
-  static get defineId() { return 'mc-secondary-info'; }
+  static get defineId() {
+    return 'mc-secondary-info';
+  }
 
   static get elementDefinitions() {
-    return buildElementDefinitions([
-      'ha-icon',
-      'ha-relative-time',
-      ClimateFanModeSecondary,
-    ], ClimateSecondaryInfo);
+    return buildElementDefinitions(
+      ['ha-icon', 'ha-relative-time', ClimateFanModeSecondary],
+      ClimateSecondaryInfo,
+    );
   }
 
   constructor() {
@@ -34,8 +35,7 @@ export default class ClimateSecondaryInfo extends ScopedRegistryHost(LitElement)
 
   renderHvacAction() {
     const action = this.climate.hvacAction;
-    if (!action)
-      return '';
+    if (!action) return '';
 
     const icon = action.icon ? action.icon : this.config.secondary_info.icon;
     const cls = icon ? '' : 'gray';
@@ -99,6 +99,7 @@ export default class ClimateSecondaryInfo extends ScopedRegistryHost(LitElement)
         min-width: calc(var(--mc-unit) * .5);
         --mdc-icon-size: calc(var(--mc-unit) * 0.5);
       }
-    `];
+    `,
+    ];
   }
 }

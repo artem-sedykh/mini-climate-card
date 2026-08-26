@@ -1,0 +1,20 @@
+# Editor side of the same policy .gitattributes enforces on the git side:
+# .gitattributes normalizes what lands in a commit, this keeps the editor from
+# writing CRLF or a BOM in the first place.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+[*.md]
+# Markdown gives a hard line break as two trailing spaces, and the option
+# tables in README.md rely on it.
+trim_trailing_whitespace = false
+
+[*.{yml,yaml}]
+indent_size = 2

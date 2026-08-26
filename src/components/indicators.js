@@ -7,7 +7,9 @@ import { TAP_ACTIONS } from '../const';
 import buildElementDefinitions from '../utils/buildElementDefinitions';
 
 export default class ClimateIndicators extends ScopedRegistryHost(LitElement) {
-  static get defineId() { return 'mc-indicators'; }
+  static get defineId() {
+    return 'mc-indicators';
+  }
 
   static get elementDefinitions() {
     return buildElementDefinitions(['ha-icon'], ClimateIndicators);
@@ -27,24 +29,21 @@ export default class ClimateIndicators extends ScopedRegistryHost(LitElement) {
   renderIcon(indicator) {
     const { icon } = indicator;
 
-    if (!icon)
-      return '';
+    if (!icon) return '';
 
     return html`<ha-icon style=${styleMap(indicator.iconStyle)} class='state__value_icon' .icon=${icon}></ha-icon>`;
   }
 
   renderUnit(indicator) {
-    if (!indicator.unit)
-      return '';
+    if (!indicator.unit) return '';
 
     return html`<span class='state__uom' style=${styleMap(indicator.valueStyle)}>${indicator.unit}</span>`;
   }
 
   renderIndicator(indicator) {
-    if (!indicator)
-      return '';
-    const action = indicator.config && indicator.config.tap_action
-      && indicator.config.tap_action.action;
+    if (!indicator) return '';
+    const action =
+      indicator.config && indicator.config.tap_action && indicator.config.tap_action.action;
     const cls = action && TAP_ACTIONS.includes(action) ? 'pointer' : '';
 
     return html`

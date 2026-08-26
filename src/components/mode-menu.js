@@ -5,7 +5,9 @@ import ClimateDropdownBase from './dropdown-base';
 import buildElementDefinitions from '../utils/buildElementDefinitions';
 
 export default class ClimateModeMenu extends ScopedRegistryHost(LitElement) {
-  static get defineId() { return 'mc-mode-menu'; }
+  static get defineId() {
+    return 'mc-mode-menu';
+  }
 
   static get elementDefinitions() {
     return buildElementDefinitions([ClimateDropdownBase], ClimateModeMenu);
@@ -24,14 +26,12 @@ export default class ClimateModeMenu extends ScopedRegistryHost(LitElement) {
 
   get calcIcon() {
     if (this.selected) {
-      if (this.selected.icon)
-        return this.selected.icon;
+      if (this.selected.icon) return this.selected.icon;
 
       if (this.selected.id !== undefined && this.selected.id !== null) {
         const id = this.selected.id.toString().toUpperCase();
 
-        if (id in ICON)
-          return ICON[id];
+        if (id in ICON) return ICON[id];
       }
     }
 

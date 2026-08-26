@@ -5,7 +5,9 @@ import ClimateDropdownBase from './dropdown-base';
 import buildElementDefinitions from '../utils/buildElementDefinitions';
 
 export default class ClimateDropDown extends ScopedRegistryHost(LitElement) {
-  static get defineId() { return 'mc-dropdown'; }
+  static get defineId() {
+    return 'mc-dropdown';
+  }
 
   static get elementDefinitions() {
     return buildElementDefinitions([ClimateDropdownBase], ClimateDropDown);
@@ -33,13 +35,14 @@ export default class ClimateDropDown extends ScopedRegistryHost(LitElement) {
 
     this.dropdown.handleChange(selected);
 
-    if (this.timer)
-      clearTimeout(this.timer);
+    if (this.timer) clearTimeout(this.timer);
 
     this.timer = setTimeout(async () => {
       if (this.dropdown.entity === entity) {
-        this._state = (this.dropdown.state !== undefined && this.dropdown.state !== null)
-          ? this.dropdown.state.toString() : '';
+        this._state =
+          this.dropdown.state !== undefined && this.dropdown.state !== null
+            ? this.dropdown.state.toString()
+            : '';
 
         this.requestUpdate('_state');
       }
@@ -68,11 +71,12 @@ export default class ClimateDropDown extends ScopedRegistryHost(LitElement) {
 
   updated(changedProps) {
     if (changedProps.has('dropdown')) {
-      this._state = (this.dropdown.state !== undefined && this.dropdown.state !== null)
-        ? this.dropdown.state.toString() : '';
+      this._state =
+        this.dropdown.state !== undefined && this.dropdown.state !== null
+          ? this.dropdown.state.toString()
+          : '';
 
-      if (this.timer)
-        clearTimeout(this.timer);
+      if (this.timer) clearTimeout(this.timer);
 
       this.requestUpdate('_state');
     }
@@ -98,6 +102,7 @@ export default class ClimateDropDown extends ScopedRegistryHost(LitElement) {
         opacity: .25;
         pointer-events: none;
       }
-    `];
+    `,
+    ];
   }
 }

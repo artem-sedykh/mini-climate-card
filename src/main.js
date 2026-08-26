@@ -29,19 +29,22 @@ import buildElementDefinitions from './utils/buildElementDefinitions';
 
 class MiniClimate extends ScopedRegistryHost(LitElement) {
   static get elementDefinitions() {
-    return buildElementDefinitions([
-      'ha-card',
-      'ha-icon',
-      'ha-icon-button',
-      ClimateButton,
-      ClimateButtons,
-      ClimateDropDown,
-      ClimateIndicators,
-      ClimateModeMenu,
-      ClimateSecondaryInfo,
-      ClimateTargetTemperature,
-      ClimateTemperature,
-    ], MiniClimate);
+    return buildElementDefinitions(
+      [
+        'ha-card',
+        'ha-icon',
+        'ha-icon-button',
+        ClimateButton,
+        ClimateButtons,
+        ClimateDropDown,
+        ClimateIndicators,
+        ClimateModeMenu,
+        ClimateSecondaryInfo,
+        ClimateTargetTemperature,
+        ClimateTemperature,
+      ],
+      MiniClimate,
+    );
   }
 
   static getStubConfig(hass, unusedEntities, allEntities) {
@@ -80,10 +83,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
   }
 
   static get styles() {
-    return [
-      sharedStyle,
-      style,
-    ];
+    return [sharedStyle, style];
   }
 
   set hass(hass) {
@@ -116,7 +116,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
   }
 
   updateIndicators(force) {
-    const indicators = { };
+    const indicators = {};
     let changed = false;
 
     for (let i = 0; i < this.config.indicators.length; i += 1) {
@@ -130,41 +130,46 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
         indicators[id] = new IndicatorObject(entity, config, this.climate, this.hass);
       }
 
-      if (entity !== (this.indicators[id] && this.indicators[id].entity))
-        changed = true;
+      if (entity !== (this.indicators[id] && this.indicators[id].entity)) changed = true;
     }
 
-    if (changed || force)
-      this.indicators = indicators;
+    if (changed || force) this.indicators = indicators;
   }
 
   updateTemperature(force) {
-    if (this.targetTemperatureChanging)
-      return;
+    if (this.targetTemperatureChanging) return;
 
     const temperatureEntityId = this.config.temperature.source.entity || this.config.entity;
     const temperatureEntity = this.hass.states[temperatureEntityId];
 
-    const targetTemperatureEntityId = (this.config.target_temperature.source
-      && this.config.target_temperature.source.entity) || this.config.entity;
+    const targetTemperatureEntityId =
+      (this.config.target_temperature.source && this.config.target_temperature.source.entity) ||
+      this.config.entity;
 
     const targetTemperatureEntity = this.hass.states[targetTemperatureEntityId];
 
-    const temperature = new TemperatureObject(temperatureEntity, targetTemperatureEntity,
-      this.config, this.climate);
+    const temperature = new TemperatureObject(
+      temperatureEntity,
+      targetTemperatureEntity,
+      this.config,
+      this.climate,
+    );
 
-    if (this.temperature.rawValue !== temperature.rawValue
-      || this.temperature.target !== temperature.target || force) {
+    if (
+      this.temperature.rawValue !== temperature.rawValue ||
+      this.temperature.target !== temperature.target ||
+      force
+    ) {
       this.temperature = temperature;
     }
   }
 
   updateTargetTemperature(force) {
-    if (this.targetTemperatureChanging)
-      return;
+    if (this.targetTemperatureChanging) return;
 
-    const entityId = (this.config.target_temperature.source
-      && this.config.target_temperature.source.entity) || this.config.entity;
+    const entityId =
+      (this.config.target_temperature.source && this.config.target_temperature.source.entity) ||
+      this.config.entity;
 
     const entity = this.hass.states[entityId];
 
@@ -186,7 +191,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
   }
 
   updateButtons(force) {
-    const buttons = { };
+    const buttons = {};
     let changed = false;
 
     for (let i = 0; i < this.config.buttons.length; i += 1) {
@@ -200,8 +205,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
         buttons[id] = new ButtonObject(entity, config, this.climate, this.hass);
       }
 
-      if (entity !== (this.buttons[id] && this.buttons[id].entity))
-        changed = true;
+      if (entity !== (this.buttons[id] && this.buttons[id].entity)) changed = true;
     }
 
     if (changed || force) {
@@ -219,8 +223,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
       const button = this.getButtonConfig(value, config);
       button.id = key;
 
-      if (!('order' in button))
-        button.order = i + 1;
+      if (!('order' in button)) button.order = i + 1;
 
       buttons.push(button);
     }
@@ -239,9 +242,8 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
     item.functions = {};
 
     const context = { ...value };
-    context.call_service = (domain, service, options) => this.hass.callService(
-      domain, service, options,
-    );
+    context.call_service = (domain, service, options) =>
+      this.hass.callService(domain, service, options);
     context.entity_config = config;
     context.toggle_state = toggleState;
 
@@ -269,8 +271,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
       item.functions.change_action = compileTemplate(item.change_action, context);
     }
 
-    if (item.style)
-      item.functions.style = compileTemplate(item.style, context);
+    if (item.style) item.functions.style = compileTemplate(item.style, context);
 
     if (item.hide) {
       if (typeof item.hide === 'boolean') {
@@ -294,14 +295,13 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
         const options = { fan_mode: selected, entity_id: entity.entity_id };
         return this.call_service('climate', 'set_fan_mode', options);
       },
-      ...config.fan_mode || {},
+      ...(config.fan_mode || {}),
     };
 
     fanModeConfig = this.getButtonConfig(fanModeConfig, config);
     const { functions } = fanModeConfig;
 
-    if (!functions.active)
-      functions.active = () => this.climate.isOn;
+    if (!functions.active) functions.active = () => this.climate.isOn;
 
     return fanModeConfig;
   }
@@ -314,18 +314,15 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
       ...value,
     };
 
-    if (typeof value.tap_action === 'string')
-      item.tap_action = { action: value.tap_action };
-    else
-      item.tap_action = { action: 'none', ...item.tap_action || {} };
+    if (typeof value.tap_action === 'string') item.tap_action = { action: value.tap_action };
+    else item.tap_action = { action: 'none', ...(item.tap_action || {}) };
 
     item.functions = item.functions || {};
     const context = { ...value };
     context.entity_config = config;
     context.toggle_state = toggleState;
 
-    if (item.source.mapper)
-      item.functions.mapper = compileTemplate(item.source.mapper, context);
+    if (item.source.mapper) item.functions.mapper = compileTemplate(item.source.mapper, context);
 
     if (typeof item.icon === 'object') {
       item.functions.icon = {};
@@ -333,15 +330,13 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
       if (item.icon.template)
         item.functions.icon.template = compileTemplate(item.icon.template, context);
 
-      if (item.icon.style)
-        item.functions.icon.style = compileTemplate(item.icon.style, context);
+      if (item.icon.style) item.functions.icon.style = compileTemplate(item.icon.style, context);
     }
 
     if (typeof item.value === 'object') {
       item.functions.value = {};
 
-      if (item.value.style)
-        item.functions.value.style = compileTemplate(item.value.style, context);
+      if (item.value.style) item.functions.value.style = compileTemplate(item.value.style, context);
     }
 
     if (item.hide) {
@@ -394,28 +389,28 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
   }
 
   getIndicatorsConfig(config) {
-    return Object.entries(config.indicators || {})
-      .map(i => this.getIndicatorConfig(i[0], i[1] || {}, config));
+    return Object.entries(config.indicators || {}).map(i =>
+      this.getIndicatorConfig(i[0], i[1] || {}, config),
+    );
   }
 
   getTargetTemperatureConfig(config) {
     const item = {
       source: { entity: undefined, attribute: 'temperature' },
-      ...config.target_temperature || {},
+      ...(config.target_temperature || {}),
     };
 
     item.icons = {
       up: ICON.UP,
       down: ICON.DOWN,
-      ...item.icons || {},
+      ...(item.icons || {}),
     };
 
     item.functions = {};
 
-    const context = { ...config.target_temperature || {} };
-    context.call_service = (domain, service, options) => this.hass.callService(
-      domain, service, options,
-    );
+    const context = { ...(config.target_temperature || {}) };
+    context.call_service = (domain, service, options) =>
+      this.hass.callService(domain, service, options);
     context.entity_config = config;
     context.toggle_state = toggleState;
 
@@ -433,15 +428,14 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
         const options = { hvac_mode: selected, entity_id: entity.entity_id };
         return this.call_service('climate', 'set_hvac_mode', options);
       },
-      ...config.hvac_mode || {},
+      ...(config.hvac_mode || {}),
     };
 
     mode = this.getButtonConfig(mode, this.config);
 
     const { functions } = mode;
 
-    if (!functions.active)
-      functions.active = () => this.climate.isOn;
+    if (!functions.active) functions.active = () => this.climate.isOn;
 
     return mode;
   }
@@ -477,7 +471,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
     this.config.temperature = {
       round: 1,
       source: { entity: undefined, attribute: 'current_temperature' },
-      ...config.temperature || {},
+      ...(config.temperature || {}),
     };
 
     this.config.hvac_mode = this.getHvacModeConfig(this.config);
@@ -486,7 +480,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
       icon: ICON.TOGGLE,
       hide: false,
       default: false,
-      ...config.toggle || {},
+      ...(config.toggle || {}),
     });
 
     if (typeof config.secondary_info === 'string') {
@@ -494,7 +488,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
     } else {
       this.config.secondary_info = {
         type: 'fan_mode',
-        ...config.secondary_info || {},
+        ...(config.secondary_info || {}),
       };
     }
     this.config.secondary_info = this.getSecondaryInfoConfig(this.config.secondary_info);
@@ -513,17 +507,18 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
       `;
     }
 
-    const buttons = Object.entries(this.buttons).map(b => b[1])
+    const buttons = Object.entries(this.buttons)
+      .map(b => b[1])
       .filter(b => b.location === 'main' && !b.hide)
-      .sort((a, b) => ((a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0)));
+      .sort((a, b) => (a.order > b.order ? 1 : b.order > a.order ? -1 : 0));
 
     return html`
-        ${buttons.map(button => (button.type === 'dropdown'
-    ? html`<mc-dropdown .dropdown=${button}></mc-dropdown>`
-    : html`<mc-button .button=${button}></mc-button>`))}
-        ${this.hvacMode.hide
-    ? ''
-    : html`<mc-mode-menu .mode=${this.hvacMode}></mc-mode-menu>`}
+        ${buttons.map(button =>
+          button.type === 'dropdown'
+            ? html`<mc-dropdown .dropdown=${button}></mc-dropdown>`
+            : html`<mc-button .button=${button}></mc-button>`,
+        )}
+        ${this.hvacMode.hide ? '' : html`<mc-mode-menu .mode=${this.hvacMode}></mc-mode-menu>`}
         <mc-temperature
           .temperature=${this.temperature}
           .target=${this.targetTemperatureValue}
@@ -534,8 +529,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
   }
 
   renderEntityControls() {
-    if (this.climate.isUnavailable)
-      return '';
+    if (this.climate.isUnavailable) return '';
 
     return html`
         <div class="entity__controls">
@@ -587,8 +581,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
   }
 
   handlePopup(e, handle) {
-    if (!handle)
-      return;
+    if (!handle) return;
 
     e.stopPropagation();
     handleClick(this, this.hass, this.config.tap_action, this.climate.id);
@@ -612,8 +605,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
   }
 
   renderTogglePanel() {
-    if (!this.toggle)
-      return '';
+    if (!this.toggle) return '';
 
     return html`
         <div class="mc-toggle_content">
@@ -625,8 +617,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
   }
 
   renderBottomPanel() {
-    if (this.climate.isUnavailable)
-      return '';
+    if (this.climate.isUnavailable) return '';
 
     return html`
         <div class='bottom flex'>
@@ -639,14 +630,17 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
   }
 
   renderToggleButton() {
-    if (Object.entries(this.buttons)
-      .map(entry => entry[1])
-      .filter(button => !button.hide && button.location !== 'main')
-      .length === 0)
+    if (
+      Object.entries(this.buttons)
+        .map(entry => entry[1])
+        .filter(button => !button.hide && button.location !== 'main').length === 0
+    )
       return html``;
 
-    if (this.config.toggle.functions.hide
-      && this.config.toggle.functions.hide(this.climate.entity, this.climate.mode)) {
+    if (
+      this.config.toggle.functions.hide &&
+      this.config.toggle.functions.hide(this.climate.entity, this.climate.mode)
+    ) {
       return html``;
     }
 
@@ -669,11 +663,12 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
   }
 
   renderSecondaryInfo() {
-    if (this.climate.isUnavailable)
-      return html``;
+    if (this.climate.isUnavailable) return html``;
 
-    if (this.config.secondary_info.functions.hide
-      && this.config.secondary_info.functions.hide(this.climate.entity, this.climate.mode)) {
+    if (
+      this.config.secondary_info.functions.hide &&
+      this.config.secondary_info.functions.hide(this.climate.entity, this.climate.mode)
+    ) {
       return html``;
     }
 
@@ -718,7 +713,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
     const { entity } = this.climate;
 
     if (entity && entries.length === 0 && entity.attributes && entity.attributes.fan_modes) {
-      fanMode.source = { ...this.climate.defaultFanModes, ...fanMode.source || {} };
+      fanMode.source = { ...this.climate.defaultFanModes, ...(fanMode.source || {}) };
     }
   }
 
@@ -728,7 +723,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
     const { entity } = this.climate;
 
     if (entity && entries.length === 0)
-      hvacMode.source = { ...this.climate.defaultHvacModes, ...hvacMode.source || {} };
+      hvacMode.source = { ...this.climate.defaultHvacModes, ...(hvacMode.source || {}) };
   }
 
   firstUpdated(changedProps) {
@@ -744,7 +739,7 @@ class MiniClimate extends ScopedRegistryHost(LitElement) {
       this.requestUpdate('targetTemperatureValue');
     }
 
-    const ro = new ResizeObserver((entries) => {
+    const ro = new ResizeObserver(entries => {
       const item = entries.find(e => e.target === this);
       if (item && item.contentRect && this.width !== item.contentRect.width) {
         this.width = item.contentRect.width;

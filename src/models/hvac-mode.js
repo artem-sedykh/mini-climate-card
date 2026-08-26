@@ -9,8 +9,12 @@ export default class HvacModeObject {
 
   get hide() {
     if (this.config.functions.hide) {
-      return this.config.functions.hide(this.state, this.entity,
-        this.climate.entity, this.climate.mode);
+      return this.config.functions.hide(
+        this.state,
+        this.entity,
+        this.climate.entity,
+        this.climate.mode,
+      );
     }
 
     return false;
@@ -24,8 +28,7 @@ export default class HvacModeObject {
     let state = this.originalState;
 
     if (this.config.functions.state && this.config.functions.state.mapper) {
-      state = this.config.functions.state.mapper(state, this.entity,
-        this.climate.entity);
+      state = this.config.functions.state.mapper(state, this.entity, this.climate.entity);
     }
 
     return state;
@@ -61,13 +64,13 @@ export default class HvacModeObject {
       .filter(([key]) => key !== '__filter')
       .map(([key, value]) => {
         if (typeof value === 'object') {
-          return { id: key, ...value || {} };
+          return { id: key, ...(value || {}) };
         }
         return { id: key, name: value };
       });
 
     if (source.some(s => 'order' in s))
-      source = source.sort((a, b) => ((a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0)));
+      source = source.sort((a, b) => (a.order > b.order ? 1 : b.order > a.order ? -1 : 0));
 
     if (functions.source && functions.source.filter) {
       return functions.source.filter(source, this.state, this.entity, this.climate.entity);
@@ -78,8 +81,7 @@ export default class HvacModeObject {
 
   get selected() {
     const { state } = this;
-    if (state === undefined || state === null)
-      return undefined;
+    if (state === undefined || state === null) return undefined;
 
     return this.source.find(s => s.id === state.toString());
   }
