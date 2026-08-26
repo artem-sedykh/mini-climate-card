@@ -172,8 +172,13 @@ const style = css`
     flex-direction: row;
     flex: 0 0 auto;
     margin-left: auto;
+    /* Both margins auto, so the mode and the temperatures sit on the middle
+       of the row rather than on its bottom edge. With margin-bottom: 0 the
+       block was 4.5px lower than the middle of the entity icon beside it,
+       which is what #99 is: the icon on the left not lining up with what is
+       on the right. */
     margin-top: auto;
-    margin-bottom: 0;
+    margin-bottom: auto;
     --ha-icon-display: flex;
   }
   .bottom {
@@ -184,6 +189,16 @@ const style = css`
     margin-right: 10px;
     min-width: 0;
     height: var(--mc-unit);
+  }
+  /* With a secondary info line the pair fills the row and the name reads as
+     part of it. Without one the name was left at the top of a row as tall as
+     the icon, 10px above the middle of everything beside it (#100). Centring
+     it is confined to that case: applied to both, it would shift the
+     secondary line for cards that never asked for a change. */
+  .--no-secondary-info .entity__info__name_wrap {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
   .--more-info .entity__info__name_wrap {
     cursor: pointer;
