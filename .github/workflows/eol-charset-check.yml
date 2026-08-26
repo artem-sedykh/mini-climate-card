@@ -1,0 +1,113 @@
+# EOL / charset gate plus Windows-compatibility checks.
+#
+# Why this exists: the card is maintained from a Windows machine with a global
+# core.autocrlf=true, where CRLF and a UTF-8 BOM appear silently. Both survive
+# a review unnoticed and then break tooling on Linux and macOS. A local
+# pre-commit hook can be skipped; CI cannot.
+#
+# The gate is driven by .gitattributes: `git add --renormalize .` must produce
+# no changes. Keep .gitattributes as the single source of truth for EOL.
+
+name: EOL/charset check
+
+on:
+  push:
+  pull_request:
+
+# Both jobs only check out the repository and read files back.
+permissions:
+  contents: read
+
+jobs:
+  eol-charset:
+    name: EOL and charset
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Mark directory as safe
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: EOL - renormalizing against .gitattributes must be a no-op
+        run: |
+          git add --renormalize .
+          if ! git diff --cached --quiet; then
+            echo "Files are not normalized against .gitattributes (CRLF/mixed EOL):"
+            git diff --cached --name-only
+            echo ""
+            echo "Fix locally:  git add --renormalize . && git commit"
+            exit 1
+          fi
+          echo "OK: EOL is fine"
+
+      - name: BOM - no tracked file may start with EF BB BF
+        run: |
+          bad=$(git ls-files -z | perl -0 -ne '
+            chomp(my $f=$_);
+            open(my $fh,"<:raw",$f) or next;
+            read($fh,my $x,3);
+            print "$f\n" if $x eq "\xEF\xBB\xBF";
+          ')
+          if [ -n "$bad" ]; then
+            echo "UTF-8 BOM in tracked files:"
+            printf '%s\n' "$bad"
+            echo "Policy is UTF-8 without BOM. Re-save the file without a BOM."
+            exit 1
+          fi
+          echo "OK: no BOM"
+
+  windows-safety:
+    name: Windows compatibility
+    runs-on: ubuntu-latest
+    # What .gitattributes cannot express: it only knows EOL and text/binary.
+    # Everything else Windows silently breaks is checked here.
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Reserved Windows file names
+        run: |
+          bad=$(git ls-files | awk -F/ '{print $NF}' |
+                grep -inE '^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(\.|$)' || true)
+          if [ -n "$bad" ]; then
+            echo "Windows cannot create files with these names:"
+            printf '%s\n' "$bad"
+            exit 1
+          fi
+          echo "OK: no reserved names"
+
+      - name: Characters not allowed in Windows paths
+        run: |
+          bad=$(git ls-files | grep -E '[<>:"|?*]|[ .]/|[ .]$' || true)
+          if [ -n "$bad" ]; then
+            echo 'These paths cannot be checked out on Windows (characters < > : " | ? *'
+            echo 'or a trailing dot/space in a name):'
+            printf '%s\n' "$bad"
+            exit 1
+          fi
+          echo "OK: no forbidden characters"
+
+      - name: Case collisions
+        run: |
+          # NTFS is case-insensitive: two such files would overwrite each other.
+          bad=$(git ls-files | tr 'A-Z' 'a-z' | sort | uniq -d || true)
+          if [ -n "$bad" ]; then
+            echo "Paths differing only in case:"
+            printf '%s\n' "$bad"
+            exit 1
+          fi
+          echo "OK: no case collisions"
+
+      - name: Executable bit on shell scripts
+        run: |
+          # On Windows core.fileMode=false, so git records 100644 and +x is
+          # lost silently. A non-executable script then fails on Linux/macOS.
+          bad=$(git ls-files -s -- '*.sh' | awk '$1 != "100755" {print $4}')
+          if [ -n "$bad" ]; then
+            echo "These files lost their executable bit:"
+            printf '%s\n' "$bad"
+            echo ""
+            echo "Fix locally:"
+            echo "  git ls-files -- '*.sh' | xargs git update-index --chmod=+x"
+            exit 1
+          fi
+          echo "OK: executable bits are fine"

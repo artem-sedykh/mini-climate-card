@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://github.com/artem-sedykh/mini-climate-card#readme
+    about: Card options, templates, examples and theme variables.
+  - name: Home Assistant community forum
+    url: https://community.home-assistant.io/
+    about: Questions about Home Assistant itself rather than this card.

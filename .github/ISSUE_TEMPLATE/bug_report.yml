@@ -1,0 +1,90 @@
+name: Bug report
+description: The card renders wrong, or a control does nothing
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing: hard-reload the browser with the cache cleared. The
+        frontend caches resources aggressively, and a stale bundle looks
+        exactly like a bug.
+
+  - type: textarea
+    id: what-happens
+    attributes:
+      label: What happens
+      description: What you see, and what you expected instead.
+    validations:
+      required: true
+
+  - type: input
+    id: card-version
+    attributes:
+      label: Card version
+      description: Shown in the browser console at startup, as MINI-CLIMATE-CARD.
+      placeholder: v2.7.4
+    validations:
+      required: true
+
+  - type: input
+    id: ha-version
+    attributes:
+      label: Home Assistant version
+      description: |
+        Settings -> About. This matters more than it looks: the card renders
+        Home Assistant's own frontend elements, and they change between
+        releases. Most layout reports here are that.
+      placeholder: 2026.8.0
+    validations:
+      required: true
+
+  - type: input
+    id: integration
+    attributes:
+      label: Integration
+      description: |
+        Which integration provides the climate entity: ESPHome, MQTT, Daikin,
+        Tuya, a generic thermostat, something else. Integrations expose
+        different attributes and answer different services, and that decides
+        what the card can read and call.
+      placeholder: mqtt
+    validations:
+      required: true
+
+  - type: textarea
+    id: card-config
+    attributes:
+      label: Card configuration
+      description: The full YAML of the card. Secrets are not needed here.
+      render: yaml
+    validations:
+      required: true
+
+  - type: textarea
+    id: entity-state
+    attributes:
+      label: Entity state and attributes
+      description: |
+        Developer tools -> States, pick the entity, and copy everything the
+        right-hand panel shows. Most problems with indicators, the fan mode
+        dropdown or the temperature are visible here and nowhere else.
+      render: yaml
+    validations:
+      required: true
+
+  - type: textarea
+    id: console
+    attributes:
+      label: Browser console output
+      description: |
+        Any errors in the browser developer tools console. This is not
+        optional detail: a mistake in a template reaches the console and
+        nothing else - on the dashboard it is a red rectangle with no text,
+        or a control that quietly is not drawn.
+      render: text
+
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot
+      description: For anything about layout, a screenshot is worth more than a description.
