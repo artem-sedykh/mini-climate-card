@@ -144,20 +144,19 @@ const checks = [
     detail: () => 'built with the development export condition',
   },
   {
-    name: 'the lit copy count has not grown',
-    // It should be one of each. It is five: one lit 3 for the card, plus a
-    // full lit 2 for each @material/mwc-* package, which resolve their own
-    // nested copies. Duplicated ReactiveElement classes break the update
-    // cycle - the card dispatches a change per duplicated lifecycle and the
-    // device sees several identical service calls.
+    name: 'exactly one copy of each lit package',
+    // It was five until @material/mwc-* went: one lit 3 for the card, plus a
+    // full lit 2 per package, each resolving its own nested copy. Two
+    // ReactiveElement classes in one bundle break the update cycle - the card
+    // dispatches a change per duplicated lifecycle, and the device sees
+    // several identical service calls.
     //
-    // So this cannot assert one yet. It asserts that the number recorded in
-    // the baseline is not exceeded, which is what keeps a new dependency from
-    // quietly adding a sixth. It becomes `=== 1` when mwc goes.
-    ok: () => litCounts().every(([name, n]) => n <= baseline.litCopies[name]),
+    // The baseline still carries the numbers so this reads as one rule with
+    // the others rather than as a special case; they are all 1.
+    ok: () => litCounts().every(([name, n]) => n === baseline.litCopies[name]),
     detail: () =>
       litCounts()
-        .map(([name, n]) => `${name}: ${n} (baseline ${baseline.litCopies[name]}, target 1)`)
+        .map(([name, n]) => `${name}: ${n} (expected ${baseline.litCopies[name]})`)
         .join(', '),
   },
   {
