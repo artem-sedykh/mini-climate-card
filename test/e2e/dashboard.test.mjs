@@ -44,7 +44,10 @@ describe('the card on a dashboard', () => {
 
   it('renders every card the manifest asks for', async () => {
     const rendered = await cards(session.page, 'mini-climate');
-    const expected = bench.manifest.views.flatMap(view => view.cards).length;
+    // The first view only: this scenario is looking at the page it opened, and
+    // the manifest has had more than one view since the configurations people
+    // actually write were added to it.
+    const expected = bench.manifest.views[0].cards.length;
 
     assert.equal(rendered.length, expected);
 

@@ -63,6 +63,22 @@ quick and should answer for this repository alone.
 Screenshots are uploaded as an artifact on every run, failed or not - a red
 browser test is hard to read without one.
 
+## What the manifest holds
+
+Two views, and the difference between them is the point:
+
+- **the first** is the card as its defaults render it, plus the cases the
+  scenarios need - an entity that is not in `hass.states`, a hidden icon, a
+  fan mode dropdown;
+- **the second** is the card as people actually write it, modelled on
+  configurations in daily use: modes and fan speeds renamed, indicators reading
+  other entities, one of them mapping its value through a template, dropdown
+  buttons calling a service of their own, and both spellings of `tap_action` in
+  the same card.
+
+A card with nothing but an `entity` exercises almost none of what the tracker
+asks about, which is why the second view exists.
+
 ## What it is not
 
 It is **not** where geometry is measured. `test/browser/` renders the card in

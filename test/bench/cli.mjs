@@ -57,21 +57,29 @@ const shot = async () => {
   const ready = await prepare();
   const session = await open(ready.tokens);
 
-  await session.page.goto(`${BASE}/${DASHBOARD}/0`, { waitUntil: 'load' });
-  await session.page.waitForSelector('mini-climate', { timeout: 60000 });
-  await session.page.waitForTimeout(1500);
+  let taken = 0;
 
-  await session.page.screenshot({ path: `${directory}/dashboard.png` });
+  // Every view the manifest describes, not just the first: a manifest holding
+  // a reporter's card usually puts it beside the ones already there.
+  for (let view = 0; view < ready.manifest.views.length; view += 1) {
+    await session.page.goto(`${BASE}/${DASHBOARD}/${view}`, { waitUntil: 'load' });
+    await session.page.waitForSelector('mini-climate', { timeout: 60000 });
+    await session.page.waitForTimeout(1500);
 
-  const all = session.page.locator('mini-climate');
-  const count = await all.count();
+    await session.page.screenshot({ path: `${directory}/view-${view}.png` });
+    taken += 1;
 
-  for (let index = 0; index < count; index += 1) {
-    await all.nth(index).screenshot({ path: `${directory}/card-${index + 1}.png` });
+    const all = session.page.locator('mini-climate');
+    const count = await all.count();
+
+    for (let index = 0; index < count; index += 1) {
+      await all.nth(index).screenshot({ path: `${directory}/view-${view}-card-${index + 1}.png` });
+      taken += 1;
+    }
   }
   await session.browser.close();
 
-  console.log(`${count + 1} screenshots in ${directory}`);
+  console.log(`${taken} screenshots in ${directory}`);
   if (session.errors.length) console.log(`page errors: ${JSON.stringify(session.errors)}`);
 };
 

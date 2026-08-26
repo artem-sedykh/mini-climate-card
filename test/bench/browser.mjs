@@ -85,14 +85,28 @@ export const cards = (page, tag) =>
  */
 export const dialogs = page =>
   page.evaluate(() => {
+    const names = ['ha-dialog', 'ha-md-dialog', 'ha-more-info-dialog'];
     const open = [];
+
     const walk = root => {
       for (const element of root.querySelectorAll('*')) {
-        const name = element.localName;
-        if ((name === 'ha-dialog' || name === 'ha-md-dialog') && element.isConnected) {
+        if (names.includes(element.localName) && element.isConnected) {
+          // `ha-more-info-dialog` is left in the document after it closes, so
+          // its presence says nothing: a closed one has an empty shadow root,
+          // and an open one does not. The others are measured, because a
+          // dialog that is not showing has no box.
           const box = element.getBoundingClientRect();
-          if (box.width > 0 && box.height > 0) {
-            open.push(element.textContent.replace(/\s+/g, ' ').trim().slice(0, 120));
+          const showing =
+            element.localName === 'ha-more-info-dialog'
+              ? (element.shadowRoot?.children.length ?? 0) > 0
+              : box.width > 0 && box.height > 0;
+
+          // The tag as well as the text: a more-info dialog keeps its content
+          // in a shadow root, so its `textContent` is empty and a failure
+          // would otherwise report an empty string as the thing in the way.
+          if (showing) {
+            const text = element.textContent.replace(/\s+/g, ' ').trim().slice(0, 100);
+            open.push(text ? `${element.localName}: ${text}` : element.localName);
           }
         }
         if (element.shadowRoot) walk(element.shadowRoot);
