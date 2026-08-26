@@ -2,14 +2,28 @@ name: Hacs Validation
 
 on:
   push:
-    branches: ['*']
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  schedule:
+    # HACS validation rules change on their side, not ours: a repository that
+    # passes today can start failing without a single commit here.
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   validate:
+    name: HACS
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
+
       - name: HACS validation
         uses: hacs/action@main
         with:
