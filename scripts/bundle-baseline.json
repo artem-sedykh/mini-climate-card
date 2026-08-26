@@ -1,9 +1,9 @@
 {
-  "bytes": 242227,
+  "bytes": 79981,
   "tolerance": 0.03,
   "litCopies": {
-    "reactiveElementVersions": 5,
-    "litHtmlVersions": 5,
-    "litElementVersions": 5
+    "reactiveElementVersions": 1,
+    "litHtmlVersions": 1,
+    "litElementVersions": 1
   }
 }

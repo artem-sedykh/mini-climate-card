@@ -98,15 +98,16 @@ all of them are visible in the output file.
 
 It checks that the bundle registers the element and the card picker entry,
 carries every `mc-*` component, resolves every import, is not lit's development
-build, has not grown its lit copy count, still holds the one `new Function`
-that is the template engine, and stays within a tolerance of a recorded size.
+build, holds exactly one copy of each lit package, still holds the one
+`new Function` that is the template engine, and stays within a tolerance of a
+recorded size.
 
 Two of those need explaining:
 
-- **The lit copy count is asserted against a baseline, not against one.** It is
-  five today (see "The dropdown, and the five copies of lit"), so the check
-  guards against a sixth rather than against the problem. It becomes `=== 1`
-  when `@material/mwc-*` goes.
+- **The lit copy count is asserted as exactly one of each.** It was five until
+  `@material/mwc-*` went - one lit 3 for the card and a full lit 2 per package.
+  Two `ReactiveElement` classes in one bundle break the update cycle, which is
+  how one interaction turns into several identical service calls.
 - **The size baseline is in `scripts/bundle-baseline.json`,** tracked rather
   than computed. When a change legitimately moves the size, update the file in
   the same commit and say why. Do not widen the tolerance to make a build
@@ -142,6 +143,9 @@ thresholds are set to what the suite reaches today rather than to a round
 number. The number is held down by `src/main.js` at 68%, half of which is
 render methods that only run in a browser; the models are at 95%.
 
+`test/menu.test.js` covers the card's own menu under jsdom - when it opens,
+when it closes, and what it reports when an option is picked.
+
 The bundle checks were tested by breaking a copy of the bundle six ways - removing the
 `new Function`, adding a sixth lit registration, adding lit's dev-mode banner,
 leaving a `require`, removing the `customElements.define`, and renaming a
@@ -155,7 +159,7 @@ src/
   main.js            <mini-climate>, the card element: lifecycle, the whole
                      configuration merge, and the top-level render
   components/        the sub-elements the card renders, registered as mc-*
-    mwc/             thin wrappers around @material/mwc-* (see "The dropdown")
+                     menu.js is the card's own dropdown menu
   models/            wrappers that turn raw hass state into what a component
                      renders (climate, button, indicator, temperature,
                      target-temperature, hvac-mode)
@@ -163,8 +167,6 @@ src/
   const.js           icons, the off/unavailable state lists, tap action names
   style.js           card styles
   sharedStyle.js     styles shared with the sub-elements
-rollup-plugins/      one plugin: ignore, which empties the mwc modules that
-                     would otherwise register themselves globally
 release_notes/       one file per version, read by the release workflow
 ```
 
@@ -245,28 +247,46 @@ All of this machinery exists to avoid colliding with Home Assistant's own
 element names. Removing it in favour of prefixed global names is issue #198;
 the sister card did exactly that and the empty-shell failure went with it.
 
-## The dropdown, and the five copies of lit
+## The dropdown
 
-`src/components/dropdown-base.js` and `src/components/fan-mode-secondary.js`
-render `mwc-menu` and `mwc-list-item` from `@material/mwc-*`, wrapped in
-`src/components/mwc/` so the card's copies can be put in a scoped registry
-rather than defined globally. `rollup-plugins/ignore.js` empties the modules
-that would otherwise self-register.
+`src/components/menu.js` is the card's own menu, and it is worth knowing why
+rather than reaching for a component library again.
 
-The cost is not the wrappers. Those packages are end of life on **lit 2**,
-while the card is on lit 3, so the bundle carries both - and because each mwc
-package resolves its own nested copy, it carries lit 2 four times over:
+It used to be `@material/mwc-menu` and `@material/mwc-list`, wrapped in
+`src/components/mwc/` so the card's copies could go in a scoped registry rather
+than be defined globally. Those packages are end of life on **lit 2** while the
+card is on lit 3, so the bundle carried both - and because each package
+resolved its own nested copy, it carried lit 2 four times over. Five
+`ReactiveElement` classes in one 242 KB file, for a list of modes. Removing
+them took the bundle to 80 KB.
 
-```
-reactiveElement -> 2.0.2  1.6.3 1.6.3 1.6.3 1.6.3
-litHtml         -> 3.1.0  2.8.0 2.8.0 2.8.0 2.8.0
-litElement      -> 4.0.2  3.3.3 3.3.3 3.3.3 3.3.3
-```
+What the card needs is small - a list of `{ id, name }`, one of them current,
+opened against an anchor - and that is what the component does. The interface
+is the one the two call sites already used: set `anchor`, call `show()`, listen
+for `selected` with the index in its detail. Two details are not obvious:
 
-That is five `ReactiveElement` classes in one 255 KB file, for a list of modes.
-Duplicated reactive elements break the update cycle, which is how one
-interaction turns into several identical service calls. Replacing this with the
-card's own menu is issue #198.
+- **The menu is positioned by hand.** The card clips its own overflow, so a
+  menu that stayed in flow would be cut off. Where the browser has the popover
+  API the menu is also put in the top layer, which survives a transformed
+  ancestor - Home Assistant creates one while a dashboard is being edited.
+
+  **It is an enhancement only where the browser has never heard of it**, and
+  that distinction is load-bearing. `popover="manual"` renders with the menu,
+  and an engine that honours the attribute keeps such an element
+  `display: none` until `showPopover` puts it in the top layer - so where the
+  attribute applies and the call does not land, the menu is invisible rather
+  than un-layered, and the hand positioning cannot help. `showPopover` refuses
+  on an element that is already showing, and engines have refused it in other
+  states, so the call is guarded and the attribute is dropped when it fails.
+- **Dismissal is the card's own.** `popover="manual"` means no light dismiss
+  from the browser, so the component listens for a press outside itself, for
+  Escape, and for the page scrolling, and closes on all three. The anchor
+  counts as inside: otherwise its own click handler reopens what the press just
+  closed, and the menu could not be dismissed by pressing the button again.
+
+`test/menu.test.js` covers the parts that fail silently - when it opens, when
+it closes, and what it reports when an option is picked. Positioning is not
+covered there, because jsdom measures every element as zero.
 
 ## Home Assistant compatibility
 
@@ -402,12 +422,13 @@ Tracked under #198, which is also the order the work is meant to happen in.
   models; there is no component layer, so anything that only shows up once the
   card is on a dashboard - which is where this card has broken before - is
   caught by hand or not at all.
-- **Five copies of lit in the bundle**, from `@material/mwc-*`.
 - **`@lit-labs/scoped-registry-mixin`** and the two silent failure modes above.
-  `src/components/fan-mode-secondary.js` renders an `ha-icon-button` it never
-  declared, so with `secondary_info: { type: fan-mode-dropdown }` that button
-  does not upgrade: measured live, `display: inline`, no shadow root, and
-  `disabled` has no effect on it.
+  `src/components/fan-mode-secondary.js` was one: it rendered an
+  `ha-icon-button` it never declared, so with
+  `secondary_info: { type: fan-mode-dropdown }` that button did not upgrade -
+  measured live, `display: inline`, no shadow root, and `disabled` with no
+  effect on it. Fixed by declaring it; the mechanism that allows the mistake is
+  still here.
 - **The card's own `tap_action` in string form does nothing.** An indicator's
   string is normalised to `{ action: <string> }`; the card's own is not, so the
   user's string replaces the default object wholesale, and `handleClick` then

@@ -1,8 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import sharedStyle from '../sharedStyle';
-import ClimateMenu from './mwc/menu';
-import ClimateListItem from './mwc/list-item';
+import ClimateMenu from './menu';
 import buildElementDefinitions from '../utils/buildElementDefinitions';
 
 export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitElement) {
@@ -12,7 +11,11 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
 
   static get elementDefinitions() {
     return buildElementDefinitions(
-      ['ha-icon', ClimateMenu, ClimateListItem],
+      // 'ha-icon-button' was missing here, and the tag it names is in the
+      // template below. With the scoped registry that means it never upgrades:
+      // an inert unknown element, `display: inline`, and `disabled` with no
+      // effect on it. Measured on a live Home Assistant 2026.8.3.
+      ['ha-icon', 'ha-icon-button', ClimateMenu],
       ClimateFanModeSecondary,
     );
   }
@@ -89,19 +92,12 @@ export default class ClimateFanModeSecondary extends ScopedRegistryHost(LitEleme
         >
           ${this.renderFanMode()}
         </ha-icon-button>
-        <mwc-menu fixed activatable
-            id=${'menu'}
-            ?quick=${true}
-            .menuCorner=${'END'}
-            .corner=${'TOP_RIGHT'}
-            @selected=${this.handleChange}>
-          ${this.fanMode.source.map(
-            item => html`
-            <mwc-list-item value=${item.id || item.name} ?selected=${this._selected.id && this._selected.id === item.id} .activated=${this._selected.id && this._selected.id === item.id}>
-              <span class='mc-dropdown__item__label'>${item.name}</span>
-            </mwc-list-item>`,
-          )}
-        </mwc-menu>
+        <mc-menu
+          id=${'menu'}
+          .items=${this.fanMode.source}
+          .selected=${this._selected.id}
+          @selected=${this.handleChange}
+        ></mc-menu>
       </div>
     `;
   }

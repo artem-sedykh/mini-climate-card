@@ -3,8 +3,7 @@ import { styleMap } from 'lit/directives/style-map.js';
 
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import sharedStyle from '../sharedStyle';
-import ClimateMenu from './mwc/menu';
-import ClimateListItem from './mwc/list-item';
+import ClimateMenu from './menu';
 import buildElementDefinitions from '../utils/buildElementDefinitions';
 
 export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) {
@@ -13,10 +12,7 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
   }
 
   static get elementDefinitions() {
-    return buildElementDefinitions(
-      ['ha-icon', 'ha-icon-button', ClimateMenu, ClimateListItem],
-      ClimateDropdownBase,
-    );
+    return buildElementDefinitions(['ha-icon', 'ha-icon-button', ClimateMenu], ClimateDropdownBase);
   }
 
   static get properties() {
@@ -48,7 +44,6 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
           detail: this.items[index],
         }),
       );
-      e.detail.index = -1;
     }
   }
 
@@ -72,19 +67,12 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
           ?color=${this.active}>
             <ha-icon .icon=${this.icon}></ha-icon>
         </ha-icon-button>
-        <mwc-menu fixed activatable
-            id=${'menu'}
-            ?quick=${true}
-            .menuCorner=${'END'}
-            .corner=${'TOP_RIGHT'}
-            @selected=${this.onChange}>
-          ${this.items.map(
-            item => html`
-            <mwc-list-item value=${item.id || item.name} ?selected=${this.selected === item.id} .activated=${this.selected === item.id}>
-              <span class='mc-dropdown__item__label'>${item.name}</span>
-            </mwc-list-item>`,
-          )}
-        </mwc-menu>
+        <mc-menu
+          id=${'menu'}
+          .items=${this.items}
+          .selected=${this.selected}
+          @selected=${this.onChange}
+        ></mc-menu>
       </div>
     `;
   }
@@ -120,9 +108,6 @@ export default class ClimateDropdownBase extends ScopedRegistryHost(LitElement) 
           height: calc(var(--mc-dropdown-unit));
           --mdc-icon-button-size: calc(var(--mc-dropdown-unit));
           --ha-icon-button-size: calc(var(--mc-dropdown-unit));
-        }
-        mwc-item > *:nth-child(2) {
-          margin-left: 4px;
         }
         .mc-dropdown[focused] ha-icon-button {
           color: var(--mc-accent-color);
