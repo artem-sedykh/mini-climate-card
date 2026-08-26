@@ -136,9 +136,9 @@ describe('handleClick', () => {
       expect(more).toHaveLength(0);
     });
 
-    // Deliberately not tested: a `tap_action` written as a plain string. Every
-    // value but `none` reaches here as a string, `config.action` is undefined
-    // on it, and the click does nothing - a defect, recorded in the known debt
-    // in AGENTS.md. A test asserting it would make it a requirement.
+    // Not tested here: a `tap_action` written as a plain string. Since #234
+    // `setConfig` normalises it to `{ action: <string> }` before anything
+    // dispatches a click, so a string no longer reaches this function - the
+    // test that covers the shorthand lives where the normalising happens.
   });
 });

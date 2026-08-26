@@ -95,6 +95,41 @@ describe('the card in a browser', () => {
     }
   });
 
+  it('opens more-info for a tap_action written as a string', async () => {
+    // `tap_action: more-info` as a bare string is how the option reads in the
+    // documentation of every card, and until #234 writing it that way here
+    // produced a card that looked clickable and did nothing.
+    const { card } = await mountCard({ config: { tap_action: 'more-info' } });
+
+    let events = 0;
+    card.addEventListener('hass-more-info', () => {
+      events += 1;
+    });
+
+    card.shadowRoot.querySelector('.entity__info__name_wrap').click();
+    await settle(card);
+
+    expect(events).to.equal(1);
+  });
+
+  it('offers the pointer only when the click does something', async () => {
+    // Both spellings of "do nothing": the documented string, and the object
+    // Home Assistant's own editors write. Before #234 the name carried
+    // `cursor: pointer` whatever the configuration said, and the `--more-info`
+    // class that was meant to decide it compared an object against a string
+    // and was read by no stylesheet.
+    const cursorOf = card =>
+      getComputedStyle(card.shadowRoot.querySelector('.entity__info__name_wrap')).cursor;
+
+    expect(cursorOf((await mountCard()).card)).to.equal('pointer');
+    expect(cursorOf((await mountCard({ config: { tap_action: 'none' } })).card)).to.not.equal(
+      'pointer',
+    );
+    expect(
+      cursorOf((await mountCard({ config: { tap_action: { action: 'none' } } })).card),
+    ).to.not.equal('pointer');
+  });
+
   it('costs one render pass per component when the entity changes', async () => {
     const { card, hass } = await mountCard();
 
