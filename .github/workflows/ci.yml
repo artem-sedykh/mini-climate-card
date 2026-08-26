@@ -33,7 +33,13 @@ permissions:
 
 jobs:
   build:
-    name: Lint and build
+    # This name is the required status check on master, so it is not free to
+    # change: renaming the job renames the check, and the name the protection
+    # rule still expects then sits "expected, waiting for status to be
+    # reported" forever, blocking every pull request. To rename it, update the
+    # required check first - the pull request that carries the rename is then
+    # the first to report under the new name, and merges on its own.
+    name: Lint, test and build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
