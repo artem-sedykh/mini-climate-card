@@ -53,6 +53,75 @@ describe('an entity that cannot answer', () => {
     assert.deepEqual(session.errors, []);
   });
 
+  it('holds together when the icon is hidden and the entity is unavailable', async () => {
+    // Two changes meet here and nothing covered the meeting: `hide_icon`
+    // (#248) removes the element everything beside it is centred against, and
+    // the class that centres the name when there is no secondary info (#100)
+    // is set for an unavailable card by construction, because an unavailable
+    // card has no secondary info.
+    const hidden = await card('Hidden parts');
+
+    assert.ok(hidden, 'the card is not on the dashboard');
+    assert.equal(hidden.icon, false, 'hide_icon left the icon in place');
+    assert.ok(hidden.height > 0);
+    assert.equal(hidden.overflows, false, 'the card draws past its own edge');
+
+    await publish(bench.tokens, 'bench/ac/availability', 'offline');
+    const offline = await until(async () => {
+      const one = await card('Hidden parts');
+      return one && /--unavailable/.test(one.classes) ? one : null;
+    });
+
+    assert.equal(offline.icon, false, 'the icon came back with the label');
+    assert.match(offline.text, /Unavailable/);
+    assert.ok(offline.height > 0, 'an unavailable card with no icon collapsed');
+    assert.equal(offline.overflows, false);
+
+    await publish(bench.tokens, 'bench/ac/availability', 'online');
+    await until(async () => {
+      const one = await card('Hidden parts');
+      return one && !/--unavailable/.test(one.classes) ? one : null;
+    });
+    assert.deepEqual(session.errors, []);
+  });
+
+  it('runs a hide_icon template against an entity that has no state', async () => {
+    // `hide_icon` takes a template as well as a boolean, and the template is
+    // handed the entity. On a card whose entity is missing there is no entity
+    // to hand it - the card passes the empty object it holds instead, and a
+    // template reading `.state` off it has to get `undefined` rather than
+    // throw.
+    const templated = await card('Missing and icon templated');
+
+    assert.ok(templated, 'the card is not on the dashboard');
+    assert.match(templated.text, /Unavailable/);
+    assert.equal(templated.icon, true, 'undefined state is not the string unavailable');
+    assert.deepEqual(session.errors, []);
+  });
+
+  it('hides the icon only while the entity is offline, when told to by template', async () => {
+    const title = 'Icon hidden while offline';
+
+    const before = await card(title);
+    assert.equal(before.icon, true, 'the icon is hidden while the entity answers');
+
+    await publish(bench.tokens, 'bench/ac/availability', 'offline');
+    const offline = await until(async () => {
+      const one = await card(title);
+      return one && one.icon === false ? one : null;
+    });
+    assert.match(offline.classes, /--unavailable/);
+    assert.ok(offline.height > 0);
+
+    await publish(bench.tokens, 'bench/ac/availability', 'online');
+    const back = await until(async () => {
+      const one = await card(title);
+      return one && one.icon === true ? one : null;
+    });
+    assert.ok(!/--unavailable/.test(back.classes));
+    assert.deepEqual(session.errors, []);
+  });
+
   it('follows an entity that goes unavailable and comes back', async () => {
     const title = 'Bench air conditioner';
 

@@ -66,6 +66,10 @@ export const cards = (page, tag) =>
         classes: host.className.trim(),
         height: +box.height.toFixed(1),
         width: +box.width.toFixed(1),
+        icon: !!root.querySelector('.entity__icon'),
+        // A card that draws past its own edge, which is what an element left
+        // without the thing it was positioned against tends to do.
+        overflows: host.scrollWidth > host.clientWidth,
         components: [...root.querySelectorAll('*')]
           .filter(element => element.localName.startsWith('mc-'))
           .map(element => element.localName),

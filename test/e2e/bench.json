@@ -93,6 +93,31 @@
           "type": "custom:mini-climate",
           "entity": "climate.not_here",
           "name": "Missing entity"
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": "Hidden parts",
+          "hide_icon": true,
+          "hide_current_temperature": true,
+          "toggle": {
+            "hide": true
+          },
+          "secondary_info": {
+            "hide": "() => true"
+          }
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": "Icon hidden while offline",
+          "hide_icon": "(climate_entity) => climate_entity.state === 'unavailable'"
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "climate.not_here",
+          "name": "Missing and icon templated",
+          "hide_icon": "(climate_entity) => climate_entity.state === 'unavailable'"
         }
       ]
     }
