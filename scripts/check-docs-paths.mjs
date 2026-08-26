@@ -91,12 +91,28 @@ const resolves = (token, from) => {
   return known.has(relative) || known.has(token);
 };
 
+// A picture in the documentation is served from this repository by absolute
+// URL: a relative link out of `docs/` is rewritten to a blob page by the mkdocs
+// hook, and a blob page is not an image. Absolute means nothing else would
+// notice it rotting, so the path inside such a URL is checked here too.
+const RAW_URL =
+  /https:\/\/raw\.githubusercontent\.com\/artem-sedykh\/mini-climate-card\/master\/([^)\s"'>]+)/g;
+
 const problems = [];
 let checked = 0;
 
 for (const file of markdown) {
-  // URLs go first, or the path inside every github.com link is a candidate.
-  const text = readFileSync(path.join(root, file), 'utf8').replace(/https?:\/\/\S+/g, '');
+  const source = readFileSync(path.join(root, file), 'utf8');
+
+  for (const match of source.matchAll(RAW_URL)) {
+    const token = match[1].split('?')[0];
+
+    checked += 1;
+    if (!known.has(token) && !IGNORED.has(token)) problems.push({ file, token });
+  }
+
+  // URLs go next, or the path inside every github.com link is a candidate.
+  const text = source.replace(/https?:\/\/\S+/g, '');
   const seen = new Set();
 
   for (const match of text.matchAll(CANDIDATE)) {
