@@ -74,6 +74,8 @@ npm test              # vitest, the unit tests under test/
 npm run test:coverage # the same, with coverage and its thresholds
 npm run test:watch    # vitest in watch mode
 npm run test:browser  # @web/test-runner, the component tests in two engines
+npm run bench up      # a Home Assistant of its own in docker; down to remove it
+npm run test:e2e      # the scenarios against that instance (needs a bench up)
 npm run rollup        # bundle src/main.ts -> dist/mini-climate-card-bundle.js
 npm run dev           # the same bundle, unminified
 npm run check:bundle  # assertions on the built bundle (needs a build first)
@@ -83,15 +85,17 @@ npm run watch         # unminified, rebuilding on save
 
 Node version comes from `.nvmrc`. Use it; CI reads the same file.
 
-There are **two layers of checks** so far - see "Checks" below. Nothing renders
-the card; see "Known debt".
+There are **four layers of checks** - see "Checks" below. The fourth, the
+bench, is the only one that renders the card inside a real Home Assistant;
+it needs docker and is not wired into CI yet.
 
 ## Checks
 
-Three layers, all run by CI, in the order of how much they cost to run:
-assertions on the built bundle, unit tests, and the card rendered in two
-browser engines. The first is here; the other two are under "Tests", after the
-TypeScript settings they are built with.
+Four layers, in the order of how much they cost to run: assertions on the built
+bundle, unit tests, the card rendered in two browser engines, and the card on a
+dashboard in a Home Assistant of its own. CI runs the first three. The first is
+described here; the next two are under "Tests", after the TypeScript settings
+they are built with, and the fourth is `test/bench/README.md`.
 
 **`npm run check:bundle`** - `scripts/check-bundle.mjs`, assertions on
 `dist/mini-climate-card-bundle.js` after a build. It is deliberately the first
@@ -240,6 +244,22 @@ The bundle checks were tested by breaking a copy of the bundle six ways - removi
 leaving a `require`, removing the `customElements.define`, and renaming a
 component - and confirming each one fails the run. A check nobody has seen fail
 is a check nobody knows works.
+
+**`npm run test:e2e`** - the bench: Home Assistant and a broker in containers,
+the built bundle served as a Lovelace resource, MQTT climate entities invented
+from a manifest, and the card on a real dashboard. It is the only layer that
+sees the actual `ha-*` elements, and it exists for the failures where **Home
+Assistant changed rather than the card** - #188 and #175 were both of that
+kind, and both passed everything else in this repository while they were
+broken. One of its scenarios is #188 itself: the icon button inside its host,
+measured. Removing `--ha-icon-button-size` from a built bundle was confirmed to
+fail it, at 48px inside a 30px host.
+
+It is deliberately thin, and geometry in pixels is deliberately not here:
+`test/browser/` answers that in seconds, twice, with no container. `test/bench/`
+holds the machinery and names no card; `test/e2e/bench.json` is what makes it
+this card's. The full account, including four things about Home Assistant that
+are not written down anywhere obvious, is in `test/bench/README.md`.
 
 ## Layout
 

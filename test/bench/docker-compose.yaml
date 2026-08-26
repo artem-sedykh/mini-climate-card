@@ -1,0 +1,30 @@
+# A Home Assistant of its own, with a broker to invent devices on. Nothing in
+# this directory names a card: which card is under test, which entities exist
+# and what the dashboard holds all come from a manifest (see README.md).
+name: card-bench
+
+services:
+  mqtt:
+    image: eclipse-mosquitto:2.1.2-alpine
+    restart: unless-stopped
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    ports:
+      - '${BENCH_MQTT_PORT:-1884}:1883'
+
+  homeassistant:
+    # Pinned, and meant to be varied: running the same scenarios against the
+    # version users are on and against the next one is the point of the bench.
+    image: homeassistant/home-assistant:${BENCH_HA_VERSION:-2026.8.3}
+    restart: unless-stopped
+    depends_on:
+      - mqtt
+    volumes:
+      - ./config:/config
+      # The build under test, served as /local/bench/<bundle>.js. A bind mount
+      # rather than a copy, so a rebuild is picked up by a reload.
+      - ${BENCH_CARD_DIST:-../../dist}:/config/www/bench:ro
+    environment:
+      - TZ=${BENCH_TZ:-Etc/UTC}
+    ports:
+      - '${BENCH_HA_PORT:-8124}:8123'

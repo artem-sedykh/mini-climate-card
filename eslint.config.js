@@ -88,6 +88,22 @@ module.exports = [
     },
   },
   {
+    // The bench and its scenarios: node, and they report to the terminal.
+    // Browser globals as well, because the argument of `page.evaluate` is
+    // source that is serialised and run inside the page - `document` there is
+    // the dashboard's, not this process's.
+    files: ['test/bench/**/*.mjs', 'test/e2e/**/*.mjs'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: { ...globals.node, ...globals.browser },
+    },
+    rules: {
+      ...rules,
+      'no-console': 'off',
+    },
+  },
+  {
     files: ['scripts/**/*.mjs'],
     languageOptions: {
       ecmaVersion: 2022,

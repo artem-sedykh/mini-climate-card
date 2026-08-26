@@ -114,3 +114,9 @@ __pycache__/
 
 # The site front page, written from README.md at build time
 docs/index.md
+
+# What the bench writes while it runs: the Home Assistant instance's own
+# config (seeded from test/bench/config-seed) and the screenshots a scenario
+# takes. The bench is described in test/bench/README.md.
+test/bench/config/
+test/e2e/shots/

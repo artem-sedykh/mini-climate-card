@@ -1,0 +1,9 @@
+# The seed the bench starts from. Deliberately small - what is not here is
+# what the scenarios do not depend on.
+default_config:
+
+http:
+  server_host: 0.0.0.0
+
+logger:
+  default: warning
