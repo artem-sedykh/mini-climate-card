@@ -1,7 +1,7 @@
 import { html, LitElement } from 'lit';
 import ResizeObserver from 'resize-observer-polyfill';
-import { classMap } from 'lit/directives/class-map';
-import { styleMap } from 'lit/directives/style-map';
+import { classMap } from 'lit/directives/class-map.js';
+import { styleMap } from 'lit/directives/style-map.js';
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import style from './style';
 import sharedStyle from './sharedStyle';

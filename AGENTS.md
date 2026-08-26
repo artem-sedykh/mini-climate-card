@@ -70,10 +70,10 @@ npm run lint          # eslint 10, flat config
 npm run format        # prettier --write
 npm run format:check  # what CI runs
 npm run rollup        # bundle src/main.js -> dist/mini-climate-card-bundle.js
-npm run babel         # minify that bundle in place
+npm run dev           # the same bundle, unminified
 npm run check:bundle  # assertions on the built bundle (needs a build first)
-npm run build         # lint + format:check + rollup + babel + check:bundle
-npm run watch         # rebuild on save
+npm run build         # lint + format:check + rollup + check:bundle
+npm run watch         # unminified, rebuilding on save
 ```
 
 Node version comes from `.nvmrc`. Use it; CI reads the same file.
@@ -264,8 +264,8 @@ There are no tests yet, so this is the whole of verification. It is also worth
 doing after the tests exist: they will render against stand-ins, and what
 breaks this card is Home Assistant's own elements.
 
-1. `npm run rollup` (skip `npm run babel` - an unminified bundle is far easier
-   to debug, and it loads the same).
+1. `npm run dev` - the same bundle unminified, which is far easier to debug in
+   a browser and loads exactly the same.
 2. Copy `dist/mini-climate-card-bundle.js` into the Home Assistant `config/www`
    directory.
 3. Reference it from a dashboard resource with a cache-busting query string

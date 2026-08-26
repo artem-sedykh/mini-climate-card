@@ -32,8 +32,8 @@ npm ci
 npm run rollup
 ```
 
-`npm run rollup` alone leaves the bundle unminified, which is what you want
-while debugging in a browser; it loads in Home Assistant exactly the same.
+`npm run dev` builds the same bundle unminified, which is what you want while
+debugging in a browser; it loads in Home Assistant exactly the same.
 Copy `dist/mini-climate-card-bundle.js` into the Home Assistant `config/www`
 directory, reference it from a dashboard resource with a query string
 (`/local/mini-climate-card-bundle.js?v=<anything-new>`), and hard-reload. The
