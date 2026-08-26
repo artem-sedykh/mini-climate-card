@@ -99,7 +99,7 @@ jobs:
       # write into test/e2e/shots/ as they go.
       - name: Screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: shots-${{ matrix.version }}
           path: test/e2e/shots/

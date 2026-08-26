@@ -77,6 +77,31 @@ export const cards = (page, tag) =>
     });
   }, tag);
 
+/**
+ * Anything modal that is open over the dashboard. A dialog covering the cards
+ * turns every click into a 30-second timeout whose message says only that the
+ * element was not stable, so this is asked before a scenario starts and the
+ * failure names what is in the way.
+ */
+export const dialogs = page =>
+  page.evaluate(() => {
+    const open = [];
+    const walk = root => {
+      for (const element of root.querySelectorAll('*')) {
+        const name = element.localName;
+        if ((name === 'ha-dialog' || name === 'ha-md-dialog') && element.isConnected) {
+          const box = element.getBoundingClientRect();
+          if (box.width > 0 && box.height > 0) {
+            open.push(element.textContent.replace(/\s+/g, ' ').trim().slice(0, 120));
+          }
+        }
+        if (element.shadowRoot) walk(element.shadowRoot);
+      }
+    };
+    walk(document);
+    return open;
+  });
+
 export const entity = async (tokens, id) => {
   const { body } = await request(`/api/states/${id}`, undefined, tokens.access_token);
   return body;

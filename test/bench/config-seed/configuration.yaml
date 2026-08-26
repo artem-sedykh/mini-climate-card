@@ -1,9 +1,13 @@
 # The seed the bench starts from. Deliberately small - what is not here is
 # what the scenarios do not depend on.
+#
+# There is no `http:` block on purpose. Setting `server_host` here is
+# unnecessary in a container, and it makes Home Assistant show a modal
+# "Confirm new HTTP server configuration" dialog for the first five minutes
+# after a boot with changed settings. On a long-lived bench nobody ever sees
+# it; in CI, where the container is seconds old, it covers the dashboard and
+# every click times out against it.
 default_config:
-
-http:
-  server_host: 0.0.0.0
 
 logger:
   default: warning
