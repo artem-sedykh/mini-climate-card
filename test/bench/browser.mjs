@@ -5,6 +5,7 @@
 // also what installs the engines - the component layer runs on them already.
 import { mkdir, writeFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
+import { isTransient, readPage } from './evaluate.mjs';
 import { BASE, request } from './auth.mjs';
 
 // Set by `npm run bench:coverage`. Off by default: collecting coverage means
@@ -68,38 +69,42 @@ export const open = async (tokens, { viewport = { width: 900, height: 700 } } = 
  * nothing and says so as an empty list rather than an error.
  */
 export const cards = (page, tag) =>
-  page.evaluate(name => {
-    const found = [];
-    const walk = root => {
-      for (const element of root.querySelectorAll('*')) {
-        if (element.localName === name) found.push(element);
-        if (element.shadowRoot) walk(element.shadowRoot);
-      }
-    };
-    walk(document);
-
-    return found.map(card => {
-      const root = card.shadowRoot;
-      const host = root.querySelector('ha-card');
-      const box = host.getBoundingClientRect();
-
-      return {
-        config: card.config ? { ...card.config } : null,
-        name: root.querySelector('.entity__info__name')?.textContent.trim() ?? null,
-        text: host.textContent.replace(/\s+/g, ' ').trim(),
-        classes: host.className.trim(),
-        height: +box.height.toFixed(1),
-        width: +box.width.toFixed(1),
-        icon: !!root.querySelector('.entity__icon'),
-        // A card that draws past its own edge, which is what an element left
-        // without the thing it was positioned against tends to do.
-        overflows: host.scrollWidth > host.clientWidth,
-        components: [...root.querySelectorAll('*')]
-          .filter(element => element.localName.startsWith('mc-'))
-          .map(element => element.localName),
+  readPage(
+    page,
+    name => {
+      const found = [];
+      const walk = root => {
+        for (const element of root.querySelectorAll('*')) {
+          if (element.localName === name) found.push(element);
+          if (element.shadowRoot) walk(element.shadowRoot);
+        }
       };
-    });
-  }, tag);
+      walk(document);
+
+      return found.map(card => {
+        const root = card.shadowRoot;
+        const host = root.querySelector('ha-card');
+        const box = host.getBoundingClientRect();
+
+        return {
+          config: card.config ? { ...card.config } : null,
+          name: root.querySelector('.entity__info__name')?.textContent.trim() ?? null,
+          text: host.textContent.replace(/\s+/g, ' ').trim(),
+          classes: host.className.trim(),
+          height: +box.height.toFixed(1),
+          width: +box.width.toFixed(1),
+          icon: !!root.querySelector('.entity__icon'),
+          // A card that draws past its own edge, which is what an element left
+          // without the thing it was positioned against tends to do.
+          overflows: host.scrollWidth > host.clientWidth,
+          components: [...root.querySelectorAll('*')]
+            .filter(element => element.localName.startsWith('mc-'))
+            .map(element => element.localName),
+        };
+      });
+    },
+    tag,
+  );
 
 /**
  * Anything modal that is open over the dashboard. A dialog covering the cards
@@ -108,7 +113,7 @@ export const cards = (page, tag) =>
  * failure names what is in the way.
  */
 export const dialogs = page =>
-  page.evaluate(() => {
+  readPage(page, () => {
     const names = ['ha-dialog', 'ha-md-dialog', 'ha-more-info-dialog'];
     const open = [];
 
@@ -163,8 +168,13 @@ export const until = async (check, { timeout = 10000, step = 250 } = {}) => {
   let last;
 
   for (;;) {
-    last = await check();
-    if (last) return last;
+    try {
+      last = await check();
+      if (last) return last;
+    } catch (error) {
+      if (!isTransient(error)) throw error;
+      last = null;
+    }
     if (Date.now() > deadline) throw new Error(`timed out: last value ${JSON.stringify(last)}`);
     await new Promise(resolve => setTimeout(resolve, step));
   }
