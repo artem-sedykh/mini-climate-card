@@ -23,6 +23,7 @@ import type {
   HomeAssistant,
   IndicatorConfig,
   RawCardConfig,
+  Template,
   TemplateContext,
 } from './types';
 import './components/temperature';
@@ -65,6 +66,13 @@ class MiniClimate extends LitElement {
 
   targetTemperatureValue: number | string;
 
+  /**
+   * Compiled once in `setConfig`, because it is read on every render - the
+   * same reason `TemperatureObject` compiles `hide_current_temperature` in its
+   * constructor rather than per frame.
+   */
+  shouldHideIcon: Template<boolean>;
+
   private _hass!: HomeAssistant;
 
   static getStubConfig(
@@ -92,6 +100,7 @@ class MiniClimate extends LitElement {
     this.targetTemperatureChanging = false;
     this.climate = {} as ClimateObject;
     this.targetTemperatureValue = 0;
+    this.shouldHideIcon = () => false;
   }
 
   static override get properties() {
@@ -505,6 +514,18 @@ class MiniClimate extends LitElement {
     if (typeof config.tap_action === 'string')
       this.config.tap_action = { action: config.tap_action };
 
+    // `hide_icon` is a boolean or a template, like every other hide in this
+    // card: `hide_current_temperature`, `toggle.hide`, an indicator's and a
+    // button's. A boolean-only option would be the one exception, and the
+    // first question about it would be how to hide the icon only while the
+    // unit is off (#169).
+    const hideIcon = config.hide_icon;
+
+    this.shouldHideIcon =
+      typeof hideIcon === 'string'
+        ? compileTemplate(hideIcon, this.config)
+        : () => hideIcon === true;
+
     this.config.indicators = this.getIndicatorsConfig(config);
 
     this.config.buttons = this.getButtonsConfig(config);
@@ -646,6 +667,8 @@ class MiniClimate extends LitElement {
   }
 
   renderIcon(): TemplateResult {
+    if (this.shouldHideIcon(this.climate.entity, this.climate.mode)) return html``;
+
     const state = this.climate.isActive;
     return html`
       <div class='entity__icon' ?color=${state}>
