@@ -7,7 +7,10 @@ export default defineConfig({
     // jsdom with a `@vitest-environment` docblock of their own, so the rest do
     // not pay for it.
     environment: 'node',
-    exclude: [...configDefaults.exclude],
+    // The unit layer only. test/browser/ is the component layer and runs in
+    // real browsers under @web/test-runner - under jsdom those files would
+    // fail on the first thing they are there to check.
+    exclude: [...configDefaults.exclude, 'test/browser/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text-summary', 'html', 'json-summary'],

@@ -96,11 +96,12 @@ export default class ClimateFanModeSecondary extends LitElement {
     return this.renderFanMode();
   }
 
-  updated(changedProps) {
+  // See the note in button.js: derived before the render rather than after
+  // it, so one state change costs one pass.
+  willUpdate(changedProps) {
     if (changedProps.has('fanMode')) {
       clearTimeout(this.timer);
       this._selected = this.fanMode.selected;
-      this.requestUpdate('_selected');
     }
   }
 

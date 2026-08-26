@@ -56,7 +56,9 @@ export default class ClimateDropDown extends LitElement {
     `;
   }
 
-  updated(changedProps) {
+  // See the note in button.js: derived before the render rather than after
+  // it, so one state change costs one pass.
+  willUpdate(changedProps) {
     if (changedProps.has('dropdown')) {
       this._state =
         this.dropdown.state !== undefined && this.dropdown.state !== null
@@ -64,8 +66,6 @@ export default class ClimateDropDown extends LitElement {
           : '';
 
       if (this.timer) clearTimeout(this.timer);
-
-      this.requestUpdate('_state');
     }
   }
 

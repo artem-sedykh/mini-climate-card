@@ -47,13 +47,15 @@ export default class ClimateButton extends LitElement {
     `;
   }
 
-  updated(changedProps) {
+  // Before the render, not after it. `_isOn` is derived from the model the
+  // card just handed down, so it is already knowable when the update starts;
+  // assigning it in `updated()` asked for a second pass over a value nothing
+  // had learned in between.
+  willUpdate(changedProps) {
     if (changedProps.has('button')) {
       this._isOn = this.button.isOn;
 
       if (this.timer) clearTimeout(this.timer);
-
-      this.requestUpdate('_isOn');
     }
   }
 

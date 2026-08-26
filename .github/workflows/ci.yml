@@ -87,6 +87,19 @@ jobs:
             '
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Browsers
+        # The component tests need these, and the runner image's own Chrome is
+        # whatever that week's image happens to carry. Playwright pins both to
+        # the versions in the lockfile, so a failure here is the card's.
+        #
+        # WebKit as well as Chromium: the Home Assistant companion app on iOS
+        # renders in WKWebView, and until #223 nothing had ever run this card
+        # in a second engine.
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Component tests
+        run: npm run test:browser
+
       - name: Build
         run: npm run rollup
 
