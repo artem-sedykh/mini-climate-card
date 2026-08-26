@@ -60,11 +60,27 @@ describe('the card on a dashboard', () => {
     // layer can see it - the stub elements have no size of their own.
     const sizes = await session.page.evaluate(() => {
       const found = [];
+
+      // The `button` at the bottom, not the `ha-button` wrapping it. The
+      // wrapper is an inline box, so its height is the line height - 22.4px
+      // at the frontend's 14px font - whenever the button is smaller than
+      // that. Measuring the wrapper reports an overflow for every button
+      // under ~22px that is drawn perfectly correctly.
+      const button = element => {
+        let node = element.shadowRoot;
+        for (let depth = 0; node && depth < 4; depth += 1) {
+          const hit = node.querySelector('button');
+          if (hit) return hit;
+          node = node.firstElementChild?.shadowRoot;
+        }
+        return null;
+      };
+
       const walk = root => {
         for (const element of root.querySelectorAll('*')) {
           if (element.localName === 'ha-icon-button') {
             const box = element.getBoundingClientRect();
-            const inner = element.shadowRoot?.firstElementChild?.getBoundingClientRect();
+            const inner = button(element)?.getBoundingClientRect();
             found.push({
               host: [+box.width.toFixed(1), +box.height.toFixed(1)],
               inner: inner ? [+inner.width.toFixed(1), +inner.height.toFixed(1)] : null,
