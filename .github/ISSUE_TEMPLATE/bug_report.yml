@@ -73,10 +73,16 @@ body:
       description: |
         A card with nothing in it but `type` and `entity`. One step, and it
         separates the card from the configuration.
+      # The first option is what GitHub pre-selects - there is a tick against
+      # it before the reporter has touched the control, whether or not the
+      # form names a `default`. So the first option has to be the one that
+      # claims nothing: a form that answers "yes, it reproduces on a bare
+      # card" on the reporter's behalf sends triage somewhere it has no reason
+      # to go.
       options:
+        - Not tried
         - Yes, with type and entity alone
         - No, only with my full configuration
-        - Not tried
     validations:
       required: true
 
