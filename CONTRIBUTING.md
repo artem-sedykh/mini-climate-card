@@ -49,11 +49,10 @@ A few things worth knowing before you start. All of them are in
   Home Assistant's own - which is where it has broken before. So please load
   your change into a running Home Assistant, say which version you tested on,
   and be plain about what you could not check.
-- **Every component declares the tags it may render** in a static
-  `elementDefinitions`. This is not decoration: the card mounts its components
-  into a scoped element registry, so a tag that is not declared there **never
-  upgrades** - it stays an inert unknown element, with no error anywhere. If
-  you add an `ha-*` or `mc-*` tag to a template, add it to that list.
+- **Every component registers itself** at the bottom of its own module, with
+  `define('mc-something', TheClass)`, and the card imports those modules for
+  that alone. The names are global, which is why they are prefixed - a new
+  component needs a `mc-` name nobody else would pick.
 - The elements the card renders belong to the Home Assistant frontend and are
   not a stable API. Feature-detect them rather than branching on a version
   string.

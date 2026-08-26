@@ -1,18 +1,9 @@
+import define from '../utils/define';
 import { LitElement, html, css } from 'lit';
-import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import sharedStyle from '../sharedStyle';
-import ClimateDropdownBase from './dropdown-base';
-import buildElementDefinitions from '../utils/buildElementDefinitions';
+import './dropdown-base';
 
-export default class ClimateDropDown extends ScopedRegistryHost(LitElement) {
-  static get defineId() {
-    return 'mc-dropdown';
-  }
-
-  static get elementDefinitions() {
-    return buildElementDefinitions([ClimateDropdownBase], ClimateDropDown);
-  }
-
+export default class ClimateDropDown extends LitElement {
   constructor() {
     super();
     this.dropdown = {};
@@ -52,10 +43,6 @@ export default class ClimateDropDown extends ScopedRegistryHost(LitElement) {
   }
 
   render() {
-    if (!ClimateDropDown.elementDefinitionsLoaded) {
-      return html``;
-    }
-
     return html`
       <mc-dropdown-base
         .iconStyle=${this.dropdown.style}
@@ -106,3 +93,5 @@ export default class ClimateDropDown extends ScopedRegistryHost(LitElement) {
     ];
   }
 }
+
+define('mc-dropdown', ClimateDropDown);

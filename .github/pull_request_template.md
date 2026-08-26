@@ -20,5 +20,5 @@ releases, so "it works here" is only meaningful with a version next to it.
 
 - [ ] `npm run build` passes (lint, formatting, tests, bundle and its checks)
 - [ ] The card was loaded in a running Home Assistant, not only built
-- [ ] Any new tag in a component template is declared in its `elementDefinitions`
+- [ ] A new component registers itself with `define('mc-...', ...)` at the bottom of its module
 - [ ] `README.md` updated, if this changes or adds an option

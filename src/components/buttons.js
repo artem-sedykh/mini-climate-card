@@ -1,19 +1,10 @@
+import define from '../utils/define';
 import { LitElement, html, css } from 'lit';
-import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import sharedStyle from '../sharedStyle';
-import ClimateButton from './button';
-import ClimateDropDown from './dropdown';
-import buildElementDefinitions from '../utils/buildElementDefinitions';
+import './button';
+import './dropdown';
 
-export default class ClimateButtons extends ScopedRegistryHost(LitElement) {
-  static get defineId() {
-    return 'mc-buttons';
-  }
-
-  static get elementDefinitions() {
-    return buildElementDefinitions([ClimateDropDown, ClimateButton], ClimateButtons);
-  }
-
+export default class ClimateButtons extends LitElement {
   static get properties() {
     return {
       buttons: {},
@@ -46,10 +37,6 @@ export default class ClimateButtons extends ScopedRegistryHost(LitElement) {
   }
 
   render() {
-    if (!ClimateButtons.elementDefinitionsLoaded) {
-      return html``;
-    }
-
     const context = this;
     return html`${Object.entries(this.buttons)
       .map(b => b[1])
@@ -90,3 +77,5 @@ export default class ClimateButtons extends ScopedRegistryHost(LitElement) {
     ];
   }
 }
+
+define('mc-buttons', ClimateButtons);

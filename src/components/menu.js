@@ -1,4 +1,5 @@
 import { LitElement, html, css } from 'lit';
+import define from '../utils/define';
 
 // The menu behind every dropdown on the card: a list of options, one of which
 // is the current one, opened against an anchor element.
@@ -17,10 +18,6 @@ import { LitElement, html, css } from 'lit';
 const MENU_MARGIN = 8;
 
 export default class ClimateMenu extends LitElement {
-  static get defineId() {
-    return 'mc-menu';
-  }
-
   static get properties() {
     return {
       items: { type: Array },
@@ -310,3 +307,5 @@ export default class ClimateMenu extends LitElement {
     `;
   }
 }
+
+define('mc-menu', ClimateMenu);
