@@ -38,6 +38,20 @@ module.exports = [
     rules,
   },
   {
+    files: ['test/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      // Browser globals for the files that ask for a jsdom environment, node
+      // globals for the rest. vitest's own helpers are imported, not global.
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
+    },
+    rules,
+  },
+  {
     files: ['scripts/**/*.mjs'],
     languageOptions: {
       ecmaVersion: 2022,

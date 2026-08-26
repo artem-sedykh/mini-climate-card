@@ -43,10 +43,12 @@ a change that did nothing.
 A few things worth knowing before you start. All of them are in
 [AGENTS.md](AGENTS.md), which is the longer version of this section.
 
-- **There are no unit tests yet.** `npm run check:bundle` asserts things about
-  the built file, and that is the whole of the automated coverage. So please
-  load your change into a running Home Assistant, say which version you tested
-  on, and be plain about what you could not check.
+- **Nothing here renders the card.** `npm test` covers the models, the utils
+  and the configuration merge; `npm run check:bundle` asserts things about the
+  built file. Neither opens a browser, and the elements this card draws are
+  Home Assistant's own - which is where it has broken before. So please load
+  your change into a running Home Assistant, say which version you tested on,
+  and be plain about what you could not check.
 - **Every component declares the tags it may render** in a static
   `elementDefinitions`. This is not decoration: the card mounts its components
   into a scoped element registry, so a tag that is not declared there **never
@@ -66,9 +68,9 @@ A few things worth knowing before you start. All of them are in
 Commits follow [Conventional Commits](https://www.conventionalcommits.org/)
 without a scope: `fix:`, `feat:`, `ci:`, `build:`, `docs:`.
 
-CI runs lint, formatting, the build, assertions on the built bundle, HACS
-validation, and a gate that catches CRLF and BOM. `npm run build` locally
-covers everything except the last two.
+CI runs lint, formatting, the unit tests with coverage thresholds, the build,
+assertions on the built bundle, HACS validation, and a gate that catches CRLF
+and BOM. `npm run build` locally covers everything except the last two.
 
 ## Releasing
 

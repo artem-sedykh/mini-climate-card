@@ -69,19 +69,24 @@ npm ci                # install exactly what the lockfile says
 npm run lint          # eslint 10, flat config
 npm run format        # prettier --write
 npm run format:check  # what CI runs
+npm test              # vitest, the unit tests under test/
+npm run test:coverage # the same, with coverage and its thresholds
+npm run test:watch    # vitest in watch mode
 npm run rollup        # bundle src/main.js -> dist/mini-climate-card-bundle.js
 npm run dev           # the same bundle, unminified
 npm run check:bundle  # assertions on the built bundle (needs a build first)
-npm run build         # lint + format:check + rollup + check:bundle
+npm run build         # lint + format:check + test + rollup + check:bundle
 npm run watch         # unminified, rebuilding on save
 ```
 
 Node version comes from `.nvmrc`. Use it; CI reads the same file.
 
-There is **one layer of checks** so far - see "Checks" below. There are no
-unit or component tests yet; see "Known debt".
+There are **two layers of checks** so far - see "Checks" below. Nothing renders
+the card; see "Known debt".
 
 ## Checks
+
+Two layers, both run by CI, in the order of how much they cost to run.
 
 **`npm run check:bundle`** - `scripts/check-bundle.mjs`, assertions on
 `dist/mini-climate-card-bundle.js` after a build. It is deliberately the first
@@ -108,7 +113,36 @@ Two of those need explaining:
   pass - a duplicated `ReactiveElement` is about 11 KB, which is exactly the
   size of change this is there to catch.
 
-The checks were tested by breaking a copy of the bundle six ways - removing the
+**`npm test`** - vitest over `test/`, node environment. It covers the six
+model classes in `src/models/`, the helpers in `src/utils/`, every branch of
+`handleClick` - which is the whole of what `tap_action` does - and the
+configuration merge, from the user's YAML end.
+
+`test/config.test.js` and `test/handle-click.test.js` ask for jsdom with a
+`@vitest-environment` docblock; the rest do not pay for it. The first
+constructs the card element, which works without a DOM because `setConfig`
+only reads and merges - nothing renders, so the Home Assistant elements are
+never needed.
+
+Two things that suite pins down are worth knowing before changing them:
+
+- **A template reaches its context only if it is an arrow function.**
+  `compileTemplate` calls the *wrapper* with `this` set to the context, so an
+  arrow captures it - and a `function` expression, which gets its own `this`
+  when called, does not. Every example in `README.md` is an arrow.
+- **The fan mode and hvac mode dropdowns fill their options in
+  `firstUpdated`, not in `setConfig`.** They come from the entity's
+  `fan_modes` and `hvac_modes`, and `setConfig` runs before the card has a
+  `hass`. Read straight after `setConfig`, the list is empty - which looks
+  like a bug from either side.
+
+`npm run test:coverage` is the same run with `@vitest/coverage-v8` on, and CI
+uses it in place of `npm test`. It measures the unit layer only, and the
+thresholds are set to what the suite reaches today rather than to a round
+number. The number is held down by `src/main.js` at 68%, half of which is
+render methods that only run in a browser; the models are at 95%.
+
+The bundle checks were tested by breaking a copy of the bundle six ways - removing the
 `new Function`, adding a sixth lit registration, adding lit's dev-mode banner,
 leaving a `require`, removing the `customElements.define`, and renaming a
 component - and confirming each one fails the run. A check nobody has seen fail
@@ -364,9 +398,10 @@ Two consequences worth remembering:
 
 Tracked under #198, which is also the order the work is meant to happen in.
 
-- **No unit or component tests.** The bundle assertions are the only layer.
-  Nothing checks that a model turns entity state into what a component expects,
-  or that the card renders at all.
+- **Nothing renders the card.** The unit layer stops at `setConfig` and the
+  models; there is no component layer, so anything that only shows up once the
+  card is on a dashboard - which is where this card has broken before - is
+  caught by hand or not at all.
 - **Five copies of lit in the bundle**, from `@material/mwc-*`.
 - **`@lit-labs/scoped-registry-mixin`** and the two silent failure modes above.
   `src/components/fan-mode-secondary.js` renders an `ha-icon-button` it never

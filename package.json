@@ -29,22 +29,28 @@
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^1.0.0",
+    "@vitest/coverage-v8": "^4.1.11",
     "eslint": "^10.9.1",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.11.0",
+    "jsdom": "^30.0.1",
     "prettier": "^3.9.6",
-    "rollup": "^4.63.0"
+    "rollup": "^4.63.0",
+    "vitest": "^4.1.11"
   },
   "scripts": {
-    "build": "npm run lint && npm run format:check && npm run rollup && npm run check:bundle",
+    "build": "npm run lint && npm run format:check && npm run test && npm run rollup && npm run check:bundle",
     "rollup": "rollup -c",
-    "lint": "eslint src scripts",
+    "lint": "eslint src test scripts",
     "lint:fix": "eslint src --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "watch": "rollup -c --watch --environment BUILD:development",
     "check:bundle": "node scripts/check-bundle.mjs",
-    "dev": "rollup -c --environment BUILD:development"
+    "dev": "rollup -c --environment BUILD:development",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest"
   },
   "engines": {
     "node": ">=22"

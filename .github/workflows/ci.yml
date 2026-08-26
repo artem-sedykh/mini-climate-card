@@ -59,6 +59,34 @@ jobs:
       - name: Format
         run: npm run format:check
 
+      - name: Unit tests
+        # With coverage: the thresholds in vitest.config.mjs fail the run if it
+        # slides. `npm test` stays the plain run, because that is the one
+        # people wait for locally.
+        run: npm run test:coverage
+
+      - name: Coverage summary
+        # In the job summary rather than only in the log, which is where a
+        # number nobody scrolls to goes to be ignored.
+        if: always()
+        run: |
+          [ -f coverage/coverage-summary.json ] || exit 0
+          {
+            echo '### Coverage'
+            echo ''
+            echo 'The unit layer only - see `coverage.exclude` in vitest.config.mjs.'
+            echo ''
+            echo '| | % | covered |'
+            echo '|---|---|---|'
+            node -e '
+              const total = require("./coverage/coverage-summary.json").total;
+              for (const key of ["statements", "branches", "functions", "lines"]) {
+                const m = total[key];
+                console.log(`| ${key} | ${m.pct}% | ${m.covered}/${m.total} |`);
+              }
+            '
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Build
         run: npm run rollup
 
