@@ -64,6 +64,12 @@ jobs:
           npm run rollup
           npm run babel
 
+      - name: Bundle assertions
+        # Everything that has gone wrong in the sister card went wrong in the
+        # build rather than in the source, and all of it was visible in the
+        # output file. See scripts/check-bundle.mjs.
+        run: npm run check:bundle
+
       - name: Upload bundle
         # So a change to the card can be tried without building it yourself.
         # This is also what the bundle assertions of #198 will run against.
