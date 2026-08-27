@@ -34,6 +34,24 @@ manifest holding the reporter's own YAML and the pictures are of their card.
 `BENCH_URL` names, so a bench running on another host is used from here with
 `BENCH_URL=http://<host>:8124 npm run test:e2e`.
 
+### A bench on another host
+
+Two variables besides the URL are the point of contact when the bench is not
+on this machine:
+
+| variable | what it is |
+|---|---|
+| `BENCH_MQTT_HOST` | where the broker answers - the bench host, not `localhost` |
+| `BENCH_MQTT_INTERNAL_PORT` | the port the broker answers on **inside** the compose network, not the published one |
+
+The bundle is the other trap. The bench serves the `dist/` it was started
+with, from the `/config/www/bench` mount; build the new bundle first, then
+copy it to that directory on the bench host, or the scenarios exercise the
+previous build while the manifest talks about a new option. The failure has
+nothing to do with the option - a card that was just made to accept an object
+for `icon` reports `this.icon.split is not a function`, because the code that
+was served predates the change.
+
 | variable | default | what it is |
 |---|---|---|
 | `BENCH_URL` | `http://localhost:8124` | where Home Assistant answers |
