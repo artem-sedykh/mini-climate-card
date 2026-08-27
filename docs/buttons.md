@@ -16,6 +16,7 @@
 | [`toggle_action`](functions.md#toggle_action)   | function | button config     | state, entity, climate_entity, hvac_mode          | promise                          |
 | [`change_action`](functions.md#change_action)   | function | button config     | selected_value, entity, climate_entity, hvac_mode | promise                          |
 | [`hide`](functions.md#hide)            | function | button config     | state, entity, climate_entity, hvac_mode          | boolean                          |
+| [`icon`](functions.md#icon_template)    | function | button config     | state, entity, climate_entity, hvac_mode          | string                           |
 
 `state` - current button state value  
 `entity` - button entity  
@@ -49,6 +50,32 @@ buttons:
       horizontal: On
     change_action: >
       (selected, state, entity) => this.call_service('climate', 'set_swing_mode', { entity_id: entity.entity_id, swing_mode: selected })
+```
+
+A `dropdown` button can also take an `icon` template, the same way an indicator
+can: the icon it shows then follows the button state, which is what a preset
+mode a user picks against two or three modes wants.
+
+```yaml
+type: custom:mini-climate
+entity: climate.my_ac
+buttons:
+  preset_mode:
+    type: dropdown
+    icon:
+      template: >
+        (state) => state === 'boost' ? 'mdi:fan-chevron-up'
+           : state === 'eco'   ? 'mdi:fan-chevron-down'
+           : 'mdi:fan-speed-3'
+    state:
+      attribute: preset_mode
+    active: state => state !== 'none'
+    source:
+      none: Plain
+      boost: Turbo
+      eco: Quiet
+    change_action: >
+      (selected, state, entity) => this.call_service('climate', 'set_preset_mode', { entity_id: entity.entity_id, preset_mode: selected })
 ```
 
 ## button

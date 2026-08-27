@@ -107,6 +107,146 @@ describe('a card written the way people write them', () => {
     assert.deepEqual(session.errors, []);
   });
 
+  it('changes a dropdown button icon by its preset mode', async () => {
+    // `preset_mode` carries `icon: { template }`, from the case in #49: the
+    // icon the button shows follows the preset. `boost` -> fan-chevron-up,
+    // `eco` -> fan-chevron-down, anything else (`none`) -> fan-speed-3.
+    if ((await card.locator('mc-dropdown').count()) === 0) {
+      await card.locator('.toggle-button').first().click();
+    }
+    await until(async () => ((await card.locator('mc-dropdown').count()) > 0 ? true : null));
+
+    // Find the preset dropdown by id, and only then look at its menu. Each
+    // `mc-dropdown-base` renders its own `mc-menu`, and only while it is open,
+    // so a query for menu items across the page reads whatever is open - a
+    // leftover menu from the scenario before this one, or a neighbour.
+    let preset = null;
+
+    for (const one of await card.locator('mc-dropdown').all()) {
+      const id = await one.evaluate(node => node.dropdown && node.dropdown.id);
+      if (id === 'preset_mode') {
+        preset = one;
+        break;
+      }
+    }
+    assert.notEqual(preset, null, 'no dropdown carries the preset_mode id');
+
+    // Reads from this dropdown's own shadow tree only. The menu it answers is
+    // the one this control opened, not whatever else on the page is showing.
+    // `mc-menu` sits in `mc-dropdown-base`'s shadow root and renders its items
+    // in *its own* shadow root, so the read goes two roots down.
+    const readMenu = async () =>
+      preset.evaluate(node => {
+        const base = node.shadowRoot.querySelector('mc-dropdown-base');
+        const menu = base?.shadowRoot.querySelector('mc-menu');
+        if (!menu) return [];
+        return [...menu.shadowRoot.querySelectorAll('.mc-menu__item__label')].map(el =>
+          el.textContent.trim(),
+        );
+      });
+
+    // Open the preset menu and confirm it offers the options the scenario is
+    // about, from within this dropdown's own `<mc-menu>`.
+    await preset.locator('ha-icon-button').first().click();
+    await until(async () => {
+      const labels = await readMenu();
+      return labels.some(label => label === 'Turbo') ? labels : null;
+    });
+    await session.page.keyboard.press('Escape');
+    await session.page.waitForTimeout(300);
+
+    const shownIcon = () =>
+      preset.evaluate(node => {
+        const base = node.shadowRoot.querySelector('mc-dropdown-base');
+        const icon = base.shadowRoot.querySelector('.mc-dropdown__button ha-icon');
+        return icon ? icon.icon : null;
+      });
+
+    const pick = async (value, label, icon) => {
+      // Open this dropdown's own menu and wait for the option to be there,
+      // then click it from inside the same shadow tree. Neither a leftover
+      // overlay nor another control can steal the click, and the wait tells
+      // the menu is actually open before anything is pressed.
+      await preset.locator('ha-icon-button').first().click();
+      await until(async () => {
+        const labels = await readMenu();
+        return labels.some(one => one === label) ? labels : null;
+      });
+      await preset.evaluate((node, target) => {
+        const base = node.shadowRoot.querySelector('mc-dropdown-base');
+        const menu = base.shadowRoot.querySelector('mc-menu');
+        const item = menu.shadowRoot.querySelector(`.mc-menu__item[data-value="${target}"]`);
+        item.click();
+      }, value);
+
+      // The button takes the state optimistically, then the device confirms via
+      // MQTT; the icon follows the state, so wait for it to settle.
+      await until(async () => ((await shownIcon()) === icon ? icon : null), {
+        timeout: 15000,
+      });
+      await session.page.keyboard.press('Escape');
+      await session.page.waitForTimeout(300);
+    };
+
+    await pick('boost', 'Turbo', 'mdi:fan-chevron-up');
+    await pick('eco', 'Quiet', 'mdi:fan-chevron-down');
+
+    assert.deepEqual(session.errors, []);
+  });
+
+  it('toggles a switch that is both an indicator and a button', async () => {
+    // `bench_plug` is read twice by this card: as the `power` indicator through
+    // a `values`/`mapper` template, and as the `power_switch` button. One
+    // press has to flip the entity and both readers follow - the "one entity,
+    // two consumers" shape the bedroom card has.
+    // Find the power_switch button by its model id, not by position.
+    const powerSwitch = card.locator('mc-buttons mc-button');
+    const count = await powerSwitch.count();
+    let target = null;
+    for (let i = 0; i < count; i += 1) {
+      const id = await powerSwitch.nth(i).evaluate(node => node.button && node.button.id);
+      if (id === 'power_switch') {
+        target = powerSwitch.nth(i);
+        break;
+      }
+    }
+    assert.notEqual(target, null, 'no power_switch button rendered');
+
+    const beforeState = (await entity(bench.tokens, bench.ids.bench_plug)).state;
+    await target.locator('ha-icon-button').click();
+    // The button flips optimistically and the device confirms via MQTT, so
+    // wait for the entity to actually change.
+    await until(async () => {
+      const state = (await entity(bench.tokens, bench.ids.bench_plug)).state;
+      return state !== beforeState ? state : null;
+    });
+
+    const afterState = (await entity(bench.tokens, bench.ids.bench_plug)).state;
+    assert.notEqual(afterState, beforeState);
+
+    // The indicator, which maps the same switch through values/mapper, has
+    // followed: powered when on, idle when off.
+    const expected = afterState === 'on' ? 'powered' : 'idle';
+    const shown = await until(async () => {
+      const states = await indicators();
+      return states.some(text => text.includes(expected)) ? states : null;
+    });
+    assert.ok(
+      shown.some(text => text.includes(expected)),
+      shown.join(' | '),
+    );
+
+    // Leave the bench where the next scenario expects it: the suite starts
+    // the plug ON, and the scenario that follows reads `powered`.
+    await publish(bench.tokens, 'bench/plug/state', 'ON');
+    await until(async () => {
+      const state = (await entity(bench.tokens, bench.ids.bench_plug)).state;
+      return state === 'on' ? true : null;
+    });
+
+    assert.deepEqual(session.errors, []);
+  });
+
   it('maps an indicator value through the template context', async () => {
     // `mapper: value => this.source.values[value]` - `this` is the option's own
     // YAML, which is the extension point the card is built on. A card that lost

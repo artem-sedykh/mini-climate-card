@@ -103,6 +103,7 @@
 | **buttons**                               | object                              | optional     | v1.0.1 | Any buttons, [example](buttons.md)                                                                              |
 | buttons: `name`                           | object                              | optional     | v1.0.1 | The name of your button see examples                                                                          |
 | buttons: `name:icon`                      | string                              | optional     | v1.0.1 | Specify a custom icon from any of the available mdi icons                                                     |
+| buttons: `name:icon`                      | string or function                  | optional     | v3.1.0 | Specify a custom icon from any of the available mdi icons, or a `template` function as in [icons](indicators.md#icon-template) |
 | buttons: `name:type`                      | string                              | optional     | v1.0.1 | `dropdown` or `button` default `button`                                                                       |
 | buttons: `name:order`                     | number                              | optional     | v1.0.1 | Sort order                                                                                                    |
 | buttons: `name:location`                  | string                              | optional     | v1.2.1 | Allows you to display buttons on the main panel, types `main, bottom`, default `bottom`                       |
