@@ -93,6 +93,23 @@ describe('one interaction, one command', () => {
     expect(hass.calls[0].options.entity_id).to.equal('switch.bedroom_plug');
   });
 
+  it('renders a button icon from a template, not from a raw object', async () => {
+    const { card } = await mountCard({
+      config: {
+        buttons: {
+          mode: {
+            location: 'main',
+            icon: { template: '(state) => state === "heat" ? "mdi:fire" : "mdi:snowflake"' },
+          },
+        },
+      },
+    });
+
+    const button = find(card, 'mc-button');
+    const icon = button.shadowRoot.querySelector('ha-icon');
+    expect(icon.icon).to.equal('mdi:fire');
+  });
+
   it('offers nothing to press while the entity is unavailable', async () => {
     const { card, hass } = await mountCard({ state: 'unavailable' });
 

@@ -223,6 +223,17 @@ describe('buttons', () => {
     expect(functions.source.filter('x')).toBe('x');
   });
 
+  it('compiles an object icon into a template and a style', () => {
+    const { card } = build({
+      buttons: {
+        a: { icon: { template: '() => "mdi:flash"', style: '() => ({ color: "red" })' } },
+      },
+    });
+    const { functions } = card.config.buttons.find(b => b.id === 'a');
+    expect(functions.icon.template()).toBe('mdi:flash');
+    expect(functions.icon.style()).toEqual({ color: 'red' });
+  });
+
   it('gives a template access to call_service through `this`', () => {
     // Which is what makes a button able to do anything at all, and is why the
     // template context is built per option rather than shared.
