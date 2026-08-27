@@ -22,6 +22,26 @@ export const mountCard = async ({ config = {}, ...state } = {}) => {
   return { card, hass };
 };
 
+// The visual editor, as the picker builds it: `getConfigElement()` on the card
+// returns a `mini-climate-editor` element, which Home Assistant drives with
+// `hass` and `setConfig` before it is shown. `src/main` registers it as a side
+// effect of the import above, so it is already defined when this runs.
+export const mountEditor = async ({ config = { entity: ENTITY_ID }, hassOptions = {} } = {}) => {
+  defineHaElements();
+
+  const hass = createHass(hassOptions);
+  const element = document.createElement('mini-climate-editor');
+
+  element.hass = hass;
+  element.setConfig(config);
+
+  const editor = await fixture(element);
+  await editor.updateComplete;
+  await nextFrame();
+
+  return { editor, hass };
+};
+
 // Every `mc-*` element the card has rendered, wherever it sits in the nested
 // shadow roots.
 export const components = root => {

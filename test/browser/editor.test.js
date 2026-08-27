@@ -6,41 +6,18 @@
 // `ha-form` and `ha-expansion-panel` are Home Assistant elements that do not
 // exist outside a frontend; the stubs in `helpers/ha-elements.js` record what
 // was handed in and expose `fire()` for a test to drive the handler the real
-// form would.
-import { expect, fixture, nextFrame } from '@open-wc/testing';
-import { defineHaElements } from './helpers/ha-elements.js';
-import { createHass, ENTITY_ID } from './helpers/hass.js';
-import '../../../src/components/editor';
-import '../../../src/main';
+// form would. `mountEditor` lives in `helpers/card.js` so this file reaches
+// `src/main` the same way the card's own tests do.
+import { expect } from '@open-wc/testing';
+import { mountEditor } from './helpers/card.js';
+import { ENTITY_ID } from './helpers/hass.js';
 
-const mountEditor = async (config = { entity: ENTITY_ID }) => {
-  defineHaElements();
-
-  const editor = document.createElement('mini-climate-editor');
-  editor.hass = createHass();
-  editor.setConfig(config);
-
-  const el = await fixture(editor);
-  await el.updateComplete;
-  await nextFrame();
-
-  return el;
-};
-
-// Every `ha-form` in the editor's shadow tree, keyed by its section. The basic
-// form is the only one rendered outside an expansion panel.
-const forms = root => {
-  const walk = node => {
-    const found = [];
-    for (const child of node.querySelectorAll('*')) {
-      if (child.localName === 'ha-form') found.push(child);
-      if (child.shadowRoot) walk(child.shadowRoot);
-    }
-    walk(node.shadowRoot || node);
-    return found;
-  };
-  return walk(root).filter(form => form.isConnected);
-};
+// The editor lays out one `ha-form` per option group, each inside an
+// `ha-expansion-panel`, plus a single top-level form for the basic options.
+const sectionForm = (editor, schemaName) =>
+  [...editor.shadowRoot.querySelectorAll('ha-expansion-panel')]
+    .map(panel => panel.querySelector('ha-form'))
+    .find(form => form.schema.some(entry => entry.name === schemaName));
 
 const basicForm = editor =>
   [...editor.shadowRoot.querySelectorAll('ha-form')].find(
@@ -49,15 +26,15 @@ const basicForm = editor =>
 
 describe('the visual config editor', () => {
   it('hands the basic options to ha-form as schema and data', async () => {
-    const editor = await mountEditor();
+    const { editor } = await mountEditor();
 
     const form = basicForm(editor);
     expect(form).to.exist;
 
     const names = form.schema.map(entry => entry.name);
-    // The options a person actually reaches in the picker: the card-level ones
-    // plus the sections below. `collapse` is deliberately absent - the card
-    // has no such option, and the editor must not teach a dead config key.
+    // The options a person actually reaches in the picker. `collapse` is
+    // deliberately absent: the card has no such option, and the editor must
+    // not teach a dead config key.
     expect(names).to.include.members([
       'entity',
       'name',
@@ -73,24 +50,27 @@ describe('the visual config editor', () => {
   });
 
   it('renders one form per option group and shows the tap action actions', async () => {
-    const editor = await mountEditor();
+    const { editor } = await mountEditor();
 
-    const sections = [...editor.shadowRoot.querySelectorAll('ha-expansion-panel')];
-    const headers = sections.map(section => section.header);
+    const headers = [...editor.shadowRoot.querySelectorAll('ha-expansion-panel')].map(
+      panel => panel.header,
+    );
     expect(headers).to.include('Tap action');
     expect(headers).to.include('Secondary info');
     expect(headers).to.include('Toggle panel button');
 
-    const tap = forms(editor)[1];
+    const tap = sectionForm(editor, 'action');
     const actions = tap.schema.find(entry => entry.name === 'action').selector.select.options;
     expect(actions.map(option => option.value)).to.include('more-info');
     expect(actions.map(option => option.value)).to.include('none');
   });
 
   it('rebuilds tap_action without stale keys when the action changes', async () => {
-    const editor = await mountEditor({
-      entity: ENTITY_ID,
-      tap_action: { action: 'navigate', navigation_path: '/lovelace/1' },
+    const { editor } = await mountEditor({
+      config: {
+        entity: ENTITY_ID,
+        tap_action: { action: 'navigate', navigation_path: '/lovelace/1' },
+      },
     });
 
     let changed;
@@ -98,8 +78,7 @@ describe('the visual config editor', () => {
       changed = event.detail.config;
     });
 
-    const tap = forms(editor)[1];
-    tap.fire({ action: 'more-info' });
+    sectionForm(editor, 'action').fire({ action: 'more-info' });
 
     // Switching away from navigate must drop navigation_path - a stale field
     // would ride along into a saved config that no longer uses it.
@@ -108,9 +87,11 @@ describe('the visual config editor', () => {
   });
 
   it('merges target_temperature icons back into the icons object', async () => {
-    const editor = await mountEditor({
-      entity: ENTITY_ID,
-      target_temperature: { unit: '°C', icons: { up: 'mdi:arrow-up' } },
+    const { editor } = await mountEditor({
+      config: {
+        entity: ENTITY_ID,
+        target_temperature: { unit: '°C', icons: { up: 'mdi:arrow-up' } },
+      },
     });
 
     let changed;
@@ -118,8 +99,17 @@ describe('the visual config editor', () => {
       changed = event.detail.config;
     });
 
-    const target = forms(editor).find(form => form.schema.some(entry => entry.name === 'icon_up'));
-    target.fire({ icon_down: 'mdi:arrow-down' });
+    // ha-form reports every field of the section, in the editor's flat shape;
+    // the editor's handler merges those back into the config's object shape.
+    const target = sectionForm(editor, 'icon_up');
+    target.fire({
+      unit: '°C',
+      min: undefined,
+      max: undefined,
+      step: undefined,
+      icon_up: 'mdi:arrow-up',
+      icon_down: 'mdi:arrow-down',
+    });
 
     expect(changed.target_temperature.icons.up).to.equal('mdi:arrow-up');
     expect(changed.target_temperature.icons.down).to.equal('mdi:arrow-down');
