@@ -60,4 +60,31 @@ describe('the fan mode dropdown under the name', () => {
     });
     assert.equal(open, true, 'the menu should open from a press over the label');
   });
+
+  it('keeps the icon and the label on one row', async () => {
+    // #270 was layout, and only a real Home Assistant reproduces it: the
+    // previous structure wrapped both in `ha-icon-button`, whose slot on
+    // 2026.8.3 stacks content in a column, so the label dropped below the
+    // icon. The browser layer renders a stand-in `ha-icon-button` that does
+    // not stack, so it cannot catch this. Only the bench sees the real one.
+    const card = session.page.locator('mini-climate').first();
+    const secondary = card.locator('mc-secondary-info');
+
+    const { iconTop, nameTop } = await secondary.evaluate(node => {
+      const fanSec = node.shadowRoot.querySelector('mc-fan-mode-secondary');
+      const icon = fanSec.shadowRoot.querySelector('ha-icon');
+      const name = fanSec.shadowRoot.querySelector('.name');
+      return {
+        iconTop: icon.getBoundingClientRect().top,
+        nameTop: name.getBoundingClientRect().top,
+      };
+    });
+
+    // Same 20px row: within 3px reads as one line, a dropped label is a
+    // whole line below (20px+).
+    assert.ok(
+      Math.abs(iconTop - nameTop) <= 3,
+      `the label should sit beside the icon, icon top ${iconTop} label top ${nameTop}`,
+    );
+  });
 });
