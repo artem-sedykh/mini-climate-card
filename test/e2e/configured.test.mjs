@@ -116,27 +116,44 @@ describe('a card written the way people write them', () => {
     }
     await until(async () => ((await card.locator('mc-dropdown').count()) > 0 ? true : null));
 
-    // The preset dropdown is the only one offering these three options. Take
-    // stable handles first: `nth()` re-indexes a live list as menus open and
-    // close, so a loop over `nth()` drifts.
-    const dropdowns = await card.locator('mc-dropdown').all();
+    // Find the preset dropdown by id, and only then look at its menu. Each
+    // `mc-dropdown-base` renders its own `mc-menu`, and only while it is open,
+    // so a query for menu items across the page reads whatever is open - a
+    // leftover menu from the scenario before this one, or a neighbour.
     let preset = null;
 
-    for (const one of dropdowns) {
-      await one.locator('ha-icon-button').first().click();
-      await session.page.waitForTimeout(400);
-
-      const labels = await session.page.locator('.mc-menu__item__label').allTextContents();
-      if (labels.map(label => label.trim()).includes('Turbo')) {
+    for (const one of await card.locator('mc-dropdown').all()) {
+      const id = await one.evaluate(node => node.dropdown && node.dropdown.id);
+      if (id === 'preset_mode') {
         preset = one;
-        await session.page.keyboard.press('Escape');
-        await session.page.waitForTimeout(300);
         break;
       }
-      await session.page.keyboard.press('Escape');
-      await session.page.waitForTimeout(300);
     }
-    assert.notEqual(preset, null, 'no dropdown offers the Turbo preset');
+    assert.notEqual(preset, null, 'no dropdown carries the preset_mode id');
+
+    // Reads from this dropdown's own shadow tree only. The menu it answers is
+    // the one this control opened, not whatever else on the page is showing.
+    // `mc-menu` sits in `mc-dropdown-base`'s shadow root and renders its items
+    // in *its own* shadow root, so the read goes two roots down.
+    const readMenu = async () =>
+      preset.evaluate(node => {
+        const base = node.shadowRoot.querySelector('mc-dropdown-base');
+        const menu = base?.shadowRoot.querySelector('mc-menu');
+        if (!menu) return [];
+        return [...menu.shadowRoot.querySelectorAll('.mc-menu__item__label')].map(el =>
+          el.textContent.trim(),
+        );
+      });
+
+    // Open the preset menu and confirm it offers the options the scenario is
+    // about, from within this dropdown's own `<mc-menu>`.
+    await preset.locator('ha-icon-button').first().click();
+    await until(async () => {
+      const labels = await readMenu();
+      return labels.some(label => label === 'Turbo') ? labels : null;
+    });
+    await session.page.keyboard.press('Escape');
+    await session.page.waitForTimeout(300);
 
     const shownIcon = () =>
       preset.evaluate(node => {
@@ -145,20 +162,34 @@ describe('a card written the way people write them', () => {
         return icon ? icon.icon : null;
       });
 
-    const pick = async (value, icon) => {
+    const pick = async (value, label, icon) => {
+      // Open this dropdown's own menu and wait for the option to be there,
+      // then click it from inside the same shadow tree. Neither a leftover
+      // overlay nor another control can steal the click, and the wait tells
+      // the menu is actually open before anything is pressed.
       await preset.locator('ha-icon-button').first().click();
-      await session.page.waitForTimeout(400);
-      await session.page.locator(`.mc-menu__item[data-value="${value}"]`).first().click();
+      await until(async () => {
+        const labels = await readMenu();
+        return labels.some(one => one === label) ? labels : null;
+      });
+      await preset.evaluate((node, target) => {
+        const base = node.shadowRoot.querySelector('mc-dropdown-base');
+        const menu = base.shadowRoot.querySelector('mc-menu');
+        const item = menu.shadowRoot.querySelector(`.mc-menu__item[data-value="${target}"]`);
+        item.click();
+      }, value);
 
       // The button takes the state optimistically, then the device confirms via
       // MQTT; the icon follows the state, so wait for it to settle.
       await until(async () => ((await shownIcon()) === icon ? icon : null), {
         timeout: 15000,
       });
+      await session.page.keyboard.press('Escape');
+      await session.page.waitForTimeout(300);
     };
 
-    await pick('boost', 'mdi:fan-chevron-up');
-    await pick('eco', 'mdi:fan-chevron-down');
+    await pick('boost', 'Turbo', 'mdi:fan-chevron-up');
+    await pick('eco', 'Quiet', 'mdi:fan-chevron-down');
 
     assert.deepEqual(session.errors, []);
   });
