@@ -27,6 +27,7 @@ indicators:
 | [`icon:template`](functions.md#icon_template) | function | indicator config  | value, entity, climate_entity, hvac_mode | string      |
 | [`icon:style`](functions.md#icon_style)    | function | indicator config  | value, entity, climate_entity, hvac_mode | object      |
 | [`value:style`](functions.md#value_style)   | function | indicator config  | value, entity, climate_entity, hvac_mode | object      |
+| [`unit:template`](functions.md#unit_template) | function | indicator config  | mapped_value, value, entity, climate_entity, hvac_mode | string |
 | [`hide`](functions.md#hide)          | function | indicator config  | value, entity, climate_entity, hvac_mode | boolean     |
 
 `value` - current indicator value  

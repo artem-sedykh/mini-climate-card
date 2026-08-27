@@ -158,6 +158,15 @@ describe('indicators', () => {
     expect(card.config.indicators[0].functions.hide()).toBe(true);
   });
 
+  it('compiles a unit template', () => {
+    const { card } = build({
+      indicators: { power: { unit: { template: '(mapped, value) => value > 1000 ? "kW" : "W"' } } },
+    });
+    const { functions } = card.config.indicators[0];
+    expect(functions.unit.template(1.5, 1500)).toBe('kW');
+    expect(functions.unit.template(300, 300)).toBe('W');
+  });
+
   it('keeps a key the card does not recognise, and hands it to the template', () => {
     // This is the extension point, not an oversight: the template context is
     // the option's own YAML, so anything written beside a template is
