@@ -586,6 +586,10 @@ fault that shows up as a doubled call rather than as an error.
 - Conventional Commits, no scope: `fix:`, `feat:`, `ci:`, `build:`, `docs:`.
 - Punctuation stays ASCII. No em dashes, no smart quotes, no ellipsis
   character - they break literal greps and are a giveaway of generated text.
+- **A new option ships with a usage example.** Add the option to
+  `docs/configuration.md` and to the page that documents it, and write a short
+  example a user can copy - the one an answer in the tracker would carry. A
+  feature without an example is not ready for a review.
 
 ## Releasing
 

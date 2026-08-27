@@ -106,7 +106,7 @@ export interface IndicatorConfig {
 export interface ButtonConfig {
   id: string;
   type?: string;
-  icon?: string;
+  icon?: string | { template?: string; style?: string };
   order?: number;
   location?: string;
   state?: Source;

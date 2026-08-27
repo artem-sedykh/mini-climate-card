@@ -21,4 +21,12 @@ releases, so "it works here" is only meaningful with a version next to it.
 - [ ] `npm run build` passes (lint, formatting, tests, bundle and its checks)
 - [ ] The card was loaded in a running Home Assistant, not only built
 - [ ] A new component registers itself with `define('mc-...', ...)` at the bottom of its module
-- [ ] `README.md` updated, if this changes or adds an option
+- [ ] This adds or changes an option, and the docs carry a usage example
+      for it, linked from the option's row in `docs/configuration.md`
+- [ ] `npm run test:e2e` passes against the bench, if this changes rendering
+      or interaction - the bench is what a real Home Assistant answers
+
+> Note: options are documented in `docs/` since #239; `README.md` is the
+> entry page and no longer carries the option tables. `check:options` confirms
+> the card and the docs name the same list, and `test/bench/README.md` covers
+> running the bench.
