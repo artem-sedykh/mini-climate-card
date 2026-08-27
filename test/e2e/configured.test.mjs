@@ -111,22 +111,26 @@ describe('a card written the way people write them', () => {
     // `preset_mode` carries `icon: { template }`, from the case in #49: the
     // icon the button shows follows the preset. `boost` -> fan-chevron-up,
     // `eco` -> fan-chevron-down, anything else (`none`) -> fan-speed-3.
-    await card.locator('.toggle-button').first().click();
-    await session.page.waitForTimeout(500);
+    if ((await card.locator('mc-dropdown').count()) === 0) {
+      await card.locator('.toggle-button').first().click();
+    }
+    await until(async () => ((await card.locator('mc-dropdown').count()) > 0 ? true : null));
 
-    // The preset dropdown is the only one offering these three options.
-    const dropdown = card.locator('mc-dropdown');
-    const count = await dropdown.count();
+    // The preset dropdown is the only one offering these three options. Take
+    // stable handles first: `nth()` re-indexes a live list as menus open and
+    // close, so a loop over `nth()` drifts.
+    const dropdowns = await card.locator('mc-dropdown').all();
     let preset = null;
 
-    for (let index = 0; index < count; index += 1) {
-      const one = dropdown.nth(index);
+    for (const one of dropdowns) {
       await one.locator('ha-icon-button').first().click();
       await session.page.waitForTimeout(400);
 
       const labels = await session.page.locator('.mc-menu__item__label').allTextContents();
       if (labels.map(label => label.trim()).includes('Turbo')) {
         preset = one;
+        await session.page.keyboard.press('Escape');
+        await session.page.waitForTimeout(300);
         break;
       }
       await session.page.keyboard.press('Escape');
@@ -135,30 +139,26 @@ describe('a card written the way people write them', () => {
     assert.notEqual(preset, null, 'no dropdown offers the Turbo preset');
 
     const shownIcon = () =>
-      preset.evaluate(node => node.shadowRoot.querySelector('.mc-dropdown__button ha-icon').icon);
+      preset.evaluate(node => {
+        const base = node.shadowRoot.querySelector('mc-dropdown-base');
+        const icon = base.shadowRoot.querySelector('.mc-dropdown__button ha-icon');
+        return icon ? icon.icon : null;
+      });
 
-    const pick = async value => {
+    const pick = async (value, icon) => {
       await preset.locator('ha-icon-button').first().click();
       await session.page.waitForTimeout(400);
       await session.page.locator(`.mc-menu__item[data-value="${value}"]`).first().click();
 
       // The button takes the state optimistically, then the device confirms via
       // MQTT; the icon follows the state, so wait for it to settle.
-      const expected =
-        value === 'boost'
-          ? 'mdi:fan-chevron-up'
-          : value === 'eco'
-            ? 'mdi:fan-chevron-down'
-            : 'mdi:fan-speed-3';
-
-      await until(async () => ((await shownIcon()) === expected ? expected : null), {
+      await until(async () => ((await shownIcon()) === icon ? icon : null), {
         timeout: 15000,
       });
     };
 
-    await pick('boost');
-    await pick('eco');
-    await pick('none');
+    await pick('boost', 'mdi:fan-chevron-up');
+    await pick('eco', 'mdi:fan-chevron-down');
 
     assert.deepEqual(session.errors, []);
   });

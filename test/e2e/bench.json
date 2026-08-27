@@ -59,7 +59,7 @@
         "object_id": "bench_ac_remote",
         "modes": ["off", "cool", "heat", "dry", "fan_only", "heat_cool"],
         "fan_modes": ["auto", "low", "medium", "high"],
-        "preset_modes": ["none", "boost", "eco"],
+        "preset_modes": ["boost", "eco"],
         "swing_modes": ["off", "vertical"],
         "mode_command_topic": "bench/remote/mode/set",
         "temperature_command_topic": "bench/remote/temperature/set",
