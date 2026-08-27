@@ -1,6 +1,6 @@
 # Buttons
 
-[Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Examples](examples.md) | [Development](development.md)
+[Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Functions](functions.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Examples](examples.md) | [Development](development.md)
 
 > You can add various buttons, supported types: button and dropdown
 
@@ -8,14 +8,14 @@
 
 | Name              | Type     | execution context | arguments                                         | return type                      |
 |-------------------|----------|-------------------|---------------------------------------------------|----------------------------------|
-| `state:mapper`    | function | button config     | state, entity, climate_entity, hvac_mode          | any                              |
-| `source:__filter` | function | button config     | source, state, entity, climate_entity, hvac_mode  | object({ id..., name... }) array |
-| `active`          | function | button config     | value, entity, climate_entity, hvac_mode          | boolean                          |
-| `disabled`        | function | button config     | value, entity, climate_entity, hvac_mode          | boolean                          |
-| `style`           | function | button config     | value, entity, climate_entity, hvac_mode          | object                           |
-| `toggle_action`   | function | button config     | state, entity, climate_entity, hvac_mode          | promise                          |
-| `change_action`   | function | button config     | selected_value, entity, climate_entity, hvac_mode | promise                          |
-| `hide`            | function | button config     | state, entity, climate_entity, hvac_mode          | boolean                          |
+| [`state:mapper`](functions.md#state_mapper)    | function | button config     | state, entity, climate_entity, hvac_mode          | any                              |
+| [`source:__filter`](functions.md#source__filter) | function | button config     | source, state, entity, climate_entity, hvac_mode  | object({ id..., name... }) array |
+| [`active`](functions.md#active)          | function | button config     | value, entity, climate_entity, hvac_mode          | boolean                          |
+| [`disabled`](functions.md#disabled)        | function | button config     | value, entity, climate_entity, hvac_mode          | boolean                          |
+| [`style`](functions.md#style)           | function | button config     | value, entity, climate_entity, hvac_mode          | object                           |
+| [`toggle_action`](functions.md#toggle_action)   | function | button config     | state, entity, climate_entity, hvac_mode          | promise                          |
+| [`change_action`](functions.md#change_action)   | function | button config     | selected_value, entity, climate_entity, hvac_mode | promise                          |
+| [`hide`](functions.md#hide)            | function | button config     | state, entity, climate_entity, hvac_mode          | boolean                          |
 
 `state` - current button state value  
 `entity` - button entity  

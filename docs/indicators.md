@@ -1,6 +1,6 @@
 # Indicators
 
-[Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Examples](examples.md) | [Development](development.md)
+[Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Functions](functions.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Examples](examples.md) | [Development](development.md)
 
 > The indicators display additional information on the card, for example, you can display humidity, consumption, etc.  
 > Adding a simple indicator:
@@ -23,11 +23,11 @@ indicators:
 
 | Name            | Type     | execution context | arguments                                | return type |
 |-----------------|----------|-------------------|------------------------------------------|-------------|
-| `source:mapper` | function | indicator config  | value, entity, climate_entity, hvac_mode | any         |
-| `icon:template` | function | indicator config  | value, entity, climate_entity, hvac_mode | string      |
-| `icon:style`    | function | indicator config  | value, entity, climate_entity, hvac_mode | object      |
-| `value:style`   | function | indicator config  | value, entity, climate_entity, hvac_mode | object      |
-| `hide`          | function | indicator config  | value, entity, climate_entity, hvac_mode | boolean     |
+| [`source:mapper`](functions.md#state_mapper) | function | indicator config  | value, entity, climate_entity, hvac_mode | any         |
+| [`icon:template`](functions.md#icon_template) | function | indicator config  | value, entity, climate_entity, hvac_mode | string      |
+| [`icon:style`](functions.md#icon_style)    | function | indicator config  | value, entity, climate_entity, hvac_mode | object      |
+| [`value:style`](functions.md#value_style)   | function | indicator config  | value, entity, climate_entity, hvac_mode | object      |
+| [`hide`](functions.md#hide)          | function | indicator config  | value, entity, climate_entity, hvac_mode | boolean     |
 
 `value` - current indicator value  
 `entity` - indicator entity  
