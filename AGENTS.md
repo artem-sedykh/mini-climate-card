@@ -600,6 +600,10 @@ fault that shows up as a doubled call rather than as an error.
   `docs/configuration.md` and to the page that documents it, and write a short
   example a user can copy - the one an answer in the tracker would carry. A
   feature without an example is not ready for a review.
+- **A merged branch is cleaned up, in the same sitting.** After the PR is
+  merged, delete the remote branch (`gh pr merge --delete-branch`) and the
+  local one, and switch back to `master`. A stale local branch pointing at a
+  merged commit is how a later change accidentally builds on a merged PR.
 
 ## Releasing
 
