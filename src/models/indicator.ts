@@ -54,6 +54,16 @@ export default class IndicatorObject {
   }
 
   get unit() {
+    if (this.config.functions.unit && this.config.functions.unit.template) {
+      return this.config.functions.unit.template(
+        this.value,
+        this.originalValue,
+        this.entity,
+        this.climate.entity,
+        this.climate.mode,
+      );
+    }
+
     return this.config.unit;
   }
 

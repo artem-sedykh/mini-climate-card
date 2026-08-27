@@ -259,7 +259,18 @@ buttons:
 
 ## unit:template {#unit_template}
 
-The unit of an indicator, computed from the value.
+The unit of an indicator, computed from the value. This is how the unit
+follows the reading: the value a sensor reports is often plain, and the unit
+depends on the threshold.
+
+| argument | what it is |
+|---|---|
+| `mapped_value` | the value the indicator shows - what `state:mapper` returned |
+| `value` | the value as the sensor reported it, **before** the mapper |
+
+The first argument is what the card draws; the second is what decides the
+unit. That split is what makes an auto-switching unit accurate: the mapper
+divides the raw reading, the template reads the raw one to choose.
 
 ```yaml
 type: custom:mini-climate
@@ -267,9 +278,12 @@ entity: climate.my_ac
 indicators:
   power:
     icon: mdi:flash
-    unit:
-      template: (value) => (value > 1000 ? 'kW' : 'W')
     source:
       entity: sensor.ac_power
+      mapper: value => value > 1000 ? value / 1000 : value
+    unit:
+      template: (mapped_value, value) => (value > 1000 ? 'kW' : 'W')
 ```
 
+A sensor reporting `1500` shows **`1.5 kW`** - the mapper divided it, the unit
+template picked `kW` from the raw `1500`.

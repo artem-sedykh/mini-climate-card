@@ -91,7 +91,7 @@
 | indicators: `name:value`                  | object                              | optional     | v1.0.1 | Value object                                                                                                  |
 | indicators: `name:value:style`            | function                            | optional     | v1.0.1 | Styles                                                                                                        |
 | indicators: `name:unit`                   | string                              | optional     | v1.0.1 | Display unit                                                                                                  |
-| indicators: `name:unit`                   | string                              | optional     | v1.0.1 | Display unit                                                                                                  |
+| indicators: `name:unit`                   | function                            | optional     | v3.1.0 | [Unit template](functions.md#unit_template)                                                                   |
 | indicators: `name:round`                  | number                              | optional     | v1.0.1 | Rounding number value                                                                                         |
 | indicators: `name:hide`                   | boolean                             | optional     | v2.5.0 | Hide indicator, default value `False`                                                                         |
 | indicators: `name:hide`                   | function                            | optional     | v2.5.0 | Custom hide indicator function                                                                                |

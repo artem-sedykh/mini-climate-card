@@ -2,6 +2,8 @@ import { aTimeout, expect, nextFrame } from '@open-wc/testing';
 import { components, mountCard, settle } from './helpers/card.js';
 import { ENTITY_ID } from './helpers/hass.js';
 
+const find = (card, name) => components(card).find(component => component.localName === name);
+
 const openMenuOf = async (host, card) => {
   const base = host.shadowRoot.querySelector('mc-dropdown-base');
   base.shadowRoot.getElementById('button').click();
@@ -13,8 +15,6 @@ const openMenuOf = async (host, card) => {
 
   return menu;
 };
-
-const find = (card, name) => components(card).find(component => component.localName === name);
 
 describe('one interaction, one command', () => {
   it('sends one set_hvac_mode when a mode is picked', async () => {
@@ -103,5 +103,40 @@ describe('one interaction, one command', () => {
     await settle(card);
 
     expect(hass.calls).to.have.lengthOf(0);
+  });
+
+  it('picks the unit from the raw value and the shown value from the mapper', async () => {
+    // `mapper` turns 1500 W into 1.5; `unit.template` reads the *raw* value
+    // (its second argument) to choose kW/W, so the indicator shows "1.5 kW".
+    const { card, hass } = await mountCard({
+      config: {
+        indicators: {
+          power: {
+            icon: 'mdi:flash',
+            source: {
+              entity: 'sensor.bedroom_power',
+              mapper: value => value / 1000,
+            },
+            unit: {
+              template: (_mapped, value) => (value > 1000 ? 'kW' : 'W'),
+            },
+          },
+        },
+      },
+    });
+
+    const states = { ...hass.states };
+    states['sensor.bedroom_power'] = {
+      entity_id: 'sensor.bedroom_power',
+      state: 1500,
+      attributes: { unit_of_measurement: 'W' },
+    };
+    card.hass = { ...hass, states };
+    await settle(card);
+
+    const indicators = card.shadowRoot.querySelector('mc-indicators');
+    const indicator = indicators.shadowRoot.querySelector('.state');
+    expect(indicator.querySelector('.state__value').textContent.trim()).to.equal('1.5');
+    expect(indicator.querySelector('.state__uom').textContent.trim()).to.equal('kW');
   });
 });

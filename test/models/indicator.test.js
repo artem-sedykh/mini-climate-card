@@ -134,3 +134,26 @@ describe('IndicatorObject identity', () => {
     expect(i.unit).toBe('W');
   });
 });
+
+describe('IndicatorObject unit template', () => {
+  it('hands a unit template the mapped value and the original one', () => {
+    // The mapper divides 1500 W into 1.5; the unit template reads the raw
+    // value to pick kW/W, and gets the mapped one as its first argument.
+    const mapper = vi.fn(value => value / 1000);
+    const unitTemplate = vi.fn((_mapped, value) => (value > 1000 ? 'kW' : 'W'));
+    const i = indicator(
+      {
+        source: { attribute: 'power' },
+        functions: { mapper, unit: { template: unitTemplate } },
+      },
+      entity('on', { power: 1500 }),
+    );
+    expect(i.value).toBe(1.5);
+    expect(i.unit).toBe('kW');
+    expect(unitTemplate).toHaveBeenCalledWith(1.5, 1500, i.entity, undefined, undefined);
+  });
+
+  it('keeps a plain string unit when there is no template', () => {
+    expect(indicator({ unit: 'W' }).unit).toBe('W');
+  });
+});
