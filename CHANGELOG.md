@@ -9,6 +9,32 @@
 Every release of this card, newest first. Each heading links to the release it
 came from, where the asset and the date are.
 
+## [v3.1.0](https://github.com/artem-sedykh/mini-climate-card/releases/tag/v3.1.0)
+
+The first release after the rework. Small, on purpose: a handful of additions
+and fixes, none of which changes how the card is laid out.
+
+### Added
+
+- **An icon template on a button.** `buttons:name:icon` took a string only;
+  an icon driven by state worked on an indicator but not on a button. It can
+  now be a `template` the same way an indicator's can be, so the icon follows
+  the button's state. [#49](https://github.com/artem-sedykh/mini-climate-card/issues/49)
+- **A unit from the reading, not from a fixed string.** `unit:template` now
+  runs, and takes the mapped value and the raw one: the value the card draws,
+  and the value the sensor reported. A power sensor that reads `1500` shows
+  `1.5 kW` - the mapper divides, the unit template picks `kW` from the raw
+  `1500`. [#272](https://github.com/artem-sedykh/mini-climate-card/pull/272)
+
+### Fixed
+
+- **The fan mode dropdown under the name sits on one line, and the whole line
+  is the click target.** The label used to drop below the icon - a column
+  instead of a row - and only the 20x20 icon glyph opened the menu, on Home
+  Assistant 2026.8.3 where `ha-icon-button` stacks its slot content. The drop
+  is a single button now: icon and label in a row, menu opens wherever the
+  line is pressed. [#270](https://github.com/artem-sedykh/mini-climate-card/issues/270)
+
 ## [v3.0.0](https://github.com/artem-sedykh/mini-climate-card/releases/tag/v3.0.0)
 
 A wide one - the first release in months, and most of what Home Assistant did
