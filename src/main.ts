@@ -34,6 +34,7 @@ import './components/dropdown';
 import './components/buttons';
 import './components/button';
 import './components/secondary-info';
+import './components/editor';
 
 class MiniClimate extends LitElement {
   config!: CardConfig;
@@ -85,6 +86,10 @@ class MiniClimate extends LitElement {
       entity = allEntities.find(eid => eid.split('.')[0] === 'climate');
     }
     return { entity };
+  }
+
+  static getConfigElement(): HTMLElement {
+    return document.createElement('mini-climate-editor');
   }
 
   constructor() {
@@ -596,7 +601,7 @@ class MiniClimate extends LitElement {
   renderCtlWrap(): TemplateResult | string {
     if (this.climate.isUnavailable) {
       return html`
-        <span class="label ellipsis">        
+        <span class="label ellipsis">
           ${getLabel(this.hass, ['state.default.unavailable'], 'Unavailable')}
         </span>
       `;
@@ -863,4 +868,5 @@ window.customCards.push({
   preview: true,
   description: 'A custom climate card',
   documentationURL: 'https://github.com/artem-sedykh/mini-climate-card',
+  configurable: true,
 });
