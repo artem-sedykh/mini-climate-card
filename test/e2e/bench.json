@@ -443,6 +443,82 @@
           }
         }
       ]
+    },
+    {
+      "title": "Repro #270",
+      "cards": [
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac_remote}}",
+          "name": "Fan mode dropdown",
+          "hide_current_temperature": true,
+          "secondary_info": {
+            "type": "fan-mode-dropdown"
+          },
+          "hvac_mode": {
+            "source": {
+              "off": "Off",
+              "cool": "Cool",
+              "heat": "Heat",
+              "dry": "Dry",
+              "fan_only": "Fan",
+              "heat_cool": "Auto"
+            }
+          },
+          "fan_mode": {
+            "hide": true,
+            "source": {
+              "auto": "Auto",
+              "low": "Low",
+              "medium": "Medium",
+              "high": "High"
+            }
+          },
+          "indicators": {
+            "temperature": {
+              "icon": "mdi:thermometer",
+              "unit": "°C",
+              "round": 1,
+              "source": {
+                "entity": "{{bench_trv}}",
+                "attribute": "current_temperature"
+              }
+            },
+            "humidity": {
+              "icon": "mdi:water",
+              "unit": "%",
+              "round": 1,
+              "source": {
+                "entity": "{{bench_humidity}}"
+              }
+            }
+          },
+          "buttons": {
+            "boost": {
+              "icon": "mdi:weather-hurricane",
+              "state": {
+                "attribute": "preset_mode",
+                "mapper": "state => state === 'boost' ? 'on' : 'off'"
+              },
+              "active": "state => state === 'on'",
+              "toggle_action": "(state, entity) => this.call_service('climate', 'set_preset_mode', { entity_id: entity.entity_id, preset_mode: state === 'on' ? 'none' : 'boost' })"
+            },
+            "eco": {
+              "icon": "mdi:leaf",
+              "state": {
+                "attribute": "preset_mode",
+                "mapper": "state => state === 'eco' ? 'on' : 'off'"
+              },
+              "active": "state => state === 'on'",
+              "toggle_action": "(state, entity) => this.call_service('climate', 'set_preset_mode', { entity_id: entity.entity_id, preset_mode: state === 'on' ? 'none' : 'eco' })"
+            }
+          },
+          "toggle": {
+            "hide": true,
+            "default": true
+          }
+        }
+      ]
     }
   ]
 }

@@ -1,5 +1,6 @@
 import define from '../utils/define';
 import { LitElement, html, css, type PropertyValues, type TemplateResult } from 'lit';
+import { styleMap } from 'lit/directives/style-map.js';
 import sharedStyle from '../sharedStyle';
 import type ButtonObject from '../models/button';
 import type { CardConfig, SourceItem } from '../types';
@@ -64,34 +65,50 @@ export default class ClimateFanModeSecondary extends LitElement {
     this.requestUpdate('_selected');
   }
 
-  renderFanMode(): TemplateResult {
+  renderFanMode(gap = 0): TemplateResult {
     const label = this._selected ? this._selected.name : this.fanMode.state;
     const icon = this.config.secondary_info.icon
       ? this.config.secondary_info.icon
       : this.fanMode.icon;
+    const gapStyle = gap ? { 'padding-left': `${gap}px` } : {};
 
     return html`
        <ha-icon class='icon' .icon=${icon}></ha-icon>
-       <span class='name'>${label}</span>
+       <span class='name' style=${styleMap(gapStyle)}>${label}</span>
     `;
   }
 
   handleClick(): void {
     const menu = this.shadowRoot!.querySelector('#menu') as ClimateMenu;
-    menu.anchor = this.shadowRoot!.querySelector('#button') as HTMLElement;
+    const anchor = this.shadowRoot!.querySelector('#button') as HTMLElement;
+    menu.anchor = anchor;
     menu.show();
+  }
+
+  handleKeydown(e: KeyboardEvent): void {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      this.handleClick();
+    }
   }
 
   renderFanModeDropdown(): TemplateResult {
     return html`
       <div class='mc-dropdown'>
-        <ha-icon-button class='mc-dropdown__button icon'
+        <!-- The whole drop (icon + label) is the button, not just the 20x20
+             icon grid. Anchored and keyboard-focusable like one, so the menu
+             opens wherever the reader presses, not only on the glyph. -->
+        <button
+          class='mc-dropdown__button'
           id=${'button'}
           @click=${this.handleClick}
+          @keydown=${this.handleKeydown}
           ?disabled=${this.fanMode.disabled}
+          role='button'
+          tabindex='0'
         >
-          ${this.renderFanMode()}
-        </ha-icon-button>
+          ${this.renderFanMode(3)}
+        </button>
         <mc-menu
           id=${'menu'}
           .items=${this.fanMode.source}
@@ -127,6 +144,28 @@ export default class ClimateFanModeSecondary extends LitElement {
       css`
       .mc-dropdown {
         padding: 0;
+      }
+      /* The whole drop is the click target - icon and label in one row - and
+         the label is sized by the same unit as the secondary info line. The
+         only shadow-owning element left is the menu, which renders in a top
+         layer and does not interfere. */
+      .mc-dropdown__button {
+        display: flex;
+        align-items: center;
+        padding: 0;
+        margin: 0;
+        border: none;
+        background: none;
+        color: inherit;
+        font-family: inherit;
+        cursor: pointer;
+        text-align: start;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+      .mc-dropdown__button[disabled] {
+        opacity: .25;
+        pointer-events: none;
       }
       .name {
         font-size: calc(var(--mc-unit) * .35);
