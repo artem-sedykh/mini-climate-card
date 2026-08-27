@@ -110,6 +110,59 @@ describe('one interaction, one command', () => {
     expect(icon.icon).to.equal('mdi:fire');
   });
 
+  it('changes a dropdown button icon by its preset mode', async () => {
+    // The #49 case on a dropdown: the icon the button shows follows the state.
+    // `boost` -> fan-chevron-up, `eco` -> fan-chevron-down, `none` -> fan-speed-3.
+    const { card, hass } = await mountCard({
+      config: {
+        buttons: {
+          preset_mode: {
+            type: 'dropdown',
+            location: 'main',
+            icon: {
+              template:
+                "(state) => state === 'boost' ? 'mdi:fan-chevron-up' : state === 'eco' ? 'mdi:fan-chevron-down' : 'mdi:fan-speed-3'",
+            },
+            state: { attribute: 'preset_mode' },
+            active: 'state => state !== "none"',
+            source: { none: 'Plain', boost: 'Turbo', eco: 'Quiet' },
+          },
+        },
+      },
+      attributes: { preset_mode: 'none' },
+    });
+
+    const shownIcon = () => {
+      const dropdown = find(card, 'mc-dropdown');
+      // The button lives inside mc-dropdown-base, whose own shadow root holds
+      // the ha-icon-button - both are enclosed, so the query has to go down
+      // both roots.
+      const base = dropdown.shadowRoot.querySelector('mc-dropdown-base');
+      return base.shadowRoot.querySelector('.mc-dropdown__button ha-icon').icon;
+    };
+
+    expect(shownIcon()).to.equal('mdi:fan-speed-3');
+
+    // Change the entity and hand it back: the `hass` setter rebuilds the
+    // button models, which re-runs the icon template with the new state.
+    const setPreset = value => {
+      const states = { ...hass.states };
+      states[ENTITY_ID] = {
+        ...states[ENTITY_ID],
+        attributes: { ...states[ENTITY_ID].attributes, preset_mode: value },
+      };
+      card.hass = { ...hass, states };
+    };
+
+    setPreset('boost');
+    await settle(card);
+    expect(shownIcon()).to.equal('mdi:fan-chevron-up');
+
+    setPreset('eco');
+    await settle(card);
+    expect(shownIcon()).to.equal('mdi:fan-chevron-down');
+  });
+
   it('offers nothing to press while the entity is unavailable', async () => {
     const { card, hass } = await mountCard({ state: 'unavailable' });
 

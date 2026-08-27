@@ -107,6 +107,62 @@ describe('a card written the way people write them', () => {
     assert.deepEqual(session.errors, []);
   });
 
+  it('changes a dropdown button icon by its preset mode', async () => {
+    // `preset_mode` carries `icon: { template }`, from the case in #49: the
+    // icon the button shows follows the preset. `boost` -> fan-chevron-up,
+    // `eco` -> fan-chevron-down, anything else (`none`) -> fan-speed-3.
+    await card.locator('.toggle-button').first().click();
+    await session.page.waitForTimeout(500);
+
+    // The preset dropdown is the only one offering these three options.
+    const dropdown = card.locator('mc-dropdown');
+    const count = await dropdown.count();
+    let preset = null;
+
+    for (let index = 0; index < count; index += 1) {
+      const one = dropdown.nth(index);
+      await one.locator('ha-icon-button').first().click();
+      await session.page.waitForTimeout(400);
+
+      const labels = await session.page.locator('.mc-menu__item__label').allTextContents();
+      if (labels.map(label => label.trim()).includes('Turbo')) {
+        preset = one;
+        break;
+      }
+      await session.page.keyboard.press('Escape');
+      await session.page.waitForTimeout(300);
+    }
+    assert.notEqual(preset, null, 'no dropdown offers the Turbo preset');
+
+    const shownIcon = () =>
+      preset.evaluate(node => node.shadowRoot.querySelector('.mc-dropdown__button ha-icon').icon);
+
+    const pick = async value => {
+      await preset.locator('ha-icon-button').first().click();
+      await session.page.waitForTimeout(400);
+      await session.page.locator(`.mc-menu__item[data-value="${value}"]`).first().click();
+
+      // The button takes the state optimistically, then the device confirms via
+      // MQTT; the icon follows the state, so wait for it to settle.
+      const expected =
+        value === 'boost'
+          ? 'mdi:fan-chevron-up'
+          : value === 'eco'
+            ? 'mdi:fan-chevron-down'
+            : 'mdi:fan-speed-3';
+
+      await until(async () => ((await shownIcon()) === expected ? expected : null), {
+        timeout: 15000,
+      });
+    };
+
+    await pick('boost');
+    await pick('eco');
+    await pick('none');
+
+    assert.deepEqual(session.errors, []);
+  });
+
   it('maps an indicator value through the template context', async () => {
     // `mapper: value => this.source.values[value]` - `this` is the option's own
     // YAML, which is the extension point the card is built on. A card that lost

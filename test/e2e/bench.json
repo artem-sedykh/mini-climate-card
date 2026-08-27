@@ -59,7 +59,7 @@
         "object_id": "bench_ac_remote",
         "modes": ["off", "cool", "heat", "dry", "fan_only", "heat_cool"],
         "fan_modes": ["auto", "low", "medium", "high"],
-        "preset_modes": ["boost", "eco"],
+        "preset_modes": ["none", "boost", "eco"],
         "swing_modes": ["off", "vertical"],
         "mode_command_topic": "bench/remote/mode/set",
         "temperature_command_topic": "bench/remote/temperature/set",
@@ -335,7 +335,9 @@
             },
             "preset_mode": {
               "type": "dropdown",
-              "icon": "mdi:fan-speed-3",
+              "icon": {
+                "template": "state => state === 'boost' ? 'mdi:fan-chevron-up' : state === 'eco' ? 'mdi:fan-chevron-down' : 'mdi:fan-speed-3'"
+              },
               "state": {
                 "attribute": "preset_mode"
               },
