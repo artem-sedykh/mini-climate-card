@@ -199,18 +199,20 @@ describe('a card written the way people write them', () => {
     // a `values`/`mapper` template, and as the `power_switch` button. One
     // press has to flip the entity and both readers follow - the "one entity,
     // two consumers" shape the bedroom card has.
-    // Find the power_switch button by its model id, not by position.
+    // Find the power_switch button by its model id, not by position. `bench_plug`
+    // is not guaranteed to be in `hass.states` on the first read - MQTT discovery
+    // and its retained state register asynchronously on a fresh bench, and the
+    // card only builds a button for an entity it has a state for. So wait for the
+    // button rather than assert it was there on the first read (flaky #275).
     const powerSwitch = card.locator('mc-buttons mc-button');
-    const count = await powerSwitch.count();
-    let target = null;
-    for (let i = 0; i < count; i += 1) {
-      const id = await powerSwitch.nth(i).evaluate(node => node.button && node.button.id);
-      if (id === 'power_switch') {
-        target = powerSwitch.nth(i);
-        break;
+    const target = await until(async () => {
+      const count = await powerSwitch.count();
+      for (let i = 0; i < count; i += 1) {
+        const id = await powerSwitch.nth(i).evaluate(node => node.button && node.button.id);
+        if (id === 'power_switch') return powerSwitch.nth(i);
       }
-    }
-    assert.notEqual(target, null, 'no power_switch button rendered');
+      return null;
+    });
 
     const beforeState = (await entity(bench.tokens, bench.ids.bench_plug)).state;
     await target.locator('ha-icon-button').click();
@@ -281,8 +283,10 @@ describe('a card written the way people write them', () => {
     // class - and the temperature has no tap_action, so a scenario that
     // clicked it would be measuring nothing while looking correct.
     const states = card.locator('mc-indicators .state');
-    const count = await states.count();
-    assert.equal(count, 3, 'the manifest card has three indicators');
+    // All three indicators render here only once their entities are in
+    // `hass.states`; a fresh bench registers bench entities asynchronously, so
+    // assert the count only after it has settled (flaky #275).
+    await until(async () => ((await states.count()) >= 3 ? true : null));
 
     for (const index of [0, 1]) {
       await states.nth(index).click();
