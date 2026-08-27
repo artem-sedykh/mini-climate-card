@@ -312,6 +312,15 @@ class MiniClimate extends LitElement {
 
     if (item.style) item.functions.style = compileTemplate(item.style, context);
 
+    if (typeof item.icon === 'object') {
+      item.functions.icon = {};
+
+      if (item.icon.template)
+        item.functions.icon.template = compileTemplate(item.icon.template, context);
+
+      if (item.icon.style) item.functions.icon.style = compileTemplate(item.icon.style, context);
+    }
+
     if (item.hide) {
       if (typeof item.hide === 'boolean') {
         item.functions.hide = () => true;

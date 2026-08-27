@@ -58,6 +58,15 @@ export default class ButtonObject {
   }
 
   get icon() {
+    if (this.config.functions.icon && this.config.functions.icon.template) {
+      return this.config.functions.icon.template(
+        this.state,
+        this.entity,
+        this.climate.entity,
+        this.climate.mode,
+      );
+    }
+
     return this.config.icon;
   }
 

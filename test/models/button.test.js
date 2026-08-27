@@ -43,7 +43,7 @@ describe('ButtonObject state', () => {
     expect(b.originalState).toBe('on');
   });
 
-  it('hands the mapper the state, the entity, the climate entity and the mode', () => {
+  it('hands a template the state, the entity, the climate entity and the mode', () => {
     // The argument order is the contract every template in every user's
     // configuration is written against.
     const mapper = vi.fn(() => 'x');
@@ -54,6 +54,22 @@ describe('ButtonObject state', () => {
     });
     void b.state;
     expect(mapper).toHaveBeenCalledWith('on', b.entity, climateEntity, 'cool');
+  });
+
+  it('prefers an icon template over a plain icon, and hands it the same arguments', () => {
+    const template = vi.fn(() => 'mdi:power-sleep');
+    const climateEntity = { entity_id: 'climate.a' };
+    const b = button({ functions: { icon: { template } } }, entity('on'), {
+      entity: climateEntity,
+      mode: 'cool',
+    });
+    expect(b.icon).toBe('mdi:power-sleep');
+    expect(template).toHaveBeenCalledWith('on', b.entity, climateEntity, 'cool');
+  });
+
+  it('keeps a plain string icon, and returns nothing when there is no icon', () => {
+    expect(button({ icon: 'mdi:fan' }).icon).toBe('mdi:fan');
+    expect(button().icon).toBeUndefined();
   });
 
   it('is unavailable for an unavailable or unknown state', () => {

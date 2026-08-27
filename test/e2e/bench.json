@@ -87,7 +87,8 @@
         "unique_id": "bench_plug",
         "object_id": "bench_plug",
         "command_topic": "bench/plug/set",
-        "state_topic": "bench/plug/state"
+        "state_topic": "bench/plug/state",
+        "optimistic": true
       },
       "state": {
         "bench/plug/state": "ON"
@@ -335,7 +336,9 @@
             },
             "preset_mode": {
               "type": "dropdown",
-              "icon": "mdi:fan-speed-3",
+              "icon": {
+                "template": "state => state === 'boost' ? 'mdi:fan-chevron-up' : state === 'eco' ? 'mdi:fan-chevron-down' : 'mdi:fan-speed-3'"
+              },
               "state": {
                 "attribute": "preset_mode"
               },
@@ -351,6 +354,12 @@
               "icon": "mdi:weather-night",
               "state": {
                 "entity": "{{bench_sleep}}"
+              }
+            },
+            "power_switch": {
+              "icon": "mdi:power-plug",
+              "state": {
+                "entity": "{{bench_plug}}"
               }
             }
           }
