@@ -47,8 +47,44 @@ class HaIconButton extends HTMLElement {
   }
 }
 
+// The editor renders `ha-form` inside `ha-expansion-panel`. The real ones are
+// Home Assistant elements that are absent outside a frontend, same as `ha-card`
+// - and the editor only passes properties into them and listens for the
+// `value-changed` event. The stub records what it was given so a test can
+// assert the schema and the data, and a test can fire `value-changed` on it to
+// drive the editor's handlers the way `ha-form` would.
+class HaForm extends HTMLElement {
+  constructor() {
+    super();
+    this.data = {};
+    this.schema = [];
+    this.computeLabel = undefined;
+  }
+
+  connectedCallback() {
+    shadow(this, ':host { display: block; }');
+  }
+
+  fire(value) {
+    this.dispatchEvent(new CustomEvent('value-changed', { detail: { value } }));
+  }
+}
+
+class HaExpansionPanel extends HTMLElement {
+  constructor() {
+    super();
+    this.header = '';
+  }
+
+  connectedCallback() {
+    shadow(this, ':host { display: block; }');
+  }
+}
+
 export const defineHaElements = () => {
   define('ha-card', HaCard);
   define('ha-icon', HaIcon);
   define('ha-icon-button', HaIconButton);
+  define('ha-form', HaForm);
+  define('ha-expansion-panel', HaExpansionPanel);
 };
