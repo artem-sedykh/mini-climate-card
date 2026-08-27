@@ -78,20 +78,35 @@ export default class ClimateFanModeSecondary extends LitElement {
 
   handleClick(): void {
     const menu = this.shadowRoot!.querySelector('#menu') as ClimateMenu;
-    menu.anchor = this.shadowRoot!.querySelector('#button') as HTMLElement;
+    const anchor = this.shadowRoot!.querySelector('#button') as HTMLElement;
+    menu.anchor = anchor;
     menu.show();
+  }
+
+  handleKeydown(e: KeyboardEvent): void {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      this.handleClick();
+    }
   }
 
   renderFanModeDropdown(): TemplateResult {
     return html`
       <div class='mc-dropdown'>
-        <ha-icon-button class='mc-dropdown__button icon'
+        <!-- The whole drop (icon + label) is the button, not just the 20x20
+             icon grid. Anchored and keyboard-focusable like one, so the menu
+             opens wherever the reader presses, not only on the glyph. -->
+        <button
+          class='mc-dropdown__button'
           id=${'button'}
           @click=${this.handleClick}
+          @keydown=${this.handleKeydown}
           ?disabled=${this.fanMode.disabled}
+          role='button'
+          tabindex='0'
         >
           ${this.renderFanMode()}
-        </ha-icon-button>
+        </button>
         <mc-menu
           id=${'menu'}
           .items=${this.fanMode.source}
@@ -127,6 +142,28 @@ export default class ClimateFanModeSecondary extends LitElement {
       css`
       .mc-dropdown {
         padding: 0;
+      }
+      /* The whole drop is the click target - icon and label in one row - and
+         the label is sized by the same unit as the secondary info line. The
+         only shadow-owning element left is the menu, which renders in a top
+         layer and does not interfere. */
+      .mc-dropdown__button {
+        display: flex;
+        align-items: center;
+        padding: 0;
+        margin: 0;
+        border: none;
+        background: none;
+        color: inherit;
+        font-family: inherit;
+        cursor: pointer;
+        text-align: start;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+      .mc-dropdown__button[disabled] {
+        opacity: .25;
+        pointer-events: none;
       }
       .name {
         font-size: calc(var(--mc-unit) * .35);

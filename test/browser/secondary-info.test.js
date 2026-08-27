@@ -14,18 +14,17 @@ describe('the fan mode under the name', () => {
     expect(secondary(card).shadowRoot.querySelector('.name').textContent.trim()).to.equal('Auto');
   });
 
-  it('upgrades its own button in the dropdown form', async () => {
+  it('is a real button in the dropdown form', async () => {
     const { card } = await mountCard({ config: { secondary_info: 'fan-mode-dropdown' } });
     const button = secondary(card).shadowRoot.getElementById('button');
 
-    // This element used to be rendered without being declared to the scoped
-    // registry, so it never upgraded: an inert unknown element, `display:
-    // inline`, on which `disabled` did nothing. It was measured that way on a
-    // running Home Assistant and fixed in #216, and nothing but a browser can
-    // tell the difference.
-    expect(button.localName).to.equal('ha-icon-button');
-    expect(customElements.get('ha-icon-button'), 'defined').to.exist;
-    expect(button.shadowRoot, 'upgraded').to.exist;
+    // This used to be `ha-icon-button`, which an older scoped registry never
+    // upgraded: an inert unknown element, `display: inline`, on which
+    // `disabled` did nothing. That was #216. It is a native `<button>` now, so
+    // it is always upgraded, `disabled` works, and the whole drop - icon and
+    // label - is the click target, not just the icon glyph.
+    expect(button.localName).to.equal('button');
+    expect(button.shadowRoot, 'native button has no shadow root').to.not.exist;
     expect(getComputedStyle(button).display).to.not.equal('inline');
   });
 
