@@ -1,6 +1,6 @@
 # Configuration
 
-[Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Examples](examples.md) | [Development](development.md)
+[Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Functions](functions.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Examples](examples.md) | [Development](development.md)
 
 ## Options
 
@@ -60,7 +60,7 @@
 | hvac_mode: `state:mapper`                 | function                            | optional     | v1.1.0 | State processing function                                                                                     |
 | hvac_mode: `active`                       | function                            | optional     | v1.1.0 | Active function                                                                                               |
 | hvac_mode: `source`                       | object                              | optional     | v1.0.1 | Data                                                                                                          |
-| hvac_mode: `source:__filter`              | function                            | optional     | v1.1.0 | Filter function                                                                                               |
+| hvac_mode: `source:__filter`              | function                            | optional     | v1.1.0 | [Filter function](functions.md#source__filter)                                                                                               |
 | hvac_mode: `source:item`                  | object                              | optional     | v1.0.1 | `item` - mode name e.g. cool, heat, off, etc.                                                                 |
 | hvac_mode: `source:item:icon`             | string                              | optional     | v1.0.1 | Specify a custom icon from any of the available mdi icons                                                     |
 | hvac_mode: `source:item:name`             | string                              | optional     | v1.0.1 | Display name                                                                                                  |
@@ -81,7 +81,7 @@
 | fan_mode: `state:attribute`               | string                              | optional     | v1.0.1 | fan_mode attribute, default `fan_mode`                                                                        |
 | fan_mode: `source`                        | object                              | optional     | v1.0.1 | Source for drop down list                                                                                     |
 | fan_mode: `source:item`                   | string                              | optional     | v1.0.1 | `item` - mode name e.g. auto, low, medium...                                                                  |
-| fan_mode: `source:__filter`               | function                            | optional     | v1.0.1 | Source filter                                                                                                 |
+| fan_mode: `source:__filter`               | function                            | optional     | v1.0.1 | [Source filter](functions.md#source__filter)                                                                                                 |
 | **indicators**                            | object                              | optional     | v1.0.1 | Any indicators, [examples](indicators.md)                                                                       |
 | indicators: `name`                        | object                              | optional     | v1.0.1 | The name of your indicator see [examples](indicators.md)                                                        |
 | indicators: `name:icon`                   | string                              | optional     | v1.0.1 | Specify a custom icon from any of the available mdi icons                                                     |
@@ -117,7 +117,7 @@
 | buttons: `name:active`                    | function                            | optional     | v1.0.1 | For type `dropdown`                                                                                           |
 | buttons: `name:source`                    | object                              | optional     | v1.0.1 | For type `dropdown`                                                                                           |
 | buttons: `name:source:item`               | string                              | optional     | v1.0.1 | Source item, format horizontal: horizontal                                                                    |
-| buttons: `name:source:__filter`           | function                            | optional     | v1.0.1 | Filter function                                                                                               |
+| buttons: `name:source:__filter`           | function                            | optional     | v1.0.1 | [Filter function](functions.md#source__filter)                                                                                               |
 | buttons: `name:change_action`             | function                            | optional     | v1.0.1 | For type `dropdown`                                                                                           |
 | buttons: `name:toggle_action`             | function                            | optional     | v1.0.1 | For type `button`                                                                                             |
 | buttons: `name:style`                     | function                            | optional     | v1.0.1 | Styles                                                                                                        |
