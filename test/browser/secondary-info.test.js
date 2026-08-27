@@ -1,5 +1,6 @@
 import { expect, nextFrame } from '@open-wc/testing';
 import { components, mountCard, settle } from './helpers/card.js';
+import { ENTITY_ID } from './helpers/hass.js';
 
 const secondary = card =>
   components(card).find(component => component.localName === 'mc-fan-mode-secondary');
@@ -69,5 +70,28 @@ describe('the fan mode under the name', () => {
     expect(hass.calls).to.have.lengthOf(1);
     expect(hass.calls[0].service).to.equal('set_fan_mode');
     expect(hass.calls[0].options.fan_mode).to.equal('medium');
+  });
+});
+
+describe('the last-changed / last-updated line', () => {
+  it('renders ha-relative-time when the entity carries a timestamp', async () => {
+    const { card } = await mountCard({ config: { secondary_info: 'last-changed' } });
+    const rel = card.shadowRoot.querySelector('mc-secondary-info');
+    expect(rel.shadowRoot.querySelector('ha-relative-time')).to.exist;
+  });
+
+  it('renders nothing when the entity has no timestamp at all', async () => {
+    // `ha-relative-time` throws on a `datetime` it cannot read - it reads
+    // `.startTime` off it. An entity that reports no `last_changed` gives the
+    // element `undefined`; the card must not render it in that case.
+    const { card, hass } = await mountCard({ config: { secondary_info: 'last-changed' } });
+    const states = { ...hass.states };
+    const { last_changed: _lc, last_updated: _lu, ...rest } = states[ENTITY_ID];
+    states[ENTITY_ID] = rest;
+    card.hass = { ...hass, states };
+    await settle(card);
+
+    const rel = card.shadowRoot.querySelector('mc-secondary-info');
+    expect(rel.shadowRoot.querySelector('ha-relative-time')).to.not.exist;
   });
 });

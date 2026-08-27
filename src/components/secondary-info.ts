@@ -66,9 +66,18 @@ export default class ClimateSecondaryInfo extends LitElement {
       case 'hvac-action':
         return this.renderHvacAction();
       case 'last-changed':
-        return html`<ha-relative-time .hass=${this.climate.hass} .datetime=${this.climate.lastChanged}></ha-relative-time>`;
-      case 'last-updated':
-        return html`<ha-relative-time .hass=${this.climate.hass} .datetime=${this.climate.lastUpdated}></ha-relative-time>`;
+      case 'last-updated': {
+        // `ha-relative-time` throws on a `datetime` it cannot read: it reads
+        // `.startTime` off it. `climate.lastChanged`/`lastUpdated` come from
+        // the entity, and on an entity that Home Assistant does not have - or
+        // one that reports no `last_changed` - they are `undefined`. Render
+        // nothing rather than hand the element a value it will crash on.
+        const datetime =
+          type === 'last-changed' ? this.climate.lastChanged : this.climate.lastUpdated;
+        return datetime
+          ? html`<ha-relative-time .hass=${this.climate.hass} .datetime=${datetime}></ha-relative-time>`
+          : html``;
+      }
       default:
         return html`<mc-fan-mode-secondary .fanMode=${this.fanMode} .config=${this.config}></mc-fan-mode-secondary>`;
     }
