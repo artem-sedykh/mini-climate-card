@@ -34,6 +34,7 @@ import './components/dropdown';
 import './components/buttons';
 import './components/button';
 import './components/secondary-info';
+import './components/editor';
 
 class MiniClimate extends LitElement {
   config!: CardConfig;
@@ -85,6 +86,11 @@ class MiniClimate extends LitElement {
       entity = allEntities.find(eid => eid.split('.')[0] === 'climate');
     }
     return { entity };
+  }
+
+  /** The Lovelace card picker opens this editor when the card is configured. */
+  static getConfigElement(): HTMLElement {
+    return document.createElement('mini-climate-editor');
   }
 
   constructor() {
@@ -863,4 +869,5 @@ window.customCards.push({
   preview: true,
   description: 'A custom climate card',
   documentationURL: 'https://github.com/artem-sedykh/mini-climate-card',
+  configurable: true,
 });
