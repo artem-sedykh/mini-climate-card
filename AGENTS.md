@@ -296,6 +296,16 @@ holds the machinery and names no card; `test/e2e/bench.json` is what makes it
 this card's. The full account, including four things about Home Assistant that
 are not written down anywhere obvious, is in `test/bench/README.md`.
 
+**A layout bug that depends on how Home Assistant renders a real element goes
+in the bench, not in `test/browser/`.** The browser layer renders stand-ins
+for `ha-*` elements, and a stand-in carries a `display` and nothing else. #270
+is the case in point: `ha-icon-button` stacks its slot content in a column on
+Home Assistant 2026.8.3, and the card's stand-in does not, so an assertion
+that the icon and the label share a row passes on the broken structure in
+`test/browser/` and only fails on a real Home Assistant. If the regression
+exists only because a real element lays itself out some way the stubs do not,
+assert it in `test/e2e/`, and say so in the test's comment.
+
 ## Layout
 
 ```
