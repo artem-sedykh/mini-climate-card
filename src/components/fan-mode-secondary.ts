@@ -1,5 +1,6 @@
 import define from '../utils/define';
 import { LitElement, html, css, type PropertyValues, type TemplateResult } from 'lit';
+import { styleMap } from 'lit/directives/style-map.js';
 import sharedStyle from '../sharedStyle';
 import type ButtonObject from '../models/button';
 import type { CardConfig, SourceItem } from '../types';
@@ -64,15 +65,16 @@ export default class ClimateFanModeSecondary extends LitElement {
     this.requestUpdate('_selected');
   }
 
-  renderFanMode(): TemplateResult {
+  renderFanMode(gap = 0): TemplateResult {
     const label = this._selected ? this._selected.name : this.fanMode.state;
     const icon = this.config.secondary_info.icon
       ? this.config.secondary_info.icon
       : this.fanMode.icon;
+    const gapStyle = gap ? { 'padding-left': `${gap}px` } : {};
 
     return html`
        <ha-icon class='icon' .icon=${icon}></ha-icon>
-       <span class='name'>${label}</span>
+       <span class='name' style=${styleMap(gapStyle)}>${label}</span>
     `;
   }
 
@@ -105,7 +107,7 @@ export default class ClimateFanModeSecondary extends LitElement {
           role='button'
           tabindex='0'
         >
-          ${this.renderFanMode()}
+          ${this.renderFanMode(3)}
         </button>
         <mc-menu
           id=${'menu'}
