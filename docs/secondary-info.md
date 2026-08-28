@@ -45,7 +45,7 @@ entity: climate.dahatsu
 secondary_info:
   type: hvac-action
   source:
-    cooling: Охлаждение
+    cooling: Cooling
 ```
 You can set your own icon for each hvac-action
 ```yaml
@@ -56,18 +56,7 @@ secondary_info:
   source:
     cooling:
       icon: 'mdi:snowflake'
-      name: Охлаждение
-```
-You can set your own icon for each hvac-action
-```yaml
-type: custom:mini-climate
-entity: climate.dahatsu
-secondary_info:
-  type: hvac-action
-  source:
-    cooling:
-      icon: 'mdi:snowflake'
-      name: Охлаждение
+      name: Cooling
 ```
 Or you can use one permanent icon
 ```yaml

@@ -2,20 +2,18 @@
 
 [Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Functions](functions.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Examples](examples.md) | [Development](development.md)
 
-> I originally wrote a plugin for my air conditioner implementation using [esphome](https://github.com/esphome/esphome)
-> if interested, you can source [esphome-mqtt-climate](https://github.com/artem-sedykh/esphome-mqtt-climate)
-> the following is a configuration example for my air conditioner
+> This is a configuration example for my air conditioner, built on [esphome](https://github.com/esphome/esphome).
 
 ```yaml
 type: custom:mini-climate
 entity: climate.dahatsu
-name: Кондиционер
+name: Air conditioner
 fan_mode:
   source:
-    auto: Авто
-    low: Слабый
-    medium: Средний
-    high: Сильный
+    auto: Auto
+    low: Low
+    medium: Medium
+    high: High
     # for my implementation fan_modes_al is an array of available fan modes of the selected hvac mode
     __filter: >
       (source, state, entity) => entity.attributes
@@ -30,8 +28,8 @@ buttons:
     # the drop-down list will remain active until swing_mode is off
     active: state => state !== 'off'
     source:
-      'off': Выкл
-      horizontal: Вкл
+      'off': Off
+      horizontal: On
     change_action: >
       (selected, state, entity) => this.call_service('climate', 'set_swing_mode', { entity_id: entity.entity_id, swing_mode: selected })
   # turbo air conditioning button
@@ -94,8 +92,8 @@ indicators:
     source:
       entity: switch.air_conditioner_kitchen_switch_l1
       values:
-        'on': 'вкл'
-        'off': 'выкл'
+        'on': 'on'
+        'off': 'off'
     # localization of values
     mapper: value => this.source.values[value]
 ```
