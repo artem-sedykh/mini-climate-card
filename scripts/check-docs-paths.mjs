@@ -32,6 +32,10 @@ const IGNORED = new Map([
     '/local/mini-climate-card/dist/mini-climate-card-bundle.js',
     "a resource URL on the reader's Home Assistant",
   ],
+  [
+    '.claude/rules/ha-live-testing.md',
+    'a workspace rule, not part of this repository (lives in home-workspace)',
+  ],
 ]);
 
 // Release notes are a record of a released version, not a description of the

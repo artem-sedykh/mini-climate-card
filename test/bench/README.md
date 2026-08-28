@@ -30,6 +30,18 @@ npm run bench down      # and it is gone
 that is a screenshot rather than a paragraph. Point `BENCH_MANIFEST` at a
 manifest holding the reporter's own YAML and the pictures are of their card.
 
+A picture taken by an **external browser** comes out in whatever language the
+bench host speaks, because the frontend renders in the machine's locale. The
+scenarios never hit that - `open()` in `browser.mjs` pins `locale: 'en-US'`
+and `selectedLanguage: 'en'` - but a manual playwright session does not, so
+capturing screenshots from one needs the same two pins. For the repository,
+English labels (Config/Visibility, Save) are the ones worth showing, so set
+them before the shot:
+
+```js
+localStorage.setItem('selectedLanguage', JSON.stringify('en'));
+```
+
 `up` and `down` need docker on this machine. Everything else talks to whatever
 `BENCH_URL` names, so a bench running on another host is used from here with
 `BENCH_URL=http://<host>:8124 npm run test:e2e`.
