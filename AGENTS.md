@@ -395,6 +395,31 @@ the scoped element registry came out. Every component used to extend
 them. There is no longer any machinery waiting for them to appear, and no
 `render` that returns an empty template until it has.
 
+### The editor
+
+The card advertises a visual editor the way Home Assistant asks custom cards
+to: `MiniClimate.getConfigElement()` returns a `mini-climate-editor` element,
+and the `customCards` entry carries `configurable: true`. Without both, the
+card picker falls back to a YAML editor that says "visual editor not
+supported" - which is why a card that renders fine in every scenario can still
+show that message. `main.ts` imports `components/editor`, which registers
+`mini-climate-editor` with the same `define()` helper as every other component.
+
+The editor is the one component the card does not build itself: the picker
+creates it, so `test/browser/` covers only part of it. It renders `ha-form`
+and `ha-expansion-panel`, which exist only inside a running Home Assistant,
+so the schema and the `config-changed` wiring are exercised in
+`test/browser/editor.test.js` against stubs that record the input and expose
+`fire()`, and the picker path is exercised in `test/e2e/editor.test.mjs`
+against a real one.
+
+**A component is registered once.** `define()` leaves the first definition in
+place, so a page that already loaded an old bundle (a dashboard resource, or a
+second copy of the same module) keeps the old `mini-climate` class and never
+sees a new `getConfigElement` - clearing the HTTP cache is not enough. The
+editor shows up only in a page that loaded the new bundle with no previous
+definition.
+
 ## The dropdown
 
 `src/components/menu.ts` is the card's own menu, and it is worth knowing why
@@ -558,6 +583,13 @@ document.body.appendChild(el);
 
 `hui-card` renders into light DOM and substitutes `hui-error-card` on a bad
 configuration, exactly as a dashboard does. Reload to clean up.
+
+To exercise the **card picker** - whether a change to `getConfigElement` or to
+the editor actually opens the visual editor rather than the YAML fallback - a
+throwaway dashboard with `?edit=1` is the way, created and deleted over the
+websocket API in the same session. The technique, and the traps in it, are
+described in the workspace rule `.claude/rules/ha-live-testing.md`, and the
+bench-side procedures in `test/bench/README.md`.
 
 ### Counting service calls
 
