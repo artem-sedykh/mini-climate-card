@@ -63,9 +63,17 @@ describe('a card written the way people write them', () => {
     if (session) await session.close();
   });
 
+  // The showcase card starts with the button row open (`toggle.default`), so
+  // a click on the toggle would close it. Open only when the row is missing.
+  const ensureButtonsOpen = async () => {
+    if ((await card.locator('mc-buttons').count()) > 0) return;
+    await card.locator('.toggle-button').first().click();
+    await until(async () => ((await card.locator('mc-buttons').count()) > 0 ? true : null));
+  };
+
   it('sends a dropdown button through its own change_action', async () => {
     // The buttons live behind the toggle, which is what a person presses too.
-    await card.locator('.toggle-button').first().click();
+    await ensureButtonsOpen();
     await session.page.waitForTimeout(500);
 
     const dropdowns = card.locator('mc-dropdown');
@@ -111,9 +119,7 @@ describe('a card written the way people write them', () => {
     // `preset_mode` carries `icon: { template }`, from the case in #49: the
     // icon the button shows follows the preset. `boost` -> fan-chevron-up,
     // `eco` -> fan-chevron-down, anything else (`none`) -> fan-speed-3.
-    if ((await card.locator('mc-dropdown').count()) === 0) {
-      await card.locator('.toggle-button').first().click();
-    }
+    await ensureButtonsOpen();
     await until(async () => ((await card.locator('mc-dropdown').count()) > 0 ? true : null));
 
     // Find the preset dropdown by id, and only then look at its menu. Each
@@ -190,6 +196,50 @@ describe('a card written the way people write them', () => {
 
     await pick('boost', 'Turbo', 'mdi:fan-chevron-up');
     await pick('eco', 'Quiet', 'mdi:fan-chevron-down');
+
+    assert.deepEqual(session.errors, []);
+  });
+
+  it("keeps a hidden button's slot in the row (#36)", async () => {
+    // `hide` would drop the button and let the rest of the row close up. The
+    // answer is a dummy button that stays in the flex, with its icon hidden -
+    // that is what lines up a shared template across units that do not all
+    // have the same extras.
+    await ensureButtonsOpen();
+
+    const slots = await until(async () => {
+      const now = await card.evaluate(host => {
+        const row = host.shadowRoot.querySelector('mc-buttons');
+        if (!row) return [];
+        return [...row.shadowRoot.querySelectorAll('mc-button, mc-dropdown')].map(element => {
+          const iconButton =
+            element.shadowRoot.querySelector('ha-icon-button') ||
+            element.shadowRoot
+              .querySelector('mc-dropdown-base')
+              ?.shadowRoot.querySelector('ha-icon-button');
+          return {
+            id: element.button?.id || element.dropdown?.id || null,
+            visibility: iconButton ? getComputedStyle(iconButton).visibility : null,
+            width: element.getBoundingClientRect().width,
+          };
+        });
+      });
+      return now.some(slot => slot.visibility === 'hidden') ? now : null;
+    });
+
+    const spacers = slots.filter(slot => slot.visibility === 'hidden');
+    const visible = slots.filter(slot => slot.visibility === 'visible');
+
+    assert.equal(spacers.length, 2, JSON.stringify(slots));
+    assert.ok(visible.length >= 2, JSON.stringify(slots));
+
+    for (const spacer of spacers) {
+      assert.ok(spacer.width > 0, `${spacer.id} collapsed`);
+      assert.ok(
+        Math.abs(spacer.width - visible[0].width) < 1,
+        `${spacer.id} ${spacer.width} vs ${visible[0].width}`,
+      );
+    }
 
     assert.deepEqual(session.errors, []);
   });

@@ -100,12 +100,11 @@ indicators:
 
 ## Recipes
 
-Five things this tracker has been asked for more than once, with the answer and
+Things this tracker has been asked for more than once, with the answer and
 what it looks like.
 
-Each is also a card in the bench's manifest and an assertion in
-`test/e2e/answers.test.mjs`, so an answer that stops being true fails a run
-rather than sitting here reading well.
+Each is also a card on the bench and an assertion in `test/e2e/`, so an answer
+that stops being true fails a run rather than sitting here reading well.
 
 ### A card with nothing but the temperature
 
@@ -275,3 +274,24 @@ To show the selected preset's **name** as well, add an indicator reading
 `values` + `mapper`, applied to `preset_mode`.
 
 ![a row of preset buttons with the active one lit](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/preset-buttons.png)
+
+### A spacer that keeps the slot
+
+`hide` takes a button out of the row, and the ones that remain slide together.
+A shared template across several climate entities - some of which have an extra
+button and some of which do not - then fails to line up.
+
+There is no spacer option. A dummy button that stays in the row, with its icon
+hidden, keeps the slot:
+
+```yaml
+buttons:
+  spacer:
+    style: "() => ({ visibility: 'hidden' })"
+```
+
+The extra parentheses around the object are required: without them the arrow's
+braces are a block, the function returns nothing, and the icon stays visible.
+`hide` is the wrong tool here - it is what collapses the row.
+
+![a card whose button row keeps empty slots so the remaining buttons line up](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/button-spacer.png)

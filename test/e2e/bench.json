@@ -269,6 +269,9 @@
           "type": "custom:mini-climate",
           "entity": "{{bench_ac_remote}}",
           "name": "Remote, as people write it",
+          "toggle": {
+            "default": true
+          },
           "hvac_mode": {
             "source": {
               "off": "Stopped",
@@ -321,6 +324,9 @@
             }
           },
           "buttons": {
+            "spacer_1": {
+              "style": "() => ({ visibility: 'hidden' })"
+            },
             "swing_mode": {
               "type": "dropdown",
               "icon": "mdi:approximately-equal",
@@ -333,6 +339,9 @@
                 "vertical": "Sweeping"
               },
               "change_action": "(selected, state, entity) => this.call_service('climate', 'set_swing_mode', { entity_id: entity.entity_id, swing_mode: selected })"
+            },
+            "spacer_2": {
+              "style": "() => ({ visibility: 'hidden' })"
             },
             "preset_mode": {
               "type": "dropdown",
