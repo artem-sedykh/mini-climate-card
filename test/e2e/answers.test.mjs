@@ -3,8 +3,8 @@
 // Every card in the third view of the manifest is an answer someone was given
 // to a question: how to draw a card with nothing but the temperature (#40),
 // how to show an indicator's icon without its value (#64), how to shorten a
-// value (#57), how to colour the mode icon by what the unit is doing (#62,
-// #129), how to colour an indicator by the mode (#168).
+// value (#57), how to colour the mode icon by the mode and by what the unit is
+// doing (#62, #129), how to colour an indicator by the mode (#168).
 //
 // They are here rather than only in a reply because an answer that lives in a
 // comment is one nobody notices breaking. Each of these was asked more than
@@ -145,19 +145,36 @@ describe('the answers people were given', () => {
     assert.ok(!second.indicatorText.includes('07:05:59'), second.indicatorText);
   });
 
-  it('colours the mode icon by what the unit is doing (#62, #129)', async () => {
-    await publish(bench.tokens, 'bench/ac/action', 'cooling');
+  it('colours the mode icon by the mode (#62, #129)', async () => {
+    // The unit is switched on for both halves, and that is the whole point.
+    // `hvac_mode` defaults its `active` to `climate.isOn` (src/main.ts), which
+    // puts the `color` attribute on the `ha-icon-button`, and sharedStyle
+    // colours that attribute `!important`. So on a running unit an inline
+    // style without `!important` of its own loses, and the documented answer
+    // carries one.
+    //
+    // The version this one replaces drove `hvac_action` on a unit that was
+    // never switched on: no `color` attribute, no competing rule, and an
+    // answer that did not work for anybody whose air conditioner was
+    // actually running.
+    await callService(bench.tokens, 'climate', 'set_hvac_mode', {
+      entity_id: bench.ids.bench_ac,
+      hvac_mode: 'cool',
+    });
 
     const cooling = await until(async () => {
-      const now = await look('Mode icon by action');
+      const now = await look('Mode icon by state');
       return now.modeIconColour === 'rgb(0, 0, 255)' ? now : null;
     });
     assert.equal(cooling.modeIconColour, 'rgb(0, 0, 255)');
 
-    await publish(bench.tokens, 'bench/ac/action', 'heating');
+    await callService(bench.tokens, 'climate', 'set_hvac_mode', {
+      entity_id: bench.ids.bench_ac,
+      hvac_mode: 'heat',
+    });
 
     const heating = await until(async () => {
-      const now = await look('Mode icon by action');
+      const now = await look('Mode icon by state');
       return now.modeIconColour === 'rgb(255, 0, 0)' ? now : null;
     });
     assert.equal(heating.modeIconColour, 'rgb(255, 0, 0)');
@@ -181,5 +198,35 @@ describe('the answers people were given', () => {
       return now.indicatorIconColour === 'rgb(0, 0, 255)' ? now : null;
     });
     assert.equal(cooling.indicatorIconColour, 'rgb(0, 0, 255)');
+  });
+
+  it('colours the mode icon by what the unit is doing (#62, #129)', async () => {
+    // The other half of the same answer: `hvac_action` is what the unit is
+    // doing, the mode is what it was asked to do, and a style template gets
+    // the entity so it can read either. The mode is left alone here and only
+    // the action moves, which is what tells the two apart.
+    //
+    // Last in the file on purpose: it needs the unit switched on, for the
+    // `!important` reason above, and the scenario before it asserts on a unit
+    // that is not cooling yet.
+    await callService(bench.tokens, 'climate', 'set_hvac_mode', {
+      entity_id: bench.ids.bench_ac,
+      hvac_mode: 'cool',
+    });
+    await publish(bench.tokens, 'bench/ac/action', 'cooling');
+
+    const cooling_ = await until(async () => {
+      const now = await look('Mode icon by action');
+      return now.modeIconColour === 'rgb(0, 0, 255)' ? now : null;
+    });
+    assert.equal(cooling_.modeIconColour, 'rgb(0, 0, 255)');
+
+    await publish(bench.tokens, 'bench/ac/action', 'heating');
+
+    const heating = await until(async () => {
+      const now = await look('Mode icon by action');
+      return now.modeIconColour === 'rgb(255, 0, 0)' ? now : null;
+    });
+    assert.equal(heating.modeIconColour, 'rgb(255, 0, 0)');
   });
 });

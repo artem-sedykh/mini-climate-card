@@ -163,21 +163,51 @@ indicators:
 
 ![an indicator showing hh:mm out of hh:mm:ss](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/shortened-value.png)
 
+### The mode icon coloured by the mode it shows
+
+`hvac_mode.style` receives the mode as the first argument (`value`) and the
+entity as the second. Colour the icon by the mode - `cool`/`heat`/anything
+else - so the icon and its colour always agree.
+
+**The `!important` is what makes this work on a unit that is running.** While
+the climate entity is on, the card marks the mode button active and paints it
+with a rule of its own that is already `!important`; an inline style without
+one loses to it, and the colour appears only while the unit is off.
+
+```yaml
+hvac_mode:
+  style: >
+    (value, entity) => ({
+      color: value === 'cool'
+        ? 'blue !important'
+        : value === 'heat'
+          ? 'red !important'
+          : 'grey !important',
+    })
+```
+
+![the mode icon drawn as a blue snowflake while the unit is cooling](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/mode-icon-by-state.png)
+
 ### The mode icon coloured by what the unit is doing
 
 `hvac_action` is what the unit is doing now - heating, cooling, idle - as
-against `state`, which is what it was asked to do. The style template is handed
-the entity, so both are available.
+against the mode above, which is what it was asked to do. A style template is
+handed the entity as its second argument, so both are in reach: colour by
+`hvac_action` when the question is what is happening rather than what was set.
+
+The `!important` is needed for the same reason as above, and note that
+`hvac_action` is optional - an entity that does not report it leaves every
+branch here on the fallback.
 
 ```yaml
 hvac_mode:
   style: >
     (value, entity) => ({
       color: entity.attributes.hvac_action === 'cooling'
-        ? 'blue'
+        ? 'blue !important'
         : entity.attributes.hvac_action === 'heating'
-          ? 'red'
-          : 'grey',
+          ? 'red !important'
+          : 'grey !important',
     })
 ```
 

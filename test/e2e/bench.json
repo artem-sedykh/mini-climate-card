@@ -420,9 +420,17 @@
         {
           "type": "custom:mini-climate",
           "entity": "{{bench_ac}}",
+          "name": "Mode icon by state",
+          "hvac_mode": {
+            "style": "(value) => ({ color: value === 'cool' ? 'rgb(0, 0, 255) !important' : 'rgb(255, 0, 0) !important' })"
+          }
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
           "name": "Mode icon by action",
           "hvac_mode": {
-            "style": "(value, entity) => ({ color: entity.attributes.hvac_action === 'cooling' ? 'rgb(0, 0, 255)' : 'rgb(255, 0, 0)' })"
+            "style": "(value, entity) => ({ color: entity.attributes.hvac_action === 'cooling' ? 'rgb(0, 0, 255) !important' : 'rgb(255, 0, 0) !important' })"
           }
         },
         {
