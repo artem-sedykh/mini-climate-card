@@ -249,6 +249,12 @@ export default class MiniClimateEditor extends LitElement {
     if (typeof secondaryInfo === 'string') {
       secondaryInfo = { type: secondaryInfo };
     }
+    // The card accepts the documented string shorthand (`tap_action: none`).
+    // Normalise it here too, or a string spreads into character keys and the
+    // action selector opens showing the default instead of the real action.
+    if (typeof config.tap_action === 'string') {
+      config = { ...config, tap_action: { action: config.tap_action } };
+    }
     this.config = { ...config, secondary_info: secondaryInfo ?? {} };
   }
 
@@ -258,11 +264,19 @@ export default class MiniClimateEditor extends LitElement {
     this.dispatchEvent(new CustomEvent('config-changed', { detail: { config: newConfig } }));
   }
 
-  /** Shared handler for simple sub-object sections (no data transformation). */
+  /**
+   * Shared handler for simple sub-object sections (no data transformation).
+   *
+   * Merges onto the stored section rather than replacing it: a section keeps
+   * keys the form does not expose (`hvac_mode.state`, `fan_mode.source`,
+   * `temperature.fixed`, ... are YAML-only but read by the card), and a plain
+   * `[key]: value` would drop them on the first save. The same merge approach
+   * `_handleTargetTempChanged` already uses.
+   */
   private _onSub(key: string, e: Event): void {
     if (!this.config || !this.hass) return;
     const value = (e as CustomEvent<{ value: Record<string, any> }>).detail.value;
-    this._fire({ ...this.config, [key]: value });
+    this._fire({ ...this.config, [key]: { ...this._subData(key), ...value } });
   }
 
   /** Extract only the top-level scalar fields that belong to the basic form. */

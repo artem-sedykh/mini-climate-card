@@ -24,6 +24,14 @@ const basicForm = editor =>
     form => !form.closest('ha-expansion-panel'),
   );
 
+// A section's form, found by its panel header. `sectionForm` above is keyed on
+// a schema name, which is ambiguous when several sections share one (both
+// secondary_info and hvac_mode expose `hide`); the header is unique.
+const panelForm = (editor, header) =>
+  [...editor.shadowRoot.querySelectorAll('ha-expansion-panel')]
+    .find(panel => panel.header === header)
+    ?.querySelector('ha-form');
+
 describe('the visual config editor', () => {
   it('hands the basic options to ha-form as schema and data', async () => {
     const { editor } = await mountEditor();
@@ -113,5 +121,41 @@ describe('the visual config editor', () => {
 
     expect(changed.target_temperature.icons.up).to.equal('mdi:arrow-up');
     expect(changed.target_temperature.icons.down).to.equal('mdi:arrow-down');
+  });
+
+  it('keeps YAML-only keys when editing a section it does not expose', async () => {
+    // hvac_mode exposes only `hide` in the form, but the card reads `state`,
+    // `source` and `change_action` from it too (getHvacModeConfig). The
+    // handler must merge onto the stored section, not replace it, or the
+    // first checkmark in the form would delete those keys from a saved config.
+    const { editor } = await mountEditor({
+      config: {
+        entity: ENTITY_ID,
+        hvac_mode: { hide: false, source: { heat: 'Heat' } },
+      },
+    });
+
+    let changed;
+    editor.addEventListener('config-changed', event => {
+      changed = event.detail.config;
+    });
+
+    const hvac = panelForm(editor, 'HVAC mode');
+    hvac.fire({ hide: true });
+
+    expect(changed.hvac_mode.hide).to.equal(true);
+    expect(changed.hvac_mode.source).to.deep.equal({ heat: 'Heat' });
+  });
+
+  it('opens with the action of a string tap_action, not the default', async () => {
+    // The card documents the string shorthand (`tap_action: none`). A string
+    // spreads into character keys under `{ action: 'more-info', ...spread }`,
+    // so the selector would open showing the default instead of `none`.
+    const { editor } = await mountEditor({
+      config: { entity: ENTITY_ID, tap_action: 'none' },
+    });
+
+    const tap = sectionForm(editor, 'action');
+    expect(tap.data.action).to.equal('none');
   });
 });
