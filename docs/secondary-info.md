@@ -31,7 +31,7 @@ secondary_info: hvac-mode
 
 ## hvac-action type
 
-By default, translations from [ha frontend](https://github.com/home-assistant/frontend/blob/master/translations/frontend/en.json#L33)
+By default, translations from the [Home Assistant frontend](https://github.com/home-assistant/frontend/blob/master/src/translations/en.json)
 ```yaml
 type: custom:mini-climate
 entity: climate.dahatsu
