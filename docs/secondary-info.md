@@ -75,3 +75,32 @@ entity: climate.dahatsu
 secondary_info: fan-mode-dropdown
 ```
 ![the fan mode dropdown open, with the current mode highlighted](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/fan-mode-dropdown.png)
+
+The dropdown under the name draws `fan_mode`'s icon. A template can pick a
+different glyph per mode; `items` is data the template reads back through
+`this`. Hide the fan_mode button so the same control is not on the card
+twice.
+
+A string on `secondary_info.icon` replaces this and freezes the glyph, which
+is why that key is left off here.
+
+```yaml
+type: custom:mini-climate
+entity: climate.dahatsu
+secondary_info: fan-mode-dropdown
+fan_mode:
+  hide: true
+  icon:
+    items:
+      auto: 'mdi:fan-auto'
+      low: 'mdi:fan-speed-1'
+      medium: 'mdi:fan-speed-2'
+      high: 'mdi:fan-speed-3'
+    template: >
+      (state) => this.icon.items[state] || 'mdi:fan'
+  source:
+    auto: Automatic
+    low: Gentle
+    medium: Middling
+    high: Strong
+```

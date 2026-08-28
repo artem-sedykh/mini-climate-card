@@ -139,6 +139,7 @@ carries one already, so a plain `color` from the template is dropped - see
 | `style`           | function | button config     | value, entity, climate_entity, hvac_mode          | object                           |
 | `change_action`   | function | button config     | selected_value, entity, climate_entity, hvac_mode | promise                          |
 | `hide`            | function | button config     | state, entity, climate_entity, hvac_mode          | boolean                          |
+| [`icon`](functions.md#icon_template)    | function | button config     | state, entity, climate_entity, hvac_mode          | string                           |
 
 `state` - current button state value  
 `entity` - button entity  
