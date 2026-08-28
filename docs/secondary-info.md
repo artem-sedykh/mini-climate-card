@@ -74,4 +74,4 @@ type: custom:mini-climate
 entity: climate.dahatsu
 secondary_info: fan-mode-dropdown
 ```
-![image](https://user-images.githubusercontent.com/861063/84180244-d80d0a80-aa8f-11ea-8275-f4e3db85fd31.png)
+![the fan mode dropdown open, with the current mode highlighted](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/fan-mode-dropdown.png)
