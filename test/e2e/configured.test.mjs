@@ -277,25 +277,28 @@ describe('a card written the way people write them', () => {
     // have the same extras.
     await ensureButtonsOpen();
 
-    const slots = await until(async () => {
-      const now = await card.evaluate(host => {
-        const row = host.shadowRoot.querySelector('mc-buttons');
-        if (!row) return [];
-        return [...row.shadowRoot.querySelectorAll('mc-button, mc-dropdown')].map(element => {
-          const iconButton =
-            element.shadowRoot.querySelector('ha-icon-button') ||
-            element.shadowRoot
-              .querySelector('mc-dropdown-base')
-              ?.shadowRoot.querySelector('ha-icon-button');
-          return {
-            id: element.button?.id || element.dropdown?.id || null,
-            visibility: iconButton ? getComputedStyle(iconButton).visibility : null,
-            width: element.getBoundingClientRect().width,
-          };
+    const slots = await until(
+      async () => {
+        const now = await card.evaluate(host => {
+          const row = host.shadowRoot.querySelector('mc-buttons');
+          if (!row) return [];
+          return [...row.shadowRoot.querySelectorAll('mc-button, mc-dropdown')].map(element => {
+            const iconButton =
+              element.shadowRoot.querySelector('ha-icon-button') ||
+              element.shadowRoot
+                .querySelector('mc-dropdown-base')
+                ?.shadowRoot.querySelector('ha-icon-button');
+            return {
+              id: element.button?.id || element.dropdown?.id || null,
+              visibility: iconButton ? getComputedStyle(iconButton).visibility : null,
+              width: element.getBoundingClientRect().width,
+            };
+          });
         });
-      });
-      return now.some(slot => slot.visibility === 'hidden') ? now : null;
-    }, { diagnose: panelState });
+        return now.some(slot => slot.visibility === 'hidden') ? now : null;
+      },
+      { diagnose: panelState },
+    );
 
     const spacers = slots.filter(slot => slot.visibility === 'hidden');
     const visible = slots.filter(slot => slot.visibility === 'visible');
