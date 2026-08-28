@@ -121,6 +121,11 @@ hvac_mode:
     (selected, entity) => this.call_service('climate', 'set_hvac_mode', { entity_id: entity.entity_id, hvac_mode: selected })
 ``` 
 
+The `!important` on that `color` is not decoration. While the climate entity is
+on, the card marks the mode button active and paints it with a rule that
+carries one already, so a plain `color` from the template is dropped - see
+[style](functions.md#style).
+
 ## fan_mode
 
 > Functions available for the fan_mode:  
