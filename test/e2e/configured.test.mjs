@@ -63,9 +63,87 @@ describe('a card written the way people write them', () => {
     if (session) await session.close();
   });
 
+  // What the showcase card is showing when a wait gives up: whether the row is
+  // open, whether a click would close it, and what sits on top of the toggle.
+  // The last flake (#36 on HA latest) died as `timed out: last value null`.
+  const panelState = async () => {
+    const fromCard = await card.evaluate(host => {
+      const root = host.shadowRoot;
+      const toggle = root?.querySelector('.toggle-button');
+      const row = root?.querySelector('mc-buttons');
+      const box = element => {
+        if (!element) return null;
+        const rect = element.getBoundingClientRect();
+        return { w: +rect.width.toFixed(1), h: +rect.height.toFixed(1) };
+      };
+      const atToggle = (() => {
+        if (!toggle) return [];
+        const rect = toggle.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        return [...document.elementsFromPoint(x, y)].slice(0, 5).map(element => element.localName);
+      })();
+      const menus = [];
+      const popovers = [];
+      const walk = node => {
+        for (const element of node.querySelectorAll('*')) {
+          if (element.localName === 'mc-menu') {
+            menus.push({
+              open: !!element.open,
+              items: element.shadowRoot?.querySelectorAll('.mc-menu__item').length ?? 0,
+            });
+          }
+          try {
+            if (element.matches(':popover-open')) popovers.push(element.localName);
+          } catch {
+            // The selector is missing in an engine that has no popover.
+          }
+          if (element.shadowRoot) walk(element.shadowRoot);
+        }
+      };
+      if (root) walk(root);
+
+      return {
+        name: root?.querySelector('.entity__info__name')?.textContent.trim() ?? null,
+        toggle: host.toggle,
+        toggleDefault: host.config?.toggle?.default ?? null,
+        toggleClass: toggle?.getAttribute('class') ?? null,
+        toggleBox: box(toggle),
+        atToggle,
+        buttons: !!row,
+        buttonIds: row?.shadowRoot
+          ? [...row.shadowRoot.querySelectorAll('mc-button, mc-dropdown')].map(
+              element => element.button?.id || element.dropdown?.id || element.localName,
+            )
+          : [],
+        menus,
+        popovers,
+      };
+    });
+
+    return {
+      ...fromCard,
+      locatorButtons: await card.locator('mc-buttons').count(),
+      locatorToggle: await card.locator('.toggle-button').count(),
+      dialogs: await dialogs(session.page),
+      pageErrors: session.errors.slice(),
+    };
+  };
+
+  // The showcase card starts with the button row open (`toggle.default`), so
+  // a click on the toggle would close it. Open only when the row is missing.
+  const ensureButtonsOpen = async () => {
+    if ((await card.locator('mc-buttons').count()) > 0) return;
+    const before = await panelState();
+    await card.locator('.toggle-button').first().click();
+    await until(async () => ((await card.locator('mc-buttons').count()) > 0 ? true : null), {
+      diagnose: async () => ({ before, after: await panelState() }),
+    });
+  };
+
   it('sends a dropdown button through its own change_action', async () => {
     // The buttons live behind the toggle, which is what a person presses too.
-    await card.locator('.toggle-button').first().click();
+    await ensureButtonsOpen();
     await session.page.waitForTimeout(500);
 
     const dropdowns = card.locator('mc-dropdown');
@@ -111,9 +189,7 @@ describe('a card written the way people write them', () => {
     // `preset_mode` carries `icon: { template }`, from the case in #49: the
     // icon the button shows follows the preset. `boost` -> fan-chevron-up,
     // `eco` -> fan-chevron-down, anything else (`none`) -> fan-speed-3.
-    if ((await card.locator('mc-dropdown').count()) === 0) {
-      await card.locator('.toggle-button').first().click();
-    }
+    await ensureButtonsOpen();
     await until(async () => ((await card.locator('mc-dropdown').count()) > 0 ? true : null));
 
     // Find the preset dropdown by id, and only then look at its menu. Each
@@ -194,6 +270,53 @@ describe('a card written the way people write them', () => {
     assert.deepEqual(session.errors, []);
   });
 
+  it("keeps a hidden button's slot in the row (#36)", async () => {
+    // `hide` would drop the button and let the rest of the row close up. The
+    // answer is a dummy button that stays in the flex, with its icon hidden -
+    // that is what lines up a shared template across units that do not all
+    // have the same extras.
+    await ensureButtonsOpen();
+
+    const slots = await until(
+      async () => {
+        const now = await card.evaluate(host => {
+          const row = host.shadowRoot.querySelector('mc-buttons');
+          if (!row) return [];
+          return [...row.shadowRoot.querySelectorAll('mc-button, mc-dropdown')].map(element => {
+            const iconButton =
+              element.shadowRoot.querySelector('ha-icon-button') ||
+              element.shadowRoot
+                .querySelector('mc-dropdown-base')
+                ?.shadowRoot.querySelector('ha-icon-button');
+            return {
+              id: element.button?.id || element.dropdown?.id || null,
+              visibility: iconButton ? getComputedStyle(iconButton).visibility : null,
+              width: element.getBoundingClientRect().width,
+            };
+          });
+        });
+        return now.some(slot => slot.visibility === 'hidden') ? now : null;
+      },
+      { diagnose: panelState },
+    );
+
+    const spacers = slots.filter(slot => slot.visibility === 'hidden');
+    const visible = slots.filter(slot => slot.visibility === 'visible');
+
+    assert.equal(spacers.length, 2, JSON.stringify(slots));
+    assert.ok(visible.length >= 2, JSON.stringify(slots));
+
+    for (const spacer of spacers) {
+      assert.ok(spacer.width > 0, `${spacer.id} collapsed`);
+      assert.ok(
+        Math.abs(spacer.width - visible[0].width) < 1,
+        `${spacer.id} ${spacer.width} vs ${visible[0].width}`,
+      );
+    }
+
+    assert.deepEqual(session.errors, []);
+  });
+
   it('toggles a switch that is both an indicator and a button', async () => {
     // `bench_plug` is read twice by this card: as the `power` indicator through
     // a `values`/`mapper` template, and as the `power_switch` button. One
@@ -216,7 +339,7 @@ describe('a card written the way people write them', () => {
         }
         return null;
       },
-      { timeout: 30000 },
+      { timeout: 30000, diagnose: panelState },
     );
 
     const beforeState = (await entity(bench.tokens, bench.ids.bench_plug)).state;
