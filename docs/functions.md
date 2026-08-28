@@ -87,7 +87,9 @@ buttons:
 
 The icon an indicator or button shows, computed from the value. This is the
 option behind [#49](https://github.com/artem-sedykh/mini-climate-card/issues/49):
-an icon that follows the state rather than being fixed.
+an icon that follows the state rather than being fixed. `fan_mode` is a button,
+so the same form applies there - including the dropdown under the name, see
+[fan-mode-dropdown](secondary-info.md#fan-mode-dropdown).
 
 | argument | what it is |
 |---|---|

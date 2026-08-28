@@ -306,6 +306,26 @@ describe('the fan mode', () => {
     expect(card.buttons.fan_mode.source.map(s => s.id)).toEqual(['auto', 'low']);
   });
 
+  it('lets an icon template read extra keys off fan_mode through `this`', () => {
+    // The documented recipe for a different glyph per fan mode
+    // (docs/secondary-info.md). items is not an option of its own - it is
+    // data on the icon object, and the template indexes it.
+    const icon = {
+      items: { auto: 'mdi:fan-auto', low: 'mdi:fan-speed-1' },
+      template: '(state) => this.icon.items[state] || "mdi:fan"',
+    };
+
+    expect(build({ fan_mode: { icon } }).card.buttons.fan_mode.icon).toBe('mdi:fan-auto');
+    expect(
+      build({ fan_mode: { icon } }, { entity: climateEntity({ fan_mode: 'low' }) }).card.buttons
+        .fan_mode.icon,
+    ).toBe('mdi:fan-speed-1');
+    expect(
+      build({ fan_mode: { icon } }, { entity: climateEntity({ fan_mode: 'quiet' }) }).card.buttons
+        .fan_mode.icon,
+    ).toBe('mdi:fan');
+  });
+
   it('leaves the options alone when the card configured its own', () => {
     const { card } = build({ fan_mode: { source: { turbo: 'Turbo' } } });
     card.initDefaultFanModeSource();
