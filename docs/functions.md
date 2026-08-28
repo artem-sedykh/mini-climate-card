@@ -1,6 +1,6 @@
 # Functions
 
-[Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Functions](functions.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Examples](examples.md) | [Development](development.md)
+[Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Functions](functions.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Examples](examples.md) | [Development](development.md) | [Visual editor](visual-editor-parameters.md)
 
 A card configuration is YAML, but several options are **functions**, written as
 arrow functions in the YAML. The card parses their text, binds a context to
@@ -211,6 +211,28 @@ buttons:
     icon: mdi:power-plug
     style: (state) => state === 'on' ? { background: 'green' } : {}
 ```
+
+**`color` and `opacity` need an `!important` of their own.** While a control is
+on the card paints it with rules that already carry one, so those two
+properties coming from a template are dropped and the icon keeps the accent
+colour instead. Every other property - the `background` above included -
+applies as written.
+
+This bites exactly where it is least expected, because a style written for the
+`on` state and the card's own rule become active at the same moment.
+
+```yaml
+buttons:
+  power:
+    icon: mdi:power-plug
+    style: >
+      (state) => (state === 'on'
+        ? { background: 'green', color: 'white !important' }
+        : {})
+```
+
+The same holds for `hvac_mode` and `fan_mode`, whose icons are drawn by the
+same element - see [Controls](controls.md) for those.
 
 ## toggle_action
 

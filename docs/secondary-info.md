@@ -1,6 +1,6 @@
 # Secondary info
 
-[Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Functions](functions.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Examples](examples.md) | [Development](development.md)
+[Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Functions](functions.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Examples](examples.md) | [Development](development.md) | [Visual editor](visual-editor-parameters.md)
 
 ## secondary info functions
 
@@ -31,7 +31,7 @@ secondary_info: hvac-mode
 
 ## hvac-action type
 
-By default, translations from [ha frontend](https://github.com/home-assistant/frontend/blob/master/translations/frontend/en.json#L33)
+By default, translations from the [Home Assistant frontend](https://github.com/home-assistant/frontend/blob/master/src/translations/en.json)
 ```yaml
 type: custom:mini-climate
 entity: climate.dahatsu
@@ -45,7 +45,7 @@ entity: climate.dahatsu
 secondary_info:
   type: hvac-action
   source:
-    cooling: Охлаждение
+    cooling: Cooling
 ```
 You can set your own icon for each hvac-action
 ```yaml
@@ -56,18 +56,7 @@ secondary_info:
   source:
     cooling:
       icon: 'mdi:snowflake'
-      name: Охлаждение
-```
-You can set your own icon for each hvac-action
-```yaml
-type: custom:mini-climate
-entity: climate.dahatsu
-secondary_info:
-  type: hvac-action
-  source:
-    cooling:
-      icon: 'mdi:snowflake'
-      name: Охлаждение
+      name: Cooling
 ```
 Or you can use one permanent icon
 ```yaml
@@ -85,4 +74,4 @@ type: custom:mini-climate
 entity: climate.dahatsu
 secondary_info: fan-mode-dropdown
 ```
-![image](https://user-images.githubusercontent.com/861063/84180244-d80d0a80-aa8f-11ea-8275-f4e3db85fd31.png)
+![the fan mode dropdown open, with the current mode highlighted](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/fan-mode-dropdown.png)

@@ -420,9 +420,33 @@
         {
           "type": "custom:mini-climate",
           "entity": "{{bench_ac}}",
+          "name": "Mode icon by state",
+          "hvac_mode": {
+            "style": "(value) => ({ color: value === 'cool' ? 'rgb(0, 0, 255) !important' : 'rgb(255, 0, 0) !important' })"
+          }
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
           "name": "Mode icon by action",
           "hvac_mode": {
-            "style": "(value, entity) => ({ color: entity.attributes.hvac_action === 'cooling' ? 'rgb(0, 0, 255)' : 'rgb(255, 0, 0)' })"
+            "style": "(value, entity) => ({ color: entity.attributes.hvac_action === 'cooling' ? 'rgb(0, 0, 255) !important' : 'rgb(255, 0, 0) !important' })"
+          }
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": "Button colour",
+          "buttons": {
+            "eco": {
+              "icon": "mdi:leaf",
+              "state": {
+                "attribute": "preset_mode",
+                "mapper": "state => state === 'eco' ? 'on' : 'off'"
+              },
+              "toggle_action": "(state, entity) => this.call_service('climate', 'set_preset_mode', { entity_id: entity.entity_id, preset_mode: state === 'on' ? 'none' : 'eco' })",
+              "style": "state => state === 'on' ? { background: 'rgb(0, 128, 0)', color: 'rgb(0, 0, 255) !important' } : {}"
+            }
           }
         },
         {

@@ -1,21 +1,19 @@
 # Examples
 
-[Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Functions](functions.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Examples](examples.md) | [Development](development.md)
+[Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Functions](functions.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Examples](examples.md) | [Development](development.md) | [Visual editor](visual-editor-parameters.md)
 
-> I originally wrote a plugin for my air conditioner implementation using [esphome](https://github.com/esphome/esphome)
-> if interested, you can source [esphome-mqtt-climate](https://github.com/artem-sedykh/esphome-mqtt-climate)
-> the following is a configuration example for my air conditioner
+> This is a configuration example for my air conditioner, built on [esphome](https://github.com/esphome/esphome).
 
 ```yaml
 type: custom:mini-climate
 entity: climate.dahatsu
-name: Кондиционер
+name: Air conditioner
 fan_mode:
   source:
-    auto: Авто
-    low: Слабый
-    medium: Средний
-    high: Сильный
+    auto: Auto
+    low: Low
+    medium: Medium
+    high: High
     # for my implementation fan_modes_al is an array of available fan modes of the selected hvac mode
     __filter: >
       (source, state, entity) => entity.attributes
@@ -30,8 +28,8 @@ buttons:
     # the drop-down list will remain active until swing_mode is off
     active: state => state !== 'off'
     source:
-      'off': Выкл
-      horizontal: Вкл
+      'off': Off
+      horizontal: On
     change_action: >
       (selected, state, entity) => this.call_service('climate', 'set_swing_mode', { entity_id: entity.entity_id, swing_mode: selected })
   # turbo air conditioning button
@@ -94,8 +92,8 @@ indicators:
     source:
       entity: switch.air_conditioner_kitchen_switch_l1
       values:
-        'on': 'вкл'
-        'off': 'выкл'
+        'on': 'on'
+        'off': 'off'
     # localization of values
     mapper: value => this.source.values[value]
 ```
@@ -165,21 +163,51 @@ indicators:
 
 ![an indicator showing hh:mm out of hh:mm:ss](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/shortened-value.png)
 
+### The mode icon coloured by the mode it shows
+
+`hvac_mode.style` receives the mode as the first argument (`value`) and the
+entity as the second. Colour the icon by the mode - `cool`/`heat`/anything
+else - so the icon and its colour always agree.
+
+**The `!important` is what makes this work on a unit that is running.** While
+the climate entity is on, the card marks the mode button active and paints it
+with a rule of its own that is already `!important`; an inline style without
+one loses to it, and the colour appears only while the unit is off.
+
+```yaml
+hvac_mode:
+  style: >
+    (value, entity) => ({
+      color: value === 'cool'
+        ? 'blue !important'
+        : value === 'heat'
+          ? 'red !important'
+          : 'grey !important',
+    })
+```
+
+![the mode icon drawn as a blue snowflake while the unit is cooling](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/mode-icon-by-state.png)
+
 ### The mode icon coloured by what the unit is doing
 
 `hvac_action` is what the unit is doing now - heating, cooling, idle - as
-against `state`, which is what it was asked to do. The style template is handed
-the entity, so both are available.
+against the mode above, which is what it was asked to do. A style template is
+handed the entity as its second argument, so both are in reach: colour by
+`hvac_action` when the question is what is happening rather than what was set.
+
+The `!important` is needed for the same reason as above, and note that
+`hvac_action` is optional - an entity that does not report it leaves every
+branch here on the fallback.
 
 ```yaml
 hvac_mode:
   style: >
     (value, entity) => ({
       color: entity.attributes.hvac_action === 'cooling'
-        ? 'blue'
+        ? 'blue !important'
         : entity.attributes.hvac_action === 'heating'
-          ? 'red'
-          : 'grey',
+          ? 'red !important'
+          : 'grey !important',
     })
 ```
 

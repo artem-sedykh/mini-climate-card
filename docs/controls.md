@@ -1,6 +1,6 @@
 # Controls
 
-[Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Functions](functions.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Examples](examples.md) | [Development](development.md)
+[Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Functions](functions.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Examples](examples.md) | [Development](development.md) | [Visual editor](visual-editor-parameters.md)
 
 ## temperature
 
@@ -120,6 +120,11 @@ hvac_mode:
   change_action: >
     (selected, entity) => this.call_service('climate', 'set_hvac_mode', { entity_id: entity.entity_id, hvac_mode: selected })
 ``` 
+
+The `!important` on that `color` is not decoration. While the climate entity is
+on, the card marks the mode button active and paints it with a rule that
+carries one already, so a plain `color` from the template is dropped - see
+[style](functions.md#style).
 
 ## fan_mode
 
