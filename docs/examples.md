@@ -282,11 +282,14 @@ A shared template across several climate entities - some of which have an extra
 button and some of which do not - then fails to line up.
 
 There is no spacer option. A dummy button that stays in the row, with its icon
-hidden, keeps the slot:
+hidden, keeps the slot. The names are keys in `buttons:`, so two spacers need
+two names:
 
 ```yaml
 buttons:
-  spacer:
+  spacer_1:
+    style: "() => ({ visibility: 'hidden' })"
+  spacer_2:
     style: "() => ({ visibility: 'hidden' })"
 ```
 
