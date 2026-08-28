@@ -167,8 +167,10 @@ export const publish = (tokens, topic, payload) =>
     tokens.access_token,
   );
 
-/** Waits for a condition the bench cannot make synchronous: MQTT, then a render. */
-export const until = async (check, { timeout = 10000, step = 250 } = {}) => {
+/** Waits for a condition the bench cannot make synchronous: MQTT, then a render.
+ * `diagnose` runs only on timeout, so a flake can name the page as it was
+ * rather than stopping at `last value null`. */
+export const until = async (check, { timeout = 10000, step = 250, diagnose } = {}) => {
   const deadline = Date.now() + timeout;
   let last;
 
@@ -180,7 +182,18 @@ export const until = async (check, { timeout = 10000, step = 250 } = {}) => {
       if (!isTransient(error)) throw error;
       last = null;
     }
-    if (Date.now() > deadline) throw new Error(`timed out: last value ${JSON.stringify(last)}`);
+    if (Date.now() > deadline) {
+      let extra = '';
+      if (diagnose) {
+        try {
+          const dump = await diagnose();
+          extra = `\n${typeof dump === 'string' ? dump : JSON.stringify(dump)}`;
+        } catch (error) {
+          extra = `\ndiagnose failed: ${error && error.message}`;
+        }
+      }
+      throw new Error(`timed out: last value ${JSON.stringify(last)}${extra}`);
+    }
     await new Promise(resolve => setTimeout(resolve, step));
   }
 };

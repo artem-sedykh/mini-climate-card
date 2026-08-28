@@ -63,12 +63,82 @@ describe('a card written the way people write them', () => {
     if (session) await session.close();
   });
 
+  // What the showcase card is showing when a wait gives up: whether the row is
+  // open, whether a click would close it, and what sits on top of the toggle.
+  // The last flake (#36 on HA latest) died as `timed out: last value null`.
+  const panelState = async () => {
+    const fromCard = await card.evaluate(host => {
+      const root = host.shadowRoot;
+      const toggle = root?.querySelector('.toggle-button');
+      const row = root?.querySelector('mc-buttons');
+      const box = element => {
+        if (!element) return null;
+        const rect = element.getBoundingClientRect();
+        return { w: +rect.width.toFixed(1), h: +rect.height.toFixed(1) };
+      };
+      const atToggle = (() => {
+        if (!toggle) return [];
+        const rect = toggle.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        return [...document.elementsFromPoint(x, y)].slice(0, 5).map(element => element.localName);
+      })();
+      const menus = [];
+      const popovers = [];
+      const walk = node => {
+        for (const element of node.querySelectorAll('*')) {
+          if (element.localName === 'mc-menu') {
+            menus.push({
+              open: !!element.open,
+              items: element.shadowRoot?.querySelectorAll('.mc-menu__item').length ?? 0,
+            });
+          }
+          try {
+            if (element.matches(':popover-open')) popovers.push(element.localName);
+          } catch {
+            // The selector is missing in an engine that has no popover.
+          }
+          if (element.shadowRoot) walk(element.shadowRoot);
+        }
+      };
+      if (root) walk(root);
+
+      return {
+        name: root?.querySelector('.entity__info__name')?.textContent.trim() ?? null,
+        toggle: host.toggle,
+        toggleDefault: host.config?.toggle?.default ?? null,
+        toggleClass: toggle?.getAttribute('class') ?? null,
+        toggleBox: box(toggle),
+        atToggle,
+        buttons: !!row,
+        buttonIds: row?.shadowRoot
+          ? [...row.shadowRoot.querySelectorAll('mc-button, mc-dropdown')].map(
+              element => element.button?.id || element.dropdown?.id || element.localName,
+            )
+          : [],
+        menus,
+        popovers,
+      };
+    });
+
+    return {
+      ...fromCard,
+      locatorButtons: await card.locator('mc-buttons').count(),
+      locatorToggle: await card.locator('.toggle-button').count(),
+      dialogs: await dialogs(session.page),
+      pageErrors: session.errors.slice(),
+    };
+  };
+
   // The showcase card starts with the button row open (`toggle.default`), so
   // a click on the toggle would close it. Open only when the row is missing.
   const ensureButtonsOpen = async () => {
     if ((await card.locator('mc-buttons').count()) > 0) return;
+    const before = await panelState();
     await card.locator('.toggle-button').first().click();
-    await until(async () => ((await card.locator('mc-buttons').count()) > 0 ? true : null));
+    await until(async () => ((await card.locator('mc-buttons').count()) > 0 ? true : null), {
+      diagnose: async () => ({ before, after: await panelState() }),
+    });
   };
 
   it('sends a dropdown button through its own change_action', async () => {
@@ -225,7 +295,7 @@ describe('a card written the way people write them', () => {
         });
       });
       return now.some(slot => slot.visibility === 'hidden') ? now : null;
-    });
+    }, { diagnose: panelState });
 
     const spacers = slots.filter(slot => slot.visibility === 'hidden');
     const visible = slots.filter(slot => slot.visibility === 'visible');
@@ -266,7 +336,7 @@ describe('a card written the way people write them', () => {
         }
         return null;
       },
-      { timeout: 30000 },
+      { timeout: 30000, diagnose: panelState },
     );
 
     const beforeState = (await entity(bench.tokens, bench.ids.bench_plug)).state;
