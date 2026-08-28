@@ -55,7 +55,14 @@ const shot = async () => {
 
   await mkdir(directory, { recursive: true });
   const ready = await prepare();
-  const session = await open(ready.tokens);
+
+  // Wide enough that the masonry view settles on its widest column, which is
+  // what makes a card picture the same size whatever else is on the view. At
+  // the 900 the scenarios use, the column narrows as cards are added - adding
+  // a sixth card to the answers view took its cards from 492px to 310px and
+  // clipped the card names, so a picture regenerated after an unrelated change
+  // no longer matched the ones beside it in the documentation.
+  const session = await open(ready.tokens, { viewport: { width: 1400, height: 1000 } });
 
   let taken = 0;
 
