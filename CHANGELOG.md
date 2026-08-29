@@ -9,6 +9,64 @@
 Every release of this card, newest first. Each heading links to the release it
 came from, where the asset and the date are.
 
+## [v3.2.0](https://github.com/artem-sedykh/mini-climate-card/releases/tag/v3.2.0)
+
+A visual editor for the card, `scale` that finally scales the icons too, and
+the fixes both of those turned up.
+
+### Added
+
+- **A config editor in the picker.** The card registers `configurable` and
+  `getConfigElement()`, so the "Configure" dialog opens a form instead of
+  falling back to YAML. Options are grouped into sections - the basic card
+  options, tap action, secondary info, toggle, temperature, target
+  temperature, hvac mode and fan mode. YAML-only options (`change_action`,
+  `active`, custom buttons and indicators, ...) are unchanged and still work.
+  Ported from Rai-Rai's v2.x editor ([#280](https://github.com/artem-sedykh/mini-climate-card/pull/280)),
+  cleaned up for TypeScript and the current configuration shape.
+  [#281](https://github.com/artem-sedykh/mini-climate-card/pull/281)
+
+### Fixed
+
+- **`scale` now scales the icons.** It grew the type, the layout and the
+  spacing and left every icon at the browser's 24px default, so a scaled card
+  came out with a large name beside small chevrons - on a wall panel, which is
+  what `scale` is for, that is the whole point missed. Eleven of the seventeen
+  icons on an ordinary card were affected: the entity icon, the toggle, the
+  target temperature chevrons, every button and every dropdown. The three that
+  did scale were the three that sized their own icons.
+  **Nothing changes at `scale: 1`** - the ratio used is the one the card was
+  already drawing with, so a card that never set `scale` renders exactly as
+  before. [#287](https://github.com/artem-sedykh/mini-climate-card/issues/287)
+- **The editor no longer drops YAML-only keys on save.** A section the form
+  does not expose - `hvac_mode.source`, `fan_mode.source`,
+  `temperature.fixed`, `secondary_info.source` - survived a hand-written card
+  until the user touched any field in the editor; the first edit replaced the
+  whole section and lost the rest. The editor now merges onto what it was
+  given.
+- **A string `tap_action` opens with its own action.** `tap_action: none` was
+  left as a string, which spread into character keys; the action selector
+  opened showing the default `more-info` even though the card had `none`.
+  The editor normalises the shorthand the same way the card does.
+- **The e2e no longer intermittently fails waiting for the `power_switch`
+  button.** On a fresh `latest` bench the MQTT fixtures register more slowly
+  than on the pinned version, and the button is only built once its entity has
+  a state, so the ten-second wait expired. The wait is now 30 seconds.
+
+### Documentation
+
+- New recipes in [Examples](https://artem-sedykh.github.io/mini-climate-card/examples/),
+  each one a card on the test bench with a scenario asserting it: a translucent
+  card and why a background on `ha-card` does not show
+  ([#164](https://github.com/artem-sedykh/mini-climate-card/issues/164)), a
+  spacer that keeps a button's slot in the row
+  ([#36](https://github.com/artem-sedykh/mini-climate-card/issues/36)), how to
+  change the fan mode dropdown's icon by mode, and a bigger card
+  ([#162](https://github.com/artem-sedykh/mini-climate-card/issues/162)).
+- The theme variable table had two rows whose documented default named
+  `--mini-humidifier-*`, a variable this card does not have, and a third whose
+  default was not a CSS value.
+
 ## [v3.1.0](https://github.com/artem-sedykh/mini-climate-card/releases/tag/v3.1.0)
 
 The first release after the rework. Small, on purpose: a handful of additions
