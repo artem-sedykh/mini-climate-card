@@ -649,6 +649,42 @@ fault that shows up as a doubled call rather than as an error.
   local one, and switch back to `master`. A stale local branch pointing at a
   merged commit is how a later change accidentally builds on a merged PR.
 
+### The two fields on an issue
+
+Nothing labels anything automatically here, so a label exists only if it is set
+when the issue is filed. Set it then, not later (#300).
+
+- **One of `bug` / `enhancement` / `documentation` / `question` on every
+  issue.** These are read by people who did not write the issue: someone whose
+  dashboard reads `NaN` searches the tracker and filters by `bug`, and an issue
+  without one is an issue they file again.
+- **`maintenance`** for work on the repository rather than on the card - the
+  tooling, the tests, the documentation machinery. #198, #254 and #297 are all
+  of that shape, and calling any of them an `enhancement` to the card would be
+  wrong.
+- **`good first issue`** when the issue is self-contained and already says what
+  to do; **`wontfix`** when it is closed as out of scope, so the decision is
+  visible from the list without opening the thread.
+- **A label changes when the evidence does.** #133 reads as a `question` as
+  written; it becomes a `bug` if the localisation keys turn out to be stale.
+  That is an update, not an inconsistency.
+
+**Labels applied unevenly are worse than no labels**, which is the reason for a
+rule this short: a filter that misses things still gets trusted.
+
+**The milestone is the unreleased version and nothing else.** Not planning, not
+a roadmap: it answers "is the fix I am reading about in the version I have",
+which a closed issue otherwise cannot, and
+`gh issue list --milestone v<next> --state closed` is the input for the release
+summary rewritten at step 2 of Releasing. Only closed issues go in it, so an
+open count above zero means something in it is not actually done. Past releases
+are not back-filled - they have notes and a changelog, and archaeology nobody
+reads is work for its own sake.
+
+**Assignees are not used.** One maintainer, so `assignees: [artem-sedykh]` on
+everything encodes nothing, and a field that always holds the same value makes
+the fields beside it look decorative too.
+
 ## Releasing
 
 **The notes are written as the changes land, not at the end.** There is always
@@ -679,6 +715,10 @@ master makes the next release a minor however small the rest of it is.
 5. **Open the next `release_notes/v<next>.md` straight away**, empty, so the
    next change has somewhere to write itself down. A release that ends without
    one is how notes start being reconstructed afterwards.
+6. **Close the `v<version>` milestone and open `v<next>`**, in the same sitting
+   as step 5 and for the same reason. An issue closed against no milestone is
+   one whose reader cannot tell which release carries it, and the gap is only
+   noticeable months later, from the outside.
 
 ### The documentation
 
