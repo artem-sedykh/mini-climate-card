@@ -822,6 +822,30 @@
           ]
         }
       ]
+    },
+    {
+      "title": "Temperature tap",
+      "cards": [
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": "Temperature opens more-info",
+          "temperature": {
+            "tap_action": "more-info"
+          },
+          "target_temperature": {
+            "tap_action": {
+              "action": "more-info",
+              "entity": "{{bench_trv}}"
+            }
+          }
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": "No tap action"
+        }
+      ]
     }
   ]
 }

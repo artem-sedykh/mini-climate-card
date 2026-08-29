@@ -1,6 +1,8 @@
 import define from '../utils/define';
 import { LitElement, html, css, type PropertyDeclarations, type TemplateResult } from 'lit';
 import { NO_TARGET_TEMPERATURE } from '../const';
+import handleClick from '../utils/handleClick';
+import type { TapAction } from '../types';
 import type TemperatureObject from '../models/temperature';
 
 export default class ClimateTemperature extends LitElement {
@@ -34,18 +36,58 @@ export default class ClimateTemperature extends LitElement {
     return parts[1] ? targetNum.toFixed(parts[1].length) : targetStr;
   }
 
+  /**
+   * A reading is clickable only when it was configured to be (#65). The card
+   * draws `cursor: pointer` off the same answer, because a card that opted out
+   * inviting a tap is the half of the bug the sister card had in #206.
+   */
+  static clickable(action: TapAction): boolean {
+    return !!action && !!action.action && action.action !== 'none';
+  }
+
+  handleTap(e: Event, action: TapAction, entityId: string): void {
+    if (!ClimateTemperature.clickable(action)) return;
+
+    // The card's own `tap_action` is on the name, which is a different
+    // subtree, so nothing above listens for this - stopped for the reason
+    // `handlePopup` stops it, rather than for a conflict that exists today.
+    e.stopPropagation();
+    handleClick(this, this.temperature.hass, action, entityId);
+  }
+
+  renderValue(
+    value: unknown,
+    action: TapAction,
+    entityId: string,
+    changing = false,
+  ): TemplateResult {
+    const clickable = ClimateTemperature.clickable(action);
+    const cls = ['state__value', changing ? 'changing' : '', clickable ? 'clickable' : '']
+      .filter(Boolean)
+      .join(' ');
+
+    return html`<span
+      class='${cls}'
+      @click=${(e: Event) => this.handleTap(e, action, entityId)}>${value}</span>`;
+  }
+
   renderTemperature(): TemplateResult | string {
     if (this.temperature.value === undefined || this.temperature.hide) return '';
 
-    if (this.swapTemperatures) {
-      return html`
-        <span class='state__value'>${this.temperature.value}</span>
-        <span class='state__value'>/</span>`;
-    }
+    return this.renderValue(
+      this.temperature.value,
+      this.temperature.tapAction,
+      this.temperature.entityId,
+    );
+  }
 
-    return html`
-      <span class='state__value'>/</span>
-      <span class='state__value'>${this.temperature.value}</span>`;
+  renderTarget(): TemplateResult {
+    return this.renderValue(
+      this.targetStr,
+      this.temperature.targetTapAction,
+      this.temperature.targetEntityId,
+      this.changing,
+    );
   }
 
   override render(): TemplateResult {
@@ -53,21 +95,20 @@ export default class ClimateTemperature extends LitElement {
       return html``;
     }
 
-    const cls = this.changing ? 'changing' : '';
     const { unit } = this.temperature;
-    if (this.swapTemperatures) {
-      return html`
-      <div class='state ellipsis'>
-        ${this.renderTemperature()}
-        <span class='state__value ${cls}'>${this.targetStr}</span>
-        <span class='state__uom'>${unit}</span>
-      </div>`;
-    }
+    const current = this.renderTemperature();
+    // No reading, no separator: hiding the current temperature has always left
+    // the target alone with its unit.
+    const separator = current === '' ? '' : html`<span class='state__value'>/</span>`;
+    const [first, second] = this.swapTemperatures
+      ? [current, this.renderTarget()]
+      : [this.renderTarget(), current];
 
     return html`
     <div class='state ellipsis'>
-      <span class='state__value ${cls}'>${this.targetStr}</span>
-      ${this.renderTemperature()}
+      ${first}
+      ${separator}
+      ${second}
       <span class='state__uom'>${unit}</span>
     </div>
     `;
@@ -96,6 +137,9 @@ export default class ClimateTemperature extends LitElement {
     }
     .changing {
       color: var(--mc-accent-color);
+    }
+    .clickable {
+      cursor: pointer;
     }
     `;
   }

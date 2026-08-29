@@ -147,6 +147,39 @@ describe('the visual config editor', () => {
     expect(changed.hvac_mode.source).to.deep.equal({ heat: 'Heat' });
   });
 
+  it('keeps a temperature tap_action through an edit of the section (#65)', async () => {
+    // Neither reading's tap_action is in the form, and the target temperature
+    // handler rebuilds its section from a named list of keys rather than
+    // merging - so this is the path where a new YAML-only option is dropped.
+    const { editor } = await mountEditor({
+      config: {
+        entity: ENTITY_ID,
+        temperature: { tap_action: 'more-info' },
+        target_temperature: { tap_action: { action: 'more-info', entity: 'sensor.outside' } },
+      },
+    });
+
+    let changed;
+    editor.addEventListener('config-changed', event => {
+      changed = event.detail.config;
+    });
+
+    sectionForm(editor, 'icon_up').fire({
+      unit: '°C',
+      min: undefined,
+      max: undefined,
+      step: undefined,
+      icon_up: undefined,
+      icon_down: undefined,
+    });
+
+    expect(changed.target_temperature.tap_action).to.deep.equal({
+      action: 'more-info',
+      entity: 'sensor.outside',
+    });
+    expect(changed.temperature.tap_action).to.equal('more-info');
+  });
+
   it('does not put a template icon through the icon picker', async () => {
     // The basic form has an icon selector. An object `icon` is a template,
     // and a selector that cannot show it would stringify it and write a

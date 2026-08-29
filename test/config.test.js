@@ -437,6 +437,33 @@ describe('temperature and target temperature', () => {
     });
   });
 
+  it('defaults both readings to doing nothing when tapped', () => {
+    // #65 adds the option; the default has to leave every existing dashboard
+    // exactly as it was, which means not clickable.
+    const { card } = build({});
+    expect(card.config.temperature.tap_action).toEqual({ action: 'none' });
+    expect(card.config.target_temperature.tap_action).toEqual({ action: 'none' });
+  });
+
+  it('normalises a tap_action written as a string on either reading', () => {
+    const { card } = build({
+      temperature: { tap_action: 'more-info' },
+      target_temperature: { tap_action: 'more-info' },
+    });
+    expect(card.config.temperature.tap_action).toEqual({ action: 'more-info' });
+    expect(card.config.target_temperature.tap_action).toEqual({ action: 'more-info' });
+  });
+
+  it('keeps every key of a tap_action object', () => {
+    const { card } = build({
+      temperature: { tap_action: { action: 'more-info', entity: 'sensor.outside' } },
+    });
+    expect(card.config.temperature.tap_action).toEqual({
+      action: 'more-info',
+      entity: 'sensor.outside',
+    });
+  });
+
   it('compiles a target temperature change_action', () => {
     const { card, callService } = build({
       target_temperature: {

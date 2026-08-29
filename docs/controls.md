@@ -28,7 +28,12 @@ temperature:
   # use an external temperature sensor
   source:
     entity: sensor.temperature
+  # open that sensor's history when the reading is tapped, off by default
+  tap_action: more-info
 ``` 
+
+See [tap action](tap-action.md#temperature-and-target-temperature) for what
+`tap_action` accepts here.
 
 ## target_temperature
 
@@ -61,6 +66,7 @@ target_temperature:
   min: 16
   max: 31
   step: 0.5
+  tap_action: more-info
   change_action: >
     (value, entity) => this.call_service('climate', 'set_temperature', { entity_id: entity.entity_id, temperature: value })
 ``` 

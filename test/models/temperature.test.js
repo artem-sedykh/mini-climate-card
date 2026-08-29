@@ -130,3 +130,58 @@ describe('TemperatureObject.hide', () => {
     );
   });
 });
+
+describe('TemperatureObject, what a tap acts on (#65)', () => {
+  // The card resolves both of these in `updateTemperature` the same way, and
+  // the component asks the model rather than repeating the fallback.
+  const tapped = (config = {}, climate = {}) =>
+    new TemperatureObject(
+      entity(),
+      entity(),
+      {
+        entity: 'climate.living_room',
+        temperature: { tap_action: { action: 'none' }, ...(config.temperature || {}) },
+        target_temperature: {
+          tap_action: { action: 'none' },
+          ...(config.target_temperature || {}),
+        },
+      },
+      climate,
+    );
+
+  it('answers the climate entity when no source names one', () => {
+    expect(tapped().entityId).toBe('climate.living_room');
+    expect(tapped().targetEntityId).toBe('climate.living_room');
+  });
+
+  it('answers the source entity when there is one', () => {
+    const t = tapped({
+      temperature: { source: { entity: 'sensor.outside' } },
+      target_temperature: { source: { entity: 'number.setpoint' } },
+    });
+    expect(t.entityId).toBe('sensor.outside');
+    expect(t.targetEntityId).toBe('number.setpoint');
+  });
+
+  it('answers the source entity even when Home Assistant does not have it', () => {
+    // Reading it off the resolved entity would answer the climate entity
+    // here, and open a dialog for something the card is not showing.
+    const t = tapped({ temperature: { source: { entity: 'sensor.gone' } } });
+    t.temperatureEntity = {};
+    expect(t.entityId).toBe('sensor.gone');
+  });
+
+  it('hands each action through as configured', () => {
+    const t = tapped({
+      temperature: { tap_action: { action: 'more-info' } },
+      target_temperature: { tap_action: { action: 'url', url: 'https://example.com' } },
+    });
+    expect(t.tapAction).toEqual({ action: 'more-info' });
+    expect(t.targetTapAction).toEqual({ action: 'url', url: 'https://example.com' });
+  });
+
+  it('takes hass from the climate, which is where the card put it', () => {
+    const hass = { callService: vi.fn() };
+    expect(tapped({}, { hass }).hass).toBe(hass);
+  });
+});
