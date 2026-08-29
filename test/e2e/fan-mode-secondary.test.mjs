@@ -7,7 +7,7 @@
 // the label sat below it.
 import { after, before, describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { open } from '../bench/browser.mjs';
+import { open, until } from '../bench/browser.mjs';
 import { DASHBOARD, prepare } from '../bench/setup.mjs';
 import { BASE } from '../bench/auth.mjs';
 
@@ -51,14 +51,19 @@ describe('the fan mode dropdown under the name', () => {
 
     // Press over the label (right half of the button), not the icon grid.
     await session.page.mouse.click(box.right - 2, box.top + box.height / 2);
-    await session.page.waitForTimeout(400);
 
-    const open = await secondary.evaluate(node => {
-      const fanSec = node.shadowRoot.querySelector('mc-fan-mode-secondary');
-      const m = fanSec.shadowRoot.querySelector('mc-menu');
-      return m && m.open;
+    // Polled, not waited out - the same race as #304, in the same shape.
+    const menuOpen = () =>
+      secondary.evaluate(node => {
+        const fanSec = node.shadowRoot.querySelector('mc-fan-mode-secondary');
+        const m = fanSec.shadowRoot.querySelector('mc-menu');
+        return !!(m && m.open);
+      });
+
+    const isOpen = await until(async () => (await menuOpen()) || null, {
+      diagnose: async () => ({ open: await menuOpen() }),
     });
-    assert.equal(open, true, 'the menu should open from a press over the label');
+    assert.equal(isOpen, true, 'the menu should open from a press over the label');
   });
 
   it('keeps the icon and the label on one row', async () => {

@@ -136,6 +136,33 @@ would be a number nobody could act on.
 The unminified build is why it is a separate run: what ships is the minified
 one, and that is what the scenarios normally exercise.
 
+## Waiting for something to have happened
+
+**Poll for the state; do not wait out a duration and read once.** `until()` in
+`browser.mjs` takes a check and a `diagnose`, and everything that arrives
+asynchronously - a menu opening, an entity settling, a label appearing - is
+read through it.
+
+A fixed `waitForTimeout` in that position is a race with no symptom but an
+occasional red run, and the cost is not the rerun: the failure lands on
+whatever branch happens to be under it and reads as that branch breaking
+something. That is #304 - a menu read 400ms after the click, which failed once
+on a commit whose only change was a markdown file.
+
+`diagnose` is the other half. `timed out: last value null` says nothing;
+`{"open":false,"items":["auto","low",...]}` says the menu had its options and
+still reported closed, which is a different bug from the menu never opening.
+
+A fixed wait is still right in three places, and they are worth telling apart:
+
+- **settling after a load** - the `waitForTimeout(1500)` in a `before` hook,
+  after `waitForSelector`, where nothing is being asserted yet;
+- **waiting for something to be over** - a dialog closing, a menu dismissed by
+  Escape;
+- **asserting that nothing happens** - a control that presses a reading with no
+  `tap_action` and expects no dialog. There is no state to poll for; the wait
+  is the measurement.
+
 ## What it is not
 
 It is **not** where geometry is measured. `test/browser/` renders the card in
