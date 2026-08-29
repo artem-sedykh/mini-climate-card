@@ -31,7 +31,10 @@ secondary_info: hvac-mode
 
 ## hvac-action type
 
-By default, translations from the [Home Assistant frontend](https://github.com/home-assistant/frontend/blob/master/src/translations/en.json)
+By default the card shows Home Assistant's own string for the action, in the
+language the dashboard is in - the same one the thermostat card shows. They
+come from the [climate integration](https://github.com/home-assistant/core/blob/dev/homeassistant/components/climate/strings.json),
+and the modes and fan speeds elsewhere on the card work the same way.
 ```yaml
 type: custom:mini-climate
 entity: climate.dahatsu

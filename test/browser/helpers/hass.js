@@ -13,16 +13,27 @@ export const HVAC_MODES = ['off', 'heat', 'cool', 'auto'];
 // Home Assistant's own translations. The card asks for state labels and for
 // the unavailable label; `hass.localize` returns an empty string for anything
 // it does not know, and `getLabel` falls back when it does.
+//
+// The keys are the ones a current Home Assistant answers, measured on 2026.8.3.
+// They used to be the `state.climate.*` and `state_attributes.climate.*`
+// spellings, which no version still has - so this fixture agreed with the card
+// about a Home Assistant that no longer exists, and both layers stayed green
+// while every label on a real dashboard was drawn as its raw id (#133). The
+// older spellings are covered in `test/models/climate.test.js`, which is where
+// the fallback belongs; here the stub is a Home Assistant of today.
+const COMPONENT = 'component.climate.entity_component._';
+
 const TRANSLATIONS = {
   'state.default.unavailable': 'Unavailable',
-  'state.climate.heat': 'Heat',
-  'state.climate.cool': 'Cool',
-  'state.climate.auto': 'Auto',
-  'state.climate.off': 'Off',
-  'state_attributes.climate.fan_mode.auto': 'Auto',
-  'state_attributes.climate.fan_mode.low': 'Low',
-  'state_attributes.climate.fan_mode.medium': 'Medium',
-  'state_attributes.climate.fan_mode.high': 'High',
+  [`${COMPONENT}.state.heat`]: 'Heat',
+  [`${COMPONENT}.state.cool`]: 'Cool',
+  [`${COMPONENT}.state.auto`]: 'Auto',
+  [`${COMPONENT}.state.off`]: 'Off',
+  [`${COMPONENT}.state_attributes.fan_mode.state.auto`]: 'Auto',
+  [`${COMPONENT}.state_attributes.fan_mode.state.low`]: 'Low',
+  [`${COMPONENT}.state_attributes.fan_mode.state.medium`]: 'Medium',
+  [`${COMPONENT}.state_attributes.fan_mode.state.high`]: 'High',
+  [`${COMPONENT}.state_attributes.hvac_action.state.heating`]: 'Heating',
 };
 
 export const createHass = ({ state = 'heat', attributes = {} } = {}) => {

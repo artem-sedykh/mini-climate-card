@@ -2,6 +2,25 @@ import getLabel from '../utils/getLabel';
 import ICON, { STATES_OFF, UNAVAILABLE_STATES } from '../const';
 import type { CardConfig, HassEntity, HomeAssistant, SourceItem } from '../types';
 
+/**
+ * Where Home Assistant keeps the strings for a climate entity's state and its
+ * attributes today.
+ *
+ * It used to keep them under `state.climate.*` and `state_attributes.climate.*`,
+ * which is what this card asked for until #133. Measured on 2026.8.3: every one
+ * of those keys answers an empty string now, in every language, so `getLabel`
+ * fell through to its fallback and the card drew the raw id - `cool` where the
+ * thermostat card draws `Cool`, and `cool` where a German dashboard expects
+ * `Kuehlbetrieb`. On an English dashboard that reads as a lowercase letter
+ * rather than as a missing translation, which is how it went unreported as a
+ * bug for four years and was filed as a question.
+ *
+ * The old spellings stay at the end of each list: `getLabel` walks it in order,
+ * so they cost one lookup on a current Home Assistant and still answer on an
+ * installation old enough to have them.
+ */
+const ENTITY_COMPONENT = 'component.climate.entity_component._';
+
 export default class ClimateObject {
   hass: HomeAssistant;
 
@@ -54,8 +73,11 @@ export default class ClimateObject {
     const source = (this.config.secondary_info && this.config.secondary_info.source) || {};
     const action = this.attr.hvac_action;
     let item: SourceItem = { id: action };
-    const labelPrefix = 'state_attributes.climate.hvac_action';
-    item.name = getLabel(this.hass, [`${labelPrefix}.${action}`], action);
+    const labels = [
+      `${ENTITY_COMPONENT}.state_attributes.hvac_action.state.${action}`,
+      `state_attributes.climate.hvac_action.${action}`,
+    ];
+    item.name = getLabel(this.hass, labels, action);
 
     if (action in source) {
       if (typeof source[action] === 'string') item.name = source[action];
@@ -79,7 +101,11 @@ export default class ClimateObject {
 
     for (let i = 0; i < hvacModes.length; i += 1) {
       const hvacMode = hvacModes[i];
-      const labels = [`state.climate.${hvacMode}`, `component.climate.state._.${hvacMode}`];
+      const labels = [
+        `${ENTITY_COMPONENT}.state.${hvacMode}`,
+        `state.climate.${hvacMode}`,
+        `component.climate.state._.${hvacMode}`,
+      ];
       const item: SourceItem = { id: hvacMode, name: getLabel(this.hass, labels, hvacMode) };
       const iconId = hvacMode.toString().toUpperCase();
       if (iconId in ICON) item.icon = ICON[iconId];
@@ -92,11 +118,14 @@ export default class ClimateObject {
   get defaultFanModes(): Record<string, string> {
     const fanModes = this.attr.fan_modes;
     const source: Record<string, string> = {};
-    const labelPrefix = 'state_attributes.climate.fan_mode';
 
     for (let i = 0; i < fanModes.length; i += 1) {
       const mode = fanModes[i];
-      source[mode] = getLabel(this.hass, [`${labelPrefix}.${mode}`], mode);
+      const labels = [
+        `${ENTITY_COMPONENT}.state_attributes.fan_mode.state.${mode}`,
+        `state_attributes.climate.fan_mode.${mode}`,
+      ];
+      source[mode] = getLabel(this.hass, labels, mode);
     }
     return source;
   }
