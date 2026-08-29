@@ -24,16 +24,65 @@ The whole site is published in a form made for reading in one go:
 Both are generated from the pages themselves at build time, so they are never
 a stale copy of the documentation.
 
-Where the assistant can fetch a URL, name it:
+There are three ways in, and which one you have depends on the tool rather than
+on the card.
+
+**An assistant that can fetch a URL** - Claude, ChatGPT with browsing, most
+editor agents - only needs to be told which one:
 
 ```text
-Read https://artem-sedykh.github.io/mini-climate-card/llms-full.txt and write me
-a mini-climate card for climate.bedroom that shows the humidity from
-sensor.bedroom_humidity and hides the fan mode.
+Read https://artem-sedykh.github.io/mini-climate-card/llms-full.txt - it is the
+full documentation of the mini-climate-card Lovelace card.
+
+Write me a card for climate.bedroom that shows the humidity from
+sensor.bedroom_humidity, hides the fan mode, and turns the mode icon red while
+the unit is heating.
+
+Only use options that appear in the Configuration table of that documentation.
+Templates are arrow functions written as strings. Answer with the YAML only.
 ```
 
-Where it cannot, open the file and paste it. It is the documentation and
-nothing else - no code, no history.
+The last paragraph is the part that does the work. Without it an assistant
+tends to write the card first and consult the documentation afterwards, if at
+all.
+
+**An assistant working in your files** - Cursor, Claude Code, anything with a
+terminal - is better off with the file beside the configuration it is editing,
+where it stays for the next question:
+
+```bash
+curl -o mini-climate-card-docs.md \
+  https://artem-sedykh.github.io/mini-climate-card/llms-full.txt
+```
+
+Then: `read mini-climate-card-docs.md, then add a preset row to the card in
+ui-lovelace.yaml`.
+
+**An assistant that cannot reach the network** takes the file pasted into the
+conversation. It is the documentation and nothing else - no code, no history -
+and it is around 100 KB, which every current assistant holds without trouble.
+
+## Make it show its work
+
+One follow-up catches most of what goes wrong, and it costs one line:
+
+```text
+For every option in the YAML you just wrote, quote the line of the documentation
+that defines it. Delete any option you cannot quote.
+```
+
+An invented option has nothing to quote, and this is the point where that
+becomes visible - rather than on the dashboard, where a wrong option is silent
+(see below). It works because the documentation is in the conversation: ask the
+same thing of an assistant that never read it and you get invented quotes to go
+with the invented options.
+
+When something does not work, the console message is the thing to paste back:
+
+```text
+Home Assistant logged this for the card: <the message from the browser console>.
+Which option is wrong, and what does the documentation say it should be?
+```
 
 ## Then check what comes back
 
