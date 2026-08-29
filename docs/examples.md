@@ -247,6 +247,30 @@ wants the dropdown; this trades the choice for the press.
 
 ![the mode drawn as a single button that toggles between heat and off](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/mode-toggle.png)
 
+### The fan mode in the top row
+
+`fan_mode` is a button like any other - `setConfig` pushes it into `buttons`
+under that id - so the same `location` moves it. `main` takes the dropdown out
+of the toggle panel and puts it in the control row beside the mode icon; with
+nothing left behind the toggle, the chevron that opened it goes as well and the
+card is one row.
+
+```yaml
+type: custom:mini-climate
+entity: climate.bedroom
+fan_mode:
+  location: main
+  order: 0
+secondary_info: hvac-action
+```
+
+The `secondary_info` line is not decoration here. It shows the fan mode by
+default, so a card that moves the dropdown up says the same thing in two
+places - give the line something else to say, `hvac-action` above or any other
+type in [Secondary info](secondary-info.md).
+
+![the fan mode dropdown in the control row, with no toggle left to open](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/fan-mode-main-row.png)
+
 ### An indicator coloured by the mode
 
 The third argument every template gets is the **climate entity**, whatever

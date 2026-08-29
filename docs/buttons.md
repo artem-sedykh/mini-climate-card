@@ -135,6 +135,8 @@ buttons:
       mapper: "state => (state ? 'on': 'off')"
 ```
 
-`fan_mode` takes the same option, and the top row is what a card whose toggle
-is hidden has left. Putting a button there in place of the mode dropdown is
-[a recipe of its own](examples.md#a-press-instead-of-the-mode-dropdown).
+`fan_mode` takes the same option - it is a button under that id - and the top
+row is what a card whose toggle is hidden has left. Both moves are recipes of
+their own: [a button in place of the mode
+dropdown](examples.md#a-press-instead-of-the-mode-dropdown), and [the fan mode
+in the top row](examples.md#the-fan-mode-in-the-top-row).

@@ -493,6 +493,16 @@
               "toggle_action": "(state, entity) => this.call_service('climate', 'set_hvac_mode', { entity_id: entity.entity_id, hvac_mode: state === 'off' ? 'heat' : 'off' })"
             }
           }
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": "Fan in the top row",
+          "fan_mode": {
+            "location": "main",
+            "order": 0
+          },
+          "secondary_info": "hvac-action"
         }
       ]
     },

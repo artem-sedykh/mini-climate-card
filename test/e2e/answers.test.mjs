@@ -72,6 +72,11 @@ describe('the answers people were given', () => {
         // took its place. `mc-button` draws its `ha-icon` inside its own root,
         // so it is not reachable from here without the walk either.
         modeMenu: !!modeMenu,
+        // What the control row holds, in order - the row `location: main`
+        // moves a button into.
+        rowTags: [...(root.querySelector('.ctl-wrap')?.children ?? [])].map(
+          element => element.localName,
+        ),
         buttonIcon: (() => {
           const button = root.querySelector('mc-button');
           if (!button) return null;
@@ -323,5 +328,49 @@ describe('the answers people were given', () => {
       return now && now.buttonIcon === 'mdi:power' ? now : null;
     });
     assert.equal((await entity(bench.tokens, bench.ids.bench_ac)).state, 'off');
+  });
+
+  it('moves the fan mode dropdown into the control row, working (location)', async () => {
+    // `fan_mode` is pushed into `config.buttons` under that id, so the option
+    // that moves a button moves it too - and it arrives as a dropdown, which
+    // is the half worth doing here rather than in the browser layer: the menu
+    // is put in the top layer by `showPopover`, and a card that clips its own
+    // overflow is what it has to escape.
+    const card = session.page.locator('mini-climate').filter({ hasText: 'Fan in the top row' });
+
+    const row = await look('Fan in the top row');
+    assert.deepEqual(row.rowTags, ['mc-dropdown', 'mc-mode-menu', 'mc-temperature']);
+
+    const dropdown = card.locator('mc-dropdown').first();
+
+    await dropdown.evaluate(node => {
+      node.shadowRoot.querySelector('mc-dropdown-base').shadowRoot.getElementById('button').click();
+    });
+    await session.page.waitForTimeout(400);
+
+    const opened = await dropdown.evaluate(
+      node =>
+        node.shadowRoot.querySelector('mc-dropdown-base').shadowRoot.getElementById('menu').open,
+    );
+    assert.equal(opened, true, 'the menu did not open from the control row');
+
+    await dropdown.evaluate(node => {
+      node.shadowRoot
+        .querySelector('mc-dropdown-base')
+        .shadowRoot.getElementById('menu')
+        .shadowRoot.querySelector('[data-value="high"]')
+        .click();
+    });
+
+    const set = await until(async () => {
+      const now = await entity(bench.tokens, bench.ids.bench_ac);
+      return now.attributes.fan_mode === 'high' ? now : null;
+    });
+    assert.equal(set.attributes.fan_mode, 'high');
+
+    await callService(bench.tokens, 'climate', 'set_fan_mode', {
+      entity_id: bench.ids.bench_ac,
+      fan_mode: 'auto',
+    });
   });
 });

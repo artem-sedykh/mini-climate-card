@@ -265,6 +265,41 @@ describe('where a button is drawn', () => {
     expect(row).to.eql(['mc-button', 'mc-button', 'mc-mode-menu', 'mc-temperature']);
   });
 
+  it('takes the fan mode into the control row on the same option', async () => {
+    // `fan_mode` is a button like any other - `setConfig` pushes it into
+    // `config.buttons` under that id - so `location` moves it the same way,
+    // and it arrives as the dropdown it is rather than as a plain button.
+    const { card } = await mountCard({
+      config: { toggle: { default: true }, fan_mode: { location: 'main' } },
+    });
+
+    const row = [...card.shadowRoot.querySelectorAll('.ctl-wrap mc-dropdown')];
+    expect(row.map(dropdown => dropdown.dropdown.id)).to.eql(['fan_mode']);
+
+    const panel = card.shadowRoot.querySelector('.mc-toggle_content mc-buttons');
+    const behind = panel ? [...panel.shadowRoot.querySelectorAll('mc-dropdown')] : [];
+    expect(behind.map(dropdown => dropdown.dropdown.id)).to.eql([]);
+  });
+
+  it('leaves the fan mode being said twice unless the secondary info is given something else', async () => {
+    // The caveat the recipe carries: the secondary info line shows the fan
+    // mode by default, so moving the dropdown up puts the same thing in two
+    // places at once. It is not a bug to fix here - the line is configurable,
+    // and this is what says so.
+    const saysFanMode = card => {
+      const info = card.shadowRoot.querySelector('mc-secondary-info');
+      return !!(info && info.shadowRoot.querySelector('mc-fan-mode-secondary'));
+    };
+
+    const twice = await mountCard({ config: { fan_mode: { location: 'main' } } });
+    expect(saysFanMode(twice.card), 'the default line still says it').to.be.true;
+
+    const once = await mountCard({
+      config: { fan_mode: { location: 'main' }, secondary_info: 'hvac-action' },
+    });
+    expect(saysFanMode(once.card), 'the line was given something else to say').to.be.false;
+  });
+
   it('draws no toggle button when there is nothing left behind the toggle', async () => {
     const { card } = await mountCard({
       config: {

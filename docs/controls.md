@@ -163,6 +163,9 @@ fan_mode:
   hide: >
     (state) => state === 'low'
   icon: mdi:fan
+  # where the dropdown is drawn: `bottom` (behind the toggle) by default,
+  # `main` puts it in the control row beside the mode icon
+  location: main
   order: 0
   active: (state, entity) => entity.state !== 'off'
   source:
@@ -178,3 +181,9 @@ fan_mode:
   change_action: >
     (selected, state, entity) => this.call_service('climate', 'set_fan_mode', { entity_id: entity.entity_id, fan_mode: selected })
 ```
+
+`location` is the option `fan_mode` shares with every other button - see
+[Buttons](buttons.md#location) for what the two rows are, and
+[The fan mode in the top row](examples.md#the-fan-mode-in-the-top-row) for the
+one caveat: the secondary info line shows the fan mode by default, so a card
+that moves the dropdown up says it twice.
