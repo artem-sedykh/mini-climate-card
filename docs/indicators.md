@@ -16,6 +16,25 @@ indicators:
       entity: sensor.humidity
 ```
 
+## round and fixed
+
+`round` gives a number and `fixed` gives a string with that many decimals kept:
+
+```yaml
+indicators:
+  humidity:
+    icon: mdi:water-percent
+    unit: "%"
+    fixed: 1
+    source:
+      entity: sensor.humidity
+```
+
+A reading of `48.02` shows as `48.0` with `fixed: 1` and as `48` with
+`round: 1` - so a column of indicators keeps its width only with `fixed`. Both
+leave a reading that is not a number alone, so an unavailable sensor reads
+`unavailable`. See [round and fixed](configuration.md#round-and-fixed).
+
 ## indicator functions
 
 > Consider configuring an indicator using javascript

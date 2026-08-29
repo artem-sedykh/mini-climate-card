@@ -55,8 +55,15 @@ describe('the answers people were given', () => {
         ? (deep(modeMenu.shadowRoot, 'ha-icon')[0] ?? deep(modeMenu.shadowRoot, 'ha-svg-icon')[0])
         : null;
 
+      const allValues = indicators
+        ? [...indicators.shadowRoot.querySelectorAll('.state__value')].map(node =>
+            node.textContent.trim(),
+          )
+        : [];
+
       return {
         icon: !!root.querySelector('.entity__icon'),
+        indicatorValues: allValues,
         entityIcon: root.querySelector('.entity__icon ha-icon')?.icon ?? null,
         // The wrap's `color` is not the glyph: `--icon-primary-color` paints
         // `ha-svg-icon` and leaves the wrap reporting the template's colour
@@ -305,6 +312,38 @@ describe('the answers people were given', () => {
     assert.equal(idle.entityIcon, 'mdi:radiator-off');
     assert.equal(idle.entityIconGlyphColour, 'rgb(128, 128, 128)');
     assert.equal(idle.entityIconActive, false);
+  });
+
+  it('keeps the decimals with fixed, and drops them with round (#163, #298)', async () => {
+    // Four indicators on one card, reading two sensors. The reading is chosen
+    // to round to a whole number, which is the whole of #163: `round` answers
+    // a number, so the decimal point goes and the column width follows the
+    // reading. `fixed` answers a string and keeps the zero.
+    //
+    // The fourth reads a sensor whose state is a clock, with `round` set. It
+    // used to draw the text `NaN` (#298) - the guard did not coerce, so the
+    // string reached round(). That is the case a person hits when a sensor
+    // goes unavailable, which is why it is here rather than only in a unit.
+    // Both readings are published here rather than taken from the seed: the
+    // clock is also what the mapper scenario above writes to, and a scenario
+    // that asserts a value another one happens to have left is only passing
+    // by arrangement.
+    await publish(bench.tokens, 'bench/humidity', '48.02');
+    await publish(bench.tokens, 'bench/clock', '12:34:56');
+
+    const expected = ['48.0', '48', '48.02', '12:34:56'];
+    const seen = await until(
+      async () => {
+        const now = await look('Indicator decimals');
+        return now && now.indicatorValues.join('|') === expected.join('|') ? now : null;
+      },
+      {
+        timeout: 30000,
+        diagnose: async () => (await look('Indicator decimals'))?.indicatorValues ?? null,
+      },
+    );
+
+    assert.deepEqual(seen.indicatorValues, expected);
   });
 
   it('lets a button style beat the active colour with !important', async () => {

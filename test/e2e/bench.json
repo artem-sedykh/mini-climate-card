@@ -454,6 +454,40 @@
         {
           "type": "custom:mini-climate",
           "entity": "{{bench_ac}}",
+          "name": "Indicator decimals",
+          "indicators": {
+            "fixed": {
+              "icon": "mdi:water-percent",
+              "source": {
+                "entity": "{{bench_humidity}}"
+              },
+              "fixed": 1
+            },
+            "rounded": {
+              "icon": "mdi:water-percent",
+              "source": {
+                "entity": "{{bench_humidity}}"
+              },
+              "round": 1
+            },
+            "bare": {
+              "icon": "mdi:water-percent",
+              "source": {
+                "entity": "{{bench_humidity}}"
+              }
+            },
+            "text": {
+              "icon": "mdi:clock-outline",
+              "source": {
+                "entity": "{{bench_clock}}"
+              },
+              "round": 1
+            }
+          }
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
           "name": "Button colour",
           "buttons": {
             "eco": {

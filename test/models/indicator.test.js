@@ -45,6 +45,46 @@ describe('IndicatorObject.value', () => {
     expect(i.originalValue).toBe('21.456');
   });
 
+  it('keeps the decimals asked for, trailing zero and all', () => {
+    // #163: `round: 1` answers a number, so a reading that rounds to a whole
+    // number loses the decimal point and a column of indicators jumps about.
+    // `fixed` answers a string, which can carry the zero - the same option
+    // `temperature` has had since v1.2.2.
+    expect(indicator({ fixed: 1 }, entity('23.01')).value).toBe('23.0');
+    expect(indicator({ fixed: 1 }, entity('23.74')).value).toBe('23.7');
+    expect(indicator({ fixed: 1 }, entity('23')).value).toBe('23.0');
+  });
+
+  it('rounds the same reading to a bare number, which is the difference', () => {
+    expect(indicator({ round: 1 }, entity('23.01')).value).toBe(23);
+  });
+
+  it('prefers fixed over round when both are written', () => {
+    expect(indicator({ fixed: 2, round: 0 }).value).toBe('21.46');
+  });
+
+  it('rounds what the mapper answered, and fixes it too', () => {
+    const mapper = value => Number(value) * 2;
+    expect(indicator({ fixed: 1, functions: { mapper } }, entity('11.5')).value).toBe('23.0');
+  });
+
+  it('leaves a reading that is not a number exactly as it came', () => {
+    // #298: the guard was `Number.isNaN(value) === false`, which does not
+    // coerce, so every one of these reached `round()` and was drawn as `NaN`.
+    for (const config of [{ round: 1 }, { fixed: 1 }]) {
+      expect(indicator(config, entity('unavailable')).value).toBe('unavailable');
+      expect(indicator(config, entity('unknown')).value).toBe('unknown');
+      expect(indicator(config, entity('auto')).value).toBe('auto');
+      expect(indicator(config, entity('21:47:08')).value).toBe('21:47:08');
+      expect(indicator(config, entity('')).value).toBe('');
+    }
+  });
+
+  it('leaves a missing attribute undefined rather than making it NaN', () => {
+    const i = indicator({ round: 1, source: { attribute: 'nope' } }, entity('on'));
+    expect(i.value).toBeUndefined();
+  });
+
   it('is undefined for an attribute the entity does not have', () => {
     const i = indicator({ source: { attribute: 'missing' } }, entity('on', { power: 1 }));
     expect(i.value).toBeUndefined();

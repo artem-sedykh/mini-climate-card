@@ -24,6 +24,26 @@ const getEntityValue = (entity?: HassEntity, config?: Source): any => {
 const round = (value: number | string, decimals?: number): number =>
   Number(`${Math.round(Number(`${value}e${decimals}`))}e-${decimals}`);
 
+/**
+ * A reading arithmetic can be done on.
+ *
+ * `Number.isNaN(value) === false` was used for this and does not coerce, so
+ * every text state - `unavailable` included - passed the guard, reached
+ * `round()` and came back as `NaN`, which the card then drew (#298). A reading
+ * that is not a number is left exactly as it came so an unavailable sensor
+ * reads `unavailable`.
+ *
+ * Deliberately strict about what counts: booleans, `null`, whitespace and the
+ * empty string are not numbers, though `Number()` is happy to turn most of
+ * them into one.
+ */
+const isNumeric = (value: unknown): boolean => {
+  if (typeof value === 'number') return Number.isFinite(value);
+  if (typeof value !== 'string' || value.trim() === '') return false;
+
+  return Number.isFinite(Number(value));
+};
+
 const compileTemplate = (template: unknown, context?: unknown): Template => {
   try {
     // eslint-disable-next-line no-new-func
@@ -41,4 +61,4 @@ const compileTemplate = (template: unknown, context?: unknown): Template => {
   }
 };
 
-export { round, compileTemplate, getEntityValue, toggleState };
+export { round, isNumeric, compileTemplate, getEntityValue, toggleState };

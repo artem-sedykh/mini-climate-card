@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { compileTemplate, getEntityValue, round, toggleState } from '../src/utils/utils';
+import { compileTemplate, getEntityValue, isNumeric, round, toggleState } from '../src/utils/utils';
 
 describe('round', () => {
   it('rounds to the given number of decimals', () => {
@@ -78,6 +78,47 @@ describe('getEntityValue', () => {
   it('answers undefined when there is no entity', () => {
     // A control whose entity is missing from hass.states reaches here.
     expect(getEntityValue(undefined, { attribute: 'temperature' })).toBeUndefined();
+  });
+});
+
+describe('isNumeric', () => {
+  // What `Number.isNaN(value) === false` was standing in for. It let every
+  // string through, because it does not coerce, and `round()` answered NaN
+  // for all of them (#298).
+  it('accepts a number, and a string that is one', () => {
+    expect(isNumeric(0)).toBe(true);
+    expect(isNumeric(-1.5)).toBe(true);
+    expect(isNumeric('0')).toBe(true);
+    expect(isNumeric('23.01')).toBe(true);
+    expect(isNumeric(' 42 ')).toBe(true);
+  });
+
+  it('refuses the states a sensor actually takes', () => {
+    expect(isNumeric('unavailable')).toBe(false);
+    expect(isNumeric('unknown')).toBe(false);
+    expect(isNumeric('auto')).toBe(false);
+    expect(isNumeric('21:47:08')).toBe(false);
+  });
+
+  it('refuses a reading with its unit written into it', () => {
+    // `Number('23 C')` is NaN, so this would have been left alone anyway.
+    // Asserted because the alternative guard - `parseFloat` - would have
+    // taken the 23 and silently dropped the rest.
+    expect(isNumeric('23 C')).toBe(false);
+  });
+
+  it('refuses nothing-at-all, which Number() is happy to call zero', () => {
+    expect(isNumeric('')).toBe(false);
+    expect(isNumeric('   ')).toBe(false);
+    expect(isNumeric(null)).toBe(false);
+    expect(isNumeric(undefined)).toBe(false);
+    expect(isNumeric(true)).toBe(false);
+    expect(isNumeric(false)).toBe(false);
+  });
+
+  it('refuses a number that is not finite', () => {
+    expect(isNumeric(NaN)).toBe(false);
+    expect(isNumeric(Infinity)).toBe(false);
   });
 });
 

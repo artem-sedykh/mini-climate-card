@@ -44,6 +44,19 @@ describe('TemperatureObject.value', () => {
     expect(temperature().value).toBe(21.456);
   });
 
+  it('leaves a reading that is not a number exactly as it came', () => {
+    // #298. Rarely seen through the climate entity itself, since an
+    // unavailable one makes the card draw its unavailable face - but
+    // `temperature.source.entity` can point this at another entity.
+    for (const config of [{ round: 1 }, { fixed: 1 }]) {
+      const t = temperature(
+        { temperature: config },
+        entity({ current_temperature: 'unavailable' }),
+      );
+      expect(t.value).toBe('unavailable');
+    }
+  });
+
   it('leaves a missing reading undefined rather than rounding it', () => {
     const t = temperature({}, entity({ current_temperature: undefined }));
     expect(t.value).toBeUndefined();

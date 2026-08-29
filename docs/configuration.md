@@ -97,6 +97,7 @@
 | indicators: `name:unit`                   | string                              | optional     | v1.0.1 | Display unit                                                                                                  |
 | indicators: `name:unit`                   | function                            | optional     | v3.1.0 | [Unit template](functions.md#unit_template)                                                                   |
 | indicators: `name:round`                  | number                              | optional     | v1.0.1 | Rounding number value                                                                                         |
+| indicators: `name:fixed`                  | number                              | optional     | v3.3.0 | Decimals to keep, trailing zeros and all, see [round and fixed](#round-and-fixed)                              |
 | indicators: `name:hide`                   | boolean                             | optional     | v2.5.0 | Hide indicator, default value `False`                                                                         |
 | indicators: `name:hide`                   | function                            | optional     | v2.5.0 | Custom hide indicator function                                                                                |
 | indicators: `name:source`                 | number                              | optional     | v1.0.1 | Data source                                                                                                   |
@@ -176,6 +177,45 @@ icon:
         : 'var(--mc-icon-color)',
     })
 ```
+
+### round and fixed
+
+Two ways to shorten a reading, and they are not the same.
+
+`round` answers a **number**, so a reading that rounds to a whole one loses its
+decimal point: at `round: 1`, `23.74` reads `23.7` and `23.01` reads `23`. The
+width of the value then depends on the reading, which is what makes a column of
+indicators in a vertical stack jump about
+([#163](https://github.com/artem-sedykh/mini-climate-card/issues/163)).
+
+`fixed` answers a **string** with exactly that many decimals, zeros included:
+at `fixed: 1`, `23.74` reads `23.7` and `23.01` reads `23.0`. The width is the
+same whatever the reading is. `temperature` has taken `fixed` since v1.2.2;
+an indicator takes it from v3.3.0.
+
+When both are written, `fixed` wins - as it already does for `temperature`.
+
+```yaml
+type: custom:mini-climate
+entity: climate.my_ac
+indicators:
+  temperature:
+    icon: mdi:thermometer
+    unit: "°C"
+    fixed: 1
+    source:
+      entity: sensor.room_temperature
+  humidity:
+    icon: mdi:water-percent
+    unit: "%"
+    fixed: 1
+    source:
+      entity: sensor.room_humidity
+```
+
+Neither option touches a reading that is not a number: an indicator whose
+sensor is `unavailable` reads `unavailable`, not `NaN`
+([#298](https://github.com/artem-sedykh/mini-climate-card/issues/298)).
 
 ### hide_icon
 
