@@ -306,6 +306,18 @@ that the icon and the label share a row passes on the broken structure in
 exists only because a real element lays itself out some way the stubs do not,
 assert it in `test/e2e/`, and say so in the test's comment.
 
+**But look for the invariant underneath it first.** A browser is needed to
+measure what a real element draws; it is usually not needed to catch the
+mistake that led there. #287 - `scale` growing everything except the icons - is
+measured in `test/e2e/scale.test.mjs`, because the glyph is drawn by the real
+`ha-icon` and jsdom resolves no custom properties. What actually went wrong,
+though, was that a component drew an icon and never said how big it was, and
+that is a property of the stylesheet the class carries: `test/icon-size.test.js`
+reads it in under two seconds and fails on all four components that were wrong,
+including the one the first attempt at the fix missed. Both layers earn their
+place. The cheap one says which line is wrong; the expensive one says the card
+looks right.
+
 ## Layout
 
 ```
