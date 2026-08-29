@@ -298,3 +298,52 @@ braces are a block, the function returns nothing, and the icon stays visible.
 `hide` is the wrong tool here - it is what collapses the row.
 
 ![a card whose button row keeps empty slots so the remaining buttons line up](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/button-spacer.png)
+
+### A translucent card
+
+Setting `background` on `ha-card` is the obvious way to do this, it is what
+works on other cards, and here it does nothing visible. The card does not paint
+its background on `ha-card` - it leaves that transparent and paints a layer of
+its own over it. The rule applies; the layer covers it.
+
+What the layer reads is `--ha-card-background`, along with Home Assistant's
+other card variables. In a theme:
+
+```yaml
+glass:
+  # something for the card to be translucent against
+  lovelace-background: 'linear-gradient(135deg, #3a6186 0%, #89253e 100%)'
+  ha-card-background: 'rgba(0, 0, 0, 0.5)'
+  ha-card-border-width: 0
+  ha-card-border-radius: 10px
+  mini-climate-card-box-shadow: none
+  # the card's own text and icons, which stop being readable on a dark card
+  mini-climate-base-color: '#ffffff'
+  mini-climate-icon-color: '#ffffff'
+  mini-climate-button-color: '#ffffff'
+```
+
+Themes apply to a dashboard, a view or a user. For a single card the same
+variables go on the card itself, which needs
+[card_mod](https://github.com/thomasloven/lovelace-card-mod) - note `:host`,
+not `ha-card`:
+
+```yaml
+type: custom:mini-climate
+entity: climate.bedroom
+card_mod:
+  style: |
+    :host {
+      --ha-card-background: rgba(0, 0, 0, 0.5);
+      --ha-card-border-width: 0;
+      --mini-climate-base-color: #ffffff;
+    }
+```
+
+`--mini-climate-background-opacity` is a second knob on the same layer, and it
+multiplies with the alpha above rather than replacing it. Set one or the other.
+
+The theme is the half that is on the bench; the `card_mod` half is not, because
+`card_mod` is not installed there.
+
+![a translucent card over a gradient dashboard](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/translucent-card.png)

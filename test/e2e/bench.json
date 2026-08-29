@@ -552,6 +552,27 @@
           }
         }
       ]
+    },
+    {
+      "title": "A translucent card",
+      "theme": "glass",
+      "cards": [
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": "Translucent card",
+          "indicators": {
+            "humidity": {
+              "icon": "mdi:water",
+              "unit": "%",
+              "round": 0,
+              "source": {
+                "entity": "{{bench_humidity}}"
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }

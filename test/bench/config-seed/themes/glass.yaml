@@ -1,0 +1,16 @@
+# The answer to #164, as a theme: a translucent card over a dashboard that has
+# something to show through it.
+#
+# `ha-card-background` is the one that matters. The card paints its background
+# in a layer of its own (`.mc__bg` in src/style.ts), which is why setting
+# `background` on `ha-card` - the obvious thing, and what the reporter tried -
+# changes nothing visible: the rule applies, and the layer covers it.
+glass:
+  lovelace-background: 'linear-gradient(135deg, #3a6186 0%, #89253e 100%)'
+  ha-card-background: 'rgba(0, 0, 0, 0.5)'
+  ha-card-border-width: 0
+  ha-card-border-radius: 10px
+  mini-climate-card-box-shadow: none
+  mini-climate-base-color: '#ffffff'
+  mini-climate-icon-color: '#ffffff'
+  mini-climate-button-color: '#ffffff'

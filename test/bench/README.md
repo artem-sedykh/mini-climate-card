@@ -109,6 +109,13 @@ Two views, and the difference between them is the point:
 A card with nothing but an `entity` exercises almost none of what the tracker
 asks about, which is why the second view exists.
 
+The views after them are repros and answers that need a page of their own. One
+of those is a **theme**: `config-seed/themes/glass.yaml`, applied by the view
+that carries `"theme"` in the manifest. It is there because the answer to #164
+is a set of CSS variables, and a theme is the only native way to set them - the
+way most reporters actually set them is `card_mod`, a third-party resource this
+bench does not carry and does not test.
+
 ## What the scenarios reach
 
 ```
