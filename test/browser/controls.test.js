@@ -210,3 +210,112 @@ describe('one interaction, one command', () => {
     expect(indicator.querySelector('.state__uom').textContent.trim()).to.equal('kW');
   });
 });
+
+// `location` is the one button option that decides nothing about the button
+// and everything about where it is: `main` puts it in the control row beside
+// the mode icon, and the default puts it behind the toggle. Nothing asserted
+// that until now - the option appeared in these tests only as a way of making
+// a button reachable without opening the panel, which is not the same as
+// saying it lands in the right row.
+//
+// The rows are two different elements, so the assertions are on the container
+// each button ends up in. Where they sit in pixels is `layout.test.js`.
+describe('where a button is drawn', () => {
+  const mainRow = card => [...card.shadowRoot.querySelectorAll('.ctl-wrap mc-button')];
+
+  const behindTheToggle = card => {
+    const panel = card.shadowRoot.querySelector('.mc-toggle_content mc-buttons');
+    return panel ? [...panel.shadowRoot.querySelectorAll('mc-button')] : [];
+  };
+
+  it('puts location: main in the control row and leaves the rest behind the toggle', async () => {
+    const { card } = await mountCard({
+      config: {
+        // Open from the start, so both rows are rendered and the assertion is
+        // about which one holds what rather than about the toggle.
+        toggle: { default: true },
+        buttons: {
+          boost: { icon: 'mdi:fire', location: 'main' },
+          eco: { icon: 'mdi:leaf' },
+        },
+      },
+    });
+
+    expect(mainRow(card).map(button => button.button.id)).to.eql(['boost']);
+    expect(behindTheToggle(card).map(button => button.button.id)).to.eql(['eco']);
+  });
+
+  it('sorts the control row by order, and keeps it before the mode icon', async () => {
+    const { card } = await mountCard({
+      config: {
+        buttons: {
+          // Declared the wrong way round on purpose: `order` is what decides,
+          // not the order the keys are written in.
+          second: { icon: 'mdi:leaf', location: 'main', order: 2 },
+          first: { icon: 'mdi:fire', location: 'main', order: 1 },
+        },
+      },
+    });
+
+    expect(mainRow(card).map(button => button.button.id)).to.eql(['first', 'second']);
+
+    const row = [...card.shadowRoot.querySelector('.ctl-wrap').children].map(
+      element => element.localName,
+    );
+    expect(row).to.eql(['mc-button', 'mc-button', 'mc-mode-menu', 'mc-temperature']);
+  });
+
+  it('takes the fan mode into the control row on the same option', async () => {
+    // `fan_mode` is a button like any other - `setConfig` pushes it into
+    // `config.buttons` under that id - so `location` moves it the same way,
+    // and it arrives as the dropdown it is rather than as a plain button.
+    const { card } = await mountCard({
+      config: { toggle: { default: true }, fan_mode: { location: 'main' } },
+    });
+
+    const row = [...card.shadowRoot.querySelectorAll('.ctl-wrap mc-dropdown')];
+    expect(row.map(dropdown => dropdown.dropdown.id)).to.eql(['fan_mode']);
+
+    const panel = card.shadowRoot.querySelector('.mc-toggle_content mc-buttons');
+    const behind = panel ? [...panel.shadowRoot.querySelectorAll('mc-dropdown')] : [];
+    expect(behind.map(dropdown => dropdown.dropdown.id)).to.eql([]);
+  });
+
+  it('leaves the fan mode being said twice unless the secondary info is given something else', async () => {
+    // The caveat the recipe carries: the secondary info line shows the fan
+    // mode by default, so moving the dropdown up puts the same thing in two
+    // places at once. It is not a bug to fix here - the line is configurable,
+    // and this is what says so.
+    const saysFanMode = card => {
+      const info = card.shadowRoot.querySelector('mc-secondary-info');
+      return !!(info && info.shadowRoot.querySelector('mc-fan-mode-secondary'));
+    };
+
+    const twice = await mountCard({ config: { fan_mode: { location: 'main' } } });
+    expect(saysFanMode(twice.card), 'the default line still says it').to.be.true;
+
+    const once = await mountCard({
+      config: { fan_mode: { location: 'main' }, secondary_info: 'hvac-action' },
+    });
+    expect(saysFanMode(once.card), 'the line was given something else to say').to.be.false;
+  });
+
+  it('draws no toggle button when there is nothing left behind the toggle', async () => {
+    const { card } = await mountCard({
+      config: {
+        // The fan mode is a button like any other, under the id `fan_mode`,
+        // and it goes behind the toggle unless it is hidden - so a card with
+        // one main button still has a panel until this line.
+        fan_mode: { hide: true },
+        buttons: { boost: { icon: 'mdi:fire', location: 'main' } },
+      },
+    });
+
+    // Both assertions on strings and booleans rather than on the elements: a
+    // DOM node in a failure report hangs the runner until its timeout with no
+    // output, which reads like a broken test rather than a failed one. This
+    // one was written the other way first and did exactly that.
+    expect(mainRow(card).map(button => button.button.id)).to.eql(['boost']);
+    expect(!!card.shadowRoot.querySelector('.toggle-button'), 'nothing left to open').to.be.false;
+  });
+});

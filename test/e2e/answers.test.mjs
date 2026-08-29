@@ -4,7 +4,8 @@
 // to a question: how to draw a card with nothing but the temperature (#40),
 // how to show an indicator's icon without its value (#64), how to shorten a
 // value (#57), how to colour the mode icon by the mode and by what the unit is
-// doing (#62, #129), how to colour an indicator by the mode (#168), and why a
+// doing (#62, #129), how to colour an indicator by the mode (#168), how to
+// press the mode instead of picking it out of a list (#160), and why a
 // button's own colour needs `!important`.
 //
 // They are here rather than only in a reply because an answer that lives in a
@@ -12,7 +13,7 @@
 // once, over years.
 import { after, before, describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { callService, dialogs, open, publish, until } from '../bench/browser.mjs';
+import { callService, dialogs, entity, open, publish, until } from '../bench/browser.mjs';
 import { DASHBOARD, prepare } from '../bench/setup.mjs';
 import { BASE } from '../bench/auth.mjs';
 
@@ -67,6 +68,21 @@ describe('the answers people were given', () => {
           : null,
         valueDisplay: value ? getComputedStyle(value).display : null,
         modeIconColour: modeIcon ? getComputedStyle(modeIcon).color : null,
+        // The dropdown a recipe may replace, and the icon of the button that
+        // took its place. `mc-button` draws its `ha-icon` inside its own root,
+        // so it is not reachable from here without the walk either.
+        modeMenu: !!modeMenu,
+        // What the control row holds, in order - the row `location: main`
+        // moves a button into.
+        rowTags: [...(root.querySelector('.ctl-wrap')?.children ?? [])].map(
+          element => element.localName,
+        ),
+        buttonIcon: (() => {
+          const button = root.querySelector('mc-button');
+          if (!button) return null;
+          const icon = deep(button.shadowRoot, 'ha-icon')[0];
+          return icon ? icon.icon : null;
+        })(),
       };
     }, name);
 
@@ -267,5 +283,94 @@ describe('the answers people were given', () => {
 
     assert.equal(seen.colour, 'rgb(0, 0, 255)', 'the template colour lost to the active rule');
     assert.equal(seen.background, 'rgb(0, 128, 0)');
+  });
+
+  it('toggles the mode from a button standing where the dropdown was (#160)', async () => {
+    // `hvac_mode` is drawn as a dropdown and nothing else - `main.ts` renders
+    // `mc-mode-menu` whatever `type` says - so a unit with two modes gets a
+    // list of two to pick from where a press would do. The answer is not the
+    // dropdown at all: hide it, and put an ordinary button in its place with
+    // `location: main`, which is the row the dropdown was in.
+    //
+    // Both halves are asserted here, and the entity as well as the icon: a
+    // button that repaints itself without the service call landing is exactly
+    // what `mc-button` does on its own for the length of `action_timeout`.
+    await callService(bench.tokens, 'climate', 'set_hvac_mode', {
+      entity_id: bench.ids.bench_ac,
+      hvac_mode: 'off',
+    });
+
+    const off = await until(async () => {
+      const now = await look('Mode toggle');
+      return now && now.buttonIcon === 'mdi:power' ? now : null;
+    });
+    assert.equal(off.modeMenu, false, 'hvac_mode.hide left the dropdown on the card');
+
+    const card = session.page.locator('mini-climate').filter({ hasText: 'Mode toggle' });
+    const button = card.locator('mc-button ha-icon-button').first();
+
+    await button.click();
+
+    const heating = await until(async () => {
+      const now = await look('Mode toggle');
+      return now && now.buttonIcon === 'mdi:fire' ? now : null;
+    });
+    assert.equal(heating.modeMenu, false);
+    assert.equal((await entity(bench.tokens, bench.ids.bench_ac)).state, 'heat');
+
+    // And back: the same press has to mean the other thing when the state is
+    // the other one, which a `toggle_action` reading `state` is the only
+    // reason it does.
+    await button.click();
+
+    await until(async () => {
+      const now = await look('Mode toggle');
+      return now && now.buttonIcon === 'mdi:power' ? now : null;
+    });
+    assert.equal((await entity(bench.tokens, bench.ids.bench_ac)).state, 'off');
+  });
+
+  it('moves the fan mode dropdown into the control row, working (location)', async () => {
+    // `fan_mode` is pushed into `config.buttons` under that id, so the option
+    // that moves a button moves it too - and it arrives as a dropdown, which
+    // is the half worth doing here rather than in the browser layer: the menu
+    // is put in the top layer by `showPopover`, and a card that clips its own
+    // overflow is what it has to escape.
+    const card = session.page.locator('mini-climate').filter({ hasText: 'Fan in the top row' });
+
+    const row = await look('Fan in the top row');
+    assert.deepEqual(row.rowTags, ['mc-dropdown', 'mc-mode-menu', 'mc-temperature']);
+
+    const dropdown = card.locator('mc-dropdown').first();
+
+    await dropdown.evaluate(node => {
+      node.shadowRoot.querySelector('mc-dropdown-base').shadowRoot.getElementById('button').click();
+    });
+    await session.page.waitForTimeout(400);
+
+    const opened = await dropdown.evaluate(
+      node =>
+        node.shadowRoot.querySelector('mc-dropdown-base').shadowRoot.getElementById('menu').open,
+    );
+    assert.equal(opened, true, 'the menu did not open from the control row');
+
+    await dropdown.evaluate(node => {
+      node.shadowRoot
+        .querySelector('mc-dropdown-base')
+        .shadowRoot.getElementById('menu')
+        .shadowRoot.querySelector('[data-value="high"]')
+        .click();
+    });
+
+    const set = await until(async () => {
+      const now = await entity(bench.tokens, bench.ids.bench_ac);
+      return now.attributes.fan_mode === 'high' ? now : null;
+    });
+    assert.equal(set.attributes.fan_mode, 'high');
+
+    await callService(bench.tokens, 'climate', 'set_fan_mode', {
+      entity_id: bench.ids.bench_ac,
+      fan_mode: 'auto',
+    });
   });
 });

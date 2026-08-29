@@ -212,6 +212,65 @@ hvac_mode:
 
 ![the mode icon drawn in blue while the unit is cooling](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/mode-icon-by-action.png)
 
+### A press instead of the mode dropdown
+
+The mode control is a dropdown and nothing else: `hvac_mode` is built like any
+other button, but the card always draws it as a menu, so `type` on it is not
+read. On a unit with two modes that is a list of two to choose from where a
+press would do.
+
+The card does not have to change for it. Hide the dropdown and put an ordinary
+button where it stood: `location: main` is what puts a button in the top row
+rather than behind the toggle, and an `icon` template makes the one button show
+both halves of the switch.
+
+```yaml
+type: custom:mini-climate
+entity: climate.greenhouse
+hvac_mode:
+  hide: true
+buttons:
+  hvac_toggle:
+    type: button
+    location: main
+    order: 0
+    icon:
+      template: "state => (state === 'off' ? 'mdi:power' : 'mdi:fire')"
+    toggle_action: >
+      (state, entity) => this.call_service('climate', 'set_hvac_mode', { entity_id: entity.entity_id, hvac_mode: state === 'off' ? 'heat' : 'off' })
+```
+
+A button with no `state` of its own reads the climate entity's, which for a
+climate entity is the mode - so `off` leaves the button dark and any other mode
+lights it, with no `active` written for it. A unit with more than two modes
+wants the dropdown; this trades the choice for the press.
+
+![the mode drawn as a single button that toggles between heat and off](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/mode-toggle.png)
+
+### The fan mode in the top row
+
+`fan_mode` is a button like any other - `setConfig` pushes it into `buttons`
+under that id - so the same `location` moves it. `main` takes the dropdown out
+of the toggle panel and puts it in the control row beside the mode icon; with
+nothing left behind the toggle, the chevron that opened it goes as well and the
+card is one row.
+
+```yaml
+type: custom:mini-climate
+entity: climate.bedroom
+fan_mode:
+  location: main
+  order: 0
+secondary_info: hvac-action
+```
+
+The `secondary_info` line is not decoration here. It shows the fan mode by
+default, so a card that moves the dropdown up says the same thing in two
+places - give the line something else to say, `hvac-action` above or any other
+type in [Secondary info](secondary-info.md).
+
+![the fan mode dropdown in the control row, with no toggle left to open](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/fan-mode-main-row.png)
+
 ### An indicator coloured by the mode
 
 The third argument every template gets is the **climate entity**, whatever
@@ -264,7 +323,8 @@ buttons:
 
 Two things worth knowing:
 
-- the buttons sit behind the toggle, like every other button;
+- the buttons sit behind the toggle, like every other button, unless one is
+  given `location: main`;
 - after pressing one there is a moment where no button is lit - the old preset
   goes out before the new one comes in. On a slow connection that is visible;
   it settles.

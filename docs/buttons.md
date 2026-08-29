@@ -106,3 +106,37 @@ buttons:
     toggle_action: >
       (state) => this.call_service('mqtt', 'publish', { payload: this.toggle_state(state), topic: 'my_ac/turbo/set', retain: false, qos: 1 })
 ```
+
+## location
+
+A button is drawn behind the toggle at the bottom of the card, which is opened
+by the chevron on its right. `location: main` draws it in the top row instead -
+beside the mode icon and the temperature, visible without opening anything.
+`order` sorts the buttons inside whichever row they are in, and the main row is
+drawn before the mode icon.
+
+```yaml
+type: custom:mini-climate
+entity: climate.my_ac
+buttons:
+  # in the top row, always visible
+  turbo:
+    icon: mdi:weather-hurricane
+    location: main
+    order: 0
+    state:
+      attribute: turbo
+      mapper: "state => (state ? 'on': 'off')"
+  # and behind the toggle, which is where a button goes by default
+  eco:
+    icon: mdi:leaf
+    state:
+      attribute: eco
+      mapper: "state => (state ? 'on': 'off')"
+```
+
+`fan_mode` takes the same option - it is a button under that id - and the top
+row is what a card whose toggle is hidden has left. Both moves are recipes of
+their own: [a button in place of the mode
+dropdown](examples.md#a-press-instead-of-the-mode-dropdown), and [the fan mode
+in the top row](examples.md#the-fan-mode-in-the-top-row).
