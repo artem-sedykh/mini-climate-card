@@ -130,15 +130,51 @@ describe('a card written the way people write them', () => {
     };
   };
 
+  // Whether the row is open, asked of the card rather than of the document.
+  // `host.toggle` is what the card decides with and `mc-buttons` is what it
+  // renders from that, so a disagreement between the two is a render in
+  // progress rather than an answer.
+  const rowOpen = () =>
+    card.evaluate(host => !!host.toggle && !!host.shadowRoot?.querySelector('mc-buttons'));
+
+  // ...and read until two reads in a row agree, because the question is asked
+  // straight after a scenario that changed entity state, which is exactly when
+  // a single read lands mid-update. That is how this helper came to close the
+  // row it was meant to open: the guard below read "no row" from a card that
+  // had one, and clicked.
+  const settledRowOpen = async () => {
+    let last = await rowOpen();
+
+    for (let read = 0; read < 5; read += 1) {
+      await session.page.waitForTimeout(150);
+      const now = await rowOpen();
+      if (now === last) return now;
+      last = now;
+    }
+    return last;
+  };
+
   // The showcase card starts with the button row open (`toggle.default`), so
-  // a click on the toggle would close it. Open only when the row is missing.
+  // a click on the toggle would close it. Open only when the row is missing -
+  // and check afterwards, because a click that arrives while the card thinks
+  // otherwise closes the row instead, and one more click puts it back. Three
+  // attempts rather than one: a helper that gives up on the first wrong turn
+  // fails the scenario for a reason that has nothing to do with the card.
   const ensureButtonsOpen = async () => {
-    if ((await card.locator('mc-buttons').count()) > 0) return;
-    const before = await panelState();
-    await card.locator('.toggle-button').first().click();
-    await until(async () => ((await card.locator('mc-buttons').count()) > 0 ? true : null), {
-      diagnose: async () => ({ before, after: await panelState() }),
-    });
+    const attempts = [];
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      if (await settledRowOpen()) return;
+
+      attempts.push({ attempt, before: await panelState() });
+      await card.locator('.toggle-button').first().click();
+      await session.page.waitForTimeout(500);
+
+      if (await settledRowOpen()) return;
+      attempts[attempts.length - 1].after = await panelState();
+    }
+
+    throw new Error(`the button row would not stay open: ${JSON.stringify(attempts)}`);
   };
 
   it('sends a dropdown button through its own change_action', async () => {
@@ -329,6 +365,12 @@ describe('a card written the way people write them', () => {
     // button rather than assert it was there on the first read (flaky #275). The
     // `latest` bench registers MQTT fixtures the slowest, so the default ten
     // seconds is not enough there - see the long wait below for the same reason.
+    //
+    // The row is opened here rather than inherited from the scenario before.
+    // When that one left it closed, this failed too, thirty seconds later and
+    // saying nothing about the switch it is named after.
+    await ensureButtonsOpen();
+
     const powerSwitch = card.locator('mc-buttons mc-button');
     const target = await until(
       async () => {
