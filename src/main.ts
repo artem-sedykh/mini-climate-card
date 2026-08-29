@@ -8,7 +8,7 @@ import handleClick from './utils/handleClick';
 import getLabel from './utils/getLabel';
 import './initialize';
 
-import { compileTemplate, toggleState } from './utils/utils';
+import { compileTemplate, normalizeTapAction, toggleState } from './utils/utils';
 import TemperatureObject from './models/temperature';
 import TargetTemperatureObject from './models/target-temperature';
 import ButtonObject from './models/button';
@@ -388,8 +388,7 @@ class MiniClimate extends LitElement {
       ...value,
     };
 
-    if (typeof value.tap_action === 'string') item.tap_action = { action: value.tap_action };
-    else item.tap_action = { action: 'none', ...(item.tap_action || {}) };
+    item.tap_action = normalizeTapAction(value.tap_action);
 
     item.functions = item.functions || {};
     const context = { ...value };
@@ -486,6 +485,8 @@ class MiniClimate extends LitElement {
       down: ICON.DOWN,
       ...(item.icons || {}),
     };
+
+    item.tap_action = normalizeTapAction(item.tap_action);
 
     item.functions = {};
 
@@ -601,6 +602,7 @@ class MiniClimate extends LitElement {
       round: 1,
       source: { entity: undefined, attribute: 'current_temperature' },
       ...(config.temperature || {}),
+      tap_action: normalizeTapAction((config.temperature || {}).tap_action),
     };
 
     this.config.hvac_mode = this.getHvacModeConfig(this.config);

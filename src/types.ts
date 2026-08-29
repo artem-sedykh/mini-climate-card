@@ -146,6 +146,9 @@ export interface TemperatureConfig {
   round?: number;
   fixed?: number;
   source?: Source;
+  // Not optional, for the reason `IndicatorConfig.tap_action` is not:
+  // `setConfig` normalises a missing one to `{ action: 'none' }` (#65).
+  tap_action: TapAction;
 }
 
 export interface TargetTemperatureConfig {
@@ -158,6 +161,8 @@ export interface TargetTemperatureConfig {
   step?: number | string;
   source?: Source;
   icons: { up: string; down: string };
+  /** Normalised in `getTargetTemperatureConfig`, as the temperature's is (#65). */
+  tap_action: TapAction;
   functions: ConfigFunctions;
 }
 

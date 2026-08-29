@@ -319,3 +319,105 @@ describe('where a button is drawn', () => {
     expect(!!card.shadowRoot.querySelector('.toggle-button'), 'nothing left to open').to.be.false;
   });
 });
+
+describe('a tap on a temperature reading (#65)', () => {
+  // The values, in the order the card draws them: the target first, the
+  // current one after the separator.
+  const values = card =>
+    [...find(card, 'mc-temperature').shadowRoot.querySelectorAll('.state__value')].filter(
+      span => span.textContent.trim() !== '/',
+    );
+
+  // `hass-more-info` is composed and does not bubble, so the listener has to
+  // sit on a shadow host along the path - which the card is, and which is how
+  // Home Assistant itself hears the event.
+  const listen = card => {
+    const seen = [];
+    card.addEventListener('hass-more-info', event => seen.push(event.detail));
+    return seen;
+  };
+
+  it('does nothing, and says nothing, when no action is configured', async () => {
+    const { card } = await mountCard();
+    const seen = listen(card);
+
+    for (const span of values(card)) {
+      expect(span.classList.contains('clickable'), 'not drawn as clickable').to.be.false;
+      span.click();
+    }
+    await settle(card);
+
+    expect(seen).to.have.lengthOf(0);
+  });
+
+  it('opens more-info for the climate entity from either reading', async () => {
+    const { card } = await mountCard({
+      config: {
+        temperature: { tap_action: 'more-info' },
+        target_temperature: { tap_action: 'more-info' },
+      },
+    });
+    const seen = listen(card);
+
+    const [target, current] = values(card);
+    expect(target.classList.contains('clickable')).to.be.true;
+    expect(current.classList.contains('clickable')).to.be.true;
+
+    target.click();
+    current.click();
+    await settle(card);
+
+    expect(seen).to.eql([{ entityId: ENTITY_ID }, { entityId: ENTITY_ID }]);
+  });
+
+  it('opens the sensor the reading comes from, not the climate entity', async () => {
+    // The case the request was about: a current temperature taken from a
+    // separate sensor, whose history is not reachable from the card at all
+    // without this.
+    const { card } = await mountCard({
+      config: {
+        temperature: { source: { entity: 'sensor.bedroom_humidity' }, tap_action: 'more-info' },
+      },
+    });
+    const seen = listen(card);
+
+    values(card)[1].click();
+    await settle(card);
+
+    expect(seen).to.eql([{ entityId: 'sensor.bedroom_humidity' }]);
+  });
+
+  it('calls a service with the hass the card is holding', async () => {
+    // Which is the whole of the plumbing this needed: the model reaches hass
+    // through the climate, and a missing one would only show up here.
+    const { card, hass } = await mountCard({
+      config: {
+        temperature: {
+          tap_action: { action: 'call-service', service: 'climate.turn_off' },
+        },
+      },
+    });
+
+    values(card)[1].click();
+    await settle(card);
+
+    expect(hass.calls).to.have.lengthOf(1);
+    expect(hass.calls[0].domain).to.equal('climate');
+    expect(hass.calls[0].service).to.equal('turn_off');
+  });
+
+  it('keeps the reading tappable when the temperatures are swapped', async () => {
+    const { card } = await mountCard({
+      config: { swap_temperatures: true, temperature: { tap_action: 'more-info' } },
+    });
+    const seen = listen(card);
+
+    // Swapped, the current temperature is drawn first.
+    const [current, target] = values(card);
+    expect(target.classList.contains('clickable'), 'the target was not configured').to.be.false;
+    current.click();
+    await settle(card);
+
+    expect(seen).to.eql([{ entityId: ENTITY_ID }]);
+  });
+});

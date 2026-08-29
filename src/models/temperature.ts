@@ -1,5 +1,5 @@
 import { compileTemplate, getEntityValue, isNumeric, round } from '../utils/utils';
-import type { CardConfig, HassEntity, Template } from '../types';
+import type { CardConfig, HassEntity, HomeAssistant, TapAction, Template } from '../types';
 import type ClimateObject from './climate';
 
 export default class TemperatureObject {
@@ -33,6 +33,41 @@ export default class TemperatureObject {
     } else {
       this.shouldHideCurrentTemperature = () => false;
     }
+  }
+
+  /** `handleClick` needs it for `call-service`; the card gives it to the climate. */
+  get hass(): HomeAssistant {
+    return this.climate.hass;
+  }
+
+  get tapAction(): TapAction {
+    return this.config.temperature.tap_action;
+  }
+
+  get targetTapAction(): TapAction {
+    return this.config.target_temperature.tap_action;
+  }
+
+  /**
+   * What a tap opens, unless the action names an entity of its own.
+   *
+   * Resolved from the configuration rather than read off `temperatureEntity`,
+   * the way `updateTemperature` resolves it: a `source.entity` Home Assistant
+   * does not have leaves that entity undefined, and answering the climate
+   * entity there would open a dialog for something the card is not showing.
+   */
+  get entityId(): string {
+    return (
+      (this.config.temperature.source && this.config.temperature.source.entity) ||
+      this.config.entity
+    );
+  }
+
+  get targetEntityId(): string {
+    return (
+      (this.config.target_temperature.source && this.config.target_temperature.source.entity) ||
+      this.config.entity
+    );
   }
 
   get unit() {

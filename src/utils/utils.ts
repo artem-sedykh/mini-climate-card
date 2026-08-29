@@ -1,5 +1,5 @@
 import { STATES_OFF, UNAVAILABLE_STATES } from '../const';
-import type { HassEntity, Source, Template } from '../types';
+import type { HassEntity, Source, TapAction, Template } from '../types';
 
 const toggleState = (state: string): string => {
   if (!state) return state;
@@ -44,6 +44,23 @@ const isNumeric = (value: unknown): boolean => {
   return Number.isFinite(Number(value));
 };
 
+/**
+ * An action object, whichever of the two documented spellings was written.
+ *
+ * `tap_action: more-info` is the shorthand for `tap_action: {action: more-info}`,
+ * and a string left as one reaches `handleClick`, which reads `.action` off it
+ * and returns - a dead click (#234). Indicators have normalised it since the
+ * first commit; the temperature options do it through here, and so does the
+ * indicator, so there is one answer to what the shorthand means.
+ *
+ * The default is `none`: every place that calls this draws something that was
+ * not clickable before, and `more-info` by default would hand a tap target to
+ * dashboards that never asked for one. The card's own `tap_action` keeps its
+ * `more-info` default and is normalised in `setConfig`.
+ */
+const normalizeTapAction = (value?: TapAction | string): TapAction =>
+  typeof value === 'string' ? { action: value } : { action: 'none', ...(value || {}) };
+
 const compileTemplate = (template: unknown, context?: unknown): Template => {
   try {
     // eslint-disable-next-line no-new-func
@@ -61,4 +78,4 @@ const compileTemplate = (template: unknown, context?: unknown): Template => {
   }
 };
 
-export { round, isNumeric, compileTemplate, getEntityValue, toggleState };
+export { round, isNumeric, compileTemplate, getEntityValue, normalizeTapAction, toggleState };

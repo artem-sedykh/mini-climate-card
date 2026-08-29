@@ -450,7 +450,8 @@ describe('a card written the way people write them', () => {
     // click on the card itself until #234.
     //
     // Scoped to `mc-indicators`, because `.state` is also the temperature's
-    // class - and the temperature has no tap_action, so a scenario that
+    // class - and the temperature on this card has no tap_action of its own
+    // (#65 gave it one, and the view for it is elsewhere), so a scenario that
     // clicked it would be measuring nothing while looking correct.
     const states = card.locator('mc-indicators .state');
     // All three indicators render here only once their entities are in

@@ -127,6 +127,31 @@ secondary_info:
 
 ![a card showing only the temperature and its buttons](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/minimal-card.png)
 
+### The sensor behind the temperature, one tap away
+
+When the current temperature is read from a sensor of its own, that sensor has
+a history the card led nowhere to: the card's own `tap_action` is on the entity
+name and opens the climate entity, and the reading itself was not clickable at
+all. `temperature.tap_action` opens the entity the reading comes from.
+
+```yaml
+type: custom:mini-climate
+entity: climate.bedroom
+temperature:
+  source:
+    entity: sensor.bedroom_temperature
+  tap_action: more-info
+```
+
+Both readings take one, and each can name an `entity` of its own - which is how
+one card opens two different dialogs. Neither is clickable until it is
+configured, so a card that says nothing about this keeps behaving exactly as it
+did. The rest of what a tap can do - navigate, call a service, fire a
+dom-event - is on the [tap action](tap-action.md#temperature-and-target-temperature)
+page.
+
+![the sensor history, opened by tapping the temperature on the card](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/temperature-tap.png)
+
 ### An indicator with an icon and no value
 
 There is no option for this, and none is needed: the value carries a `style`,
