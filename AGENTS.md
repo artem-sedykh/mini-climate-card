@@ -676,10 +676,14 @@ rule this short: a filter that misses things still gets trusted.
 a roadmap: it answers "is the fix I am reading about in the version I have",
 which a closed issue otherwise cannot, and
 `gh issue list --milestone v<next> --state closed` is the input for the release
-summary rewritten at step 2 of Releasing. Only closed issues go in it, so an
-open count above zero means something in it is not actually done. Past releases
-are not back-filled - they have notes and a changelog, and archaeology nobody
-reads is work for its own sake.
+summary rewritten at step 2 of Releasing.
+
+An issue joins it when the work lands on master, so an open count above zero
+means something attached to it is not finished. What goes in is what a reader
+of the release would care about: repository housekeeping is invisible from the
+outside and stays out, however much of it there was. Past releases are not
+back-filled - they have notes and a changelog, and archaeology nobody reads is
+work for its own sake.
 
 **Assignees are not used.** One maintainer, so `assignees: [artem-sedykh]` on
 everything encodes nothing, and a field that always holds the same value makes
