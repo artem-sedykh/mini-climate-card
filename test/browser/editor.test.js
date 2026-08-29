@@ -185,6 +185,25 @@ describe('the visual config editor', () => {
     expect(form.data.icon).to.equal('mdi:radiator');
   });
 
+  it('follows the icon between a string and a template across setConfig', async () => {
+    // The schema is built in `setConfig` rather than on every render (#297),
+    // so what has to hold is that every route into a new config goes through
+    // it. Home Assistant calls `setConfig` again after each `config-changed`,
+    // and the YAML editor can turn a string icon into a template while the
+    // GUI editor is open.
+    const { editor } = await mountEditor({
+      config: { entity: ENTITY_ID, icon: 'mdi:radiator' },
+    });
+
+    editor.setConfig({ entity: ENTITY_ID, icon: { template: "() => 'mdi:radiator'" } });
+    await editor.updateComplete;
+    expect(basicForm(editor).schema.map(entry => entry.name)).to.not.include('icon');
+
+    editor.setConfig({ entity: ENTITY_ID, icon: 'mdi:radiator' });
+    await editor.updateComplete;
+    expect(basicForm(editor).schema.map(entry => entry.name)).to.include('icon');
+  });
+
   it('opens with the action of a string tap_action, not the default', async () => {
     // The card documents the string shorthand (`tap_action: none`). A string
     // spreads into character keys under `{ action: 'more-info', ...spread }`,

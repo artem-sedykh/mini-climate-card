@@ -194,4 +194,27 @@ describe('the card in a browser', () => {
       expect(renders, element.localName).to.be.at.most(1);
     }
   });
+
+  it('puts the scale on the card as a custom property', async () => {
+    // Every size in the card is written in `--mc-unit`, so losing it draws
+    // the card at its default size and nothing reports it. Real glyphs are
+    // measured for that in `test/e2e/scale.test.mjs`; what is checked here is
+    // the wiring behind them - a plain object out of `computeStyles()` and a
+    // call site that applies it (#297). Handing an already-applied
+    // `styleMap(...)` back to `styleMap` throws nothing and sets nothing,
+    // which is the mistake this notices without booting a bench.
+    const { card } = await mountCard({ config: { scale: 2 } });
+
+    expect(card.computeStyles()).to.deep.equal({ '--mc-unit': '80px' });
+    expect(card.shadowRoot.querySelector('ha-card').style.getPropertyValue('--mc-unit')).to.equal(
+      '80px',
+    );
+
+    const plain = (await mountCard()).card;
+
+    expect(plain.computeStyles()).to.deep.equal({});
+    expect(plain.shadowRoot.querySelector('ha-card').style.getPropertyValue('--mc-unit')).to.equal(
+      '',
+    );
+  });
 });

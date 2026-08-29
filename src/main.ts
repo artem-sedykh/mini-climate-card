@@ -681,7 +681,7 @@ class MiniClimate extends LitElement {
     return html`
       <ha-card
         class=${this.computeClasses()}
-        style=${this.computeStyles()}>
+        style=${styleMap(this.computeStyles())}>
         <div class='mc__bg'></div>
         <div class='mc-climate'>
           <div class='mc-climate__core flex'>
@@ -860,12 +860,16 @@ class MiniClimate extends LitElement {
     });
   }
 
-  computeStyles() {
+  // Plain object, wrapped by the call site - the same contract as
+  // `computeIconStyle()` above. It used to return the applied `styleMap(...)`
+  // instead, and two near-identical names with different contracts is a
+  // mistake that costs nothing to make and says nothing when made: handing a
+  // `DirectiveResult` to `styleMap` throws no error and applies no style
+  // (#297).
+  computeStyles(): Record<string, string> {
     const { scale } = this.config;
 
-    return styleMap({
-      ...(scale && { '--mc-unit': `${40 * scale}px` }),
-    });
+    return scale ? { '--mc-unit': `${40 * scale}px` } : {};
   }
 
   initDefaultFanModeSource(): void {
