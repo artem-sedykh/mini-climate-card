@@ -93,6 +93,13 @@ export default class ClimateTargetTemperature extends LitElement {
     `;
   }
 
+  // `--mdc-icon-size` on `.temp` is the second half of #287. The chevrons were
+  // the one pair of icons the shared `ha-icon` rule could not reach - this
+  // component does not take `sharedStyle`, so its icon stayed at the browser's
+  // 24px however large the card was scaled. It is set here rather than by
+  // importing `sharedStyle`, which would also bring that file's
+  // `ha-icon-button` colour rules to a button that already has its own. The
+  // ratio is the shared one, so scale 1 is unchanged.
   static override get styles() {
     return css`
     .controls-wrap {
@@ -106,6 +113,7 @@ export default class ClimateTargetTemperature extends LitElement {
       height: calc(var(--mc-unit) * .75);
       --mdc-icon-button-size: calc(var(--mc-unit) * .75);
       --ha-icon-button-size: calc(var(--mc-unit) * .75);
+      --mdc-icon-size: calc(var(--mc-unit) * .6);
       color: var(--mc-icon-color);
     }
     .temp.--up {

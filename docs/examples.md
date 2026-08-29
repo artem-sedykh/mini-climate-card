@@ -347,3 +347,34 @@ The theme is the half that is on the bench; the `card_mod` half is not, because
 `card_mod` is not installed there.
 
 ![a translucent card over a gradient dashboard](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/translucent-card.png)
+
+### A bigger card
+
+For a wall panel, where the card is read from across the room rather than from
+a desk. `scale` multiplies the unit everything on the card is measured in - the
+type, the icons, the buttons and the spacing between them - so there is one
+number to set rather than a stylesheet to write:
+
+```yaml
+type: custom:mini-climate
+entity: climate.bedroom
+scale: 2
+```
+
+The same number is available as a theme variable, `mini-climate-scale`, for
+when every card on a dashboard should be the same size.
+
+Two things to know before turning it up:
+
+- **A scaled card needs width.** Everything grows, and in a narrow masonry
+  column the entity name is the first thing to run out of room and be cut to an
+  ellipsis - which is what the picture below shows at `scale: 2`. Give the card
+  a column of its own, or a panel view, or shorten the name.
+- **The padding around the card does not scale**, only its contents. At a large
+  scale the card looks tighter than it does at 1.
+
+Before v3.2.0 `scale` grew the type and left the icons at 24px, so a scaled card
+came out with a large name beside small chevrons ([#287](https://github.com/artem-sedykh/mini-climate-card/issues/287)).
+If that is what you are seeing, the card is older than the fix.
+
+![a card at scale 2, every icon scaled with the type](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/scale.png)

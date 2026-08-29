@@ -573,6 +573,90 @@
           }
         }
       ]
+    },
+    {
+      "title": "Scaled",
+      "cards": [
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": "Scale 1",
+          "toggle": {
+            "default": true
+          },
+          "indicators": {
+            "humidity": {
+              "icon": "mdi:water",
+              "unit": "%",
+              "round": 0,
+              "source": {
+                "entity": "{{bench_humidity}}"
+              }
+            }
+          },
+          "buttons": {
+            "sleep": {
+              "icon": "mdi:weather-night",
+              "type": "button",
+              "state": {
+                "entity": "{{bench_sleep}}"
+              }
+            },
+            "preset_mode": {
+              "icon": "mdi:tune",
+              "type": "dropdown",
+              "state": {
+                "attribute": "preset_mode"
+              },
+              "source": {
+                "eco": "Eco",
+                "boost": "Boost",
+                "sleep": "Sleep"
+              }
+            }
+          }
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": "Scale 2",
+          "scale": 2,
+          "toggle": {
+            "default": true
+          },
+          "indicators": {
+            "humidity": {
+              "icon": "mdi:water",
+              "unit": "%",
+              "round": 0,
+              "source": {
+                "entity": "{{bench_humidity}}"
+              }
+            }
+          },
+          "buttons": {
+            "sleep": {
+              "icon": "mdi:weather-night",
+              "type": "button",
+              "state": {
+                "entity": "{{bench_sleep}}"
+              }
+            },
+            "preset_mode": {
+              "icon": "mdi:tune",
+              "type": "dropdown",
+              "state": {
+                "attribute": "preset_mode"
+              },
+              "source": {
+                "eco": "Eco",
+                "boost": "Boost",
+                "sleep": "Sleep"
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
