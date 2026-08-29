@@ -36,6 +36,10 @@ const IGNORED = new Map([
     '.claude/rules/ha-live-testing.md',
     'a workspace rule, not part of this repository (lives in home-workspace)',
   ],
+  [
+    'mini-climate-card-docs.md',
+    'what the reader downloads llms-full.txt as, on their machine, in docs/ai-assistants.md',
+  ],
 ]);
 
 // Release notes are a record of a released version, not a description of the

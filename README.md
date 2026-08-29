@@ -6,6 +6,7 @@
 [![Stars](https://img.shields.io/github/stars/artem-sedykh/mini-climate-card)](https://github.com/artem-sedykh/mini-climate-card/stargazers)
 [![CI](https://img.shields.io/github/actions/workflow/status/artem-sedykh/mini-climate-card/ci.yml?branch=master&label=CI)](https://github.com/artem-sedykh/mini-climate-card/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fartem-sedykh%2Fmini-climate-card%2Fbadges%2Fcoverage.json)](https://github.com/artem-sedykh/mini-climate-card/actions/workflows/ci.yml)
+[![llms.txt](https://img.shields.io/badge/llms.txt-docs_for_LLMs-blue)](https://artem-sedykh.github.io/mini-climate-card/llms.txt)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/artem-sedykh/mini-climate-card/blob/master/LICENSE)
 
 A minimalistic yet customizable climate card for [Home Assistant](https://home-assistant.io/) Lovelace UI.  
@@ -84,6 +85,7 @@ and the same pages are in [`docs/`](https://github.com/artem-sedykh/mini-climate
 | [Tap action](https://github.com/artem-sedykh/mini-climate-card/blob/master/docs/tap-action.md) | what a tap does, with examples |
 | [Secondary info](https://github.com/artem-sedykh/mini-climate-card/blob/master/docs/secondary-info.md) | the line under the name, and its types |
 | [Examples](https://github.com/artem-sedykh/mini-climate-card/blob/master/docs/examples.md) | a complete configuration |
+| [AI assistants](https://github.com/artem-sedykh/mini-climate-card/blob/master/docs/ai-assistants.md) | writing a card with Claude, Cursor or ChatGPT, and what to check in what it writes |
 | [Development](https://github.com/artem-sedykh/mini-climate-card/blob/master/docs/development.md) | building the card, and what to do when it errors |
 | [Visual editor](https://github.com/artem-sedykh/mini-climate-card/blob/master/docs/visual-editor-parameters.md) | which options the built-in UI editor exposes, and which stay YAML-only |
 
