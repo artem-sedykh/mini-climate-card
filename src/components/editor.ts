@@ -183,6 +183,17 @@ export default class MiniClimateEditor extends LitElement {
 
   config!: RawCardConfig;
 
+  /**
+   * The basic form omits the icon picker when `icon` is a template object,
+   * for the same reason `_basicData` skips it: a picker that cannot represent
+   * the value must not be given a chance to replace it.
+   *
+   * Built in `setConfig` rather than in `render`: that is the only place the
+   * value it depends on can change, because Home Assistant drives an editor
+   * through `setConfig` and never by assigning `config` (#297).
+   */
+  private _basicSchema: SchemaEntry[] = BASIC_SCHEMA;
+
   // Bound once in the constructor to avoid allocating new function instances
   // on every render() call, which is a LitElement anti-pattern.
   private readonly _computeLabel: (schema: SchemaEntry) => string;
@@ -256,6 +267,10 @@ export default class MiniClimateEditor extends LitElement {
       config = { ...config, tap_action: { action: config.tap_action } };
     }
     this.config = { ...config, secondary_info: secondaryInfo ?? {} };
+    this._basicSchema =
+      this.config.icon && typeof this.config.icon === 'object'
+        ? BASIC_SCHEMA.filter(entry => entry.name !== 'icon')
+        : BASIC_SCHEMA;
   }
 
   // ── Private helpers ──────────────────────────────────────────────────────
@@ -292,18 +307,6 @@ export default class MiniClimateEditor extends LitElement {
       data[k] = this.config[k];
     }
     return data;
-  }
-
-  /**
-   * The basic form omits the icon picker when `icon` is a template object,
-   * for the same reason `_basicData` skips it: a picker that cannot represent
-   * the value must not be given a chance to replace it.
-   */
-  private _basicSchema(): SchemaEntry[] {
-    if (this.config.icon && typeof this.config.icon === 'object') {
-      return BASIC_SCHEMA.filter(entry => entry.name !== 'icon');
-    }
-    return BASIC_SCHEMA;
   }
 
   /** Return the stored tap_action, defaulting action to 'more-info'. */
@@ -457,7 +460,7 @@ export default class MiniClimateEditor extends LitElement {
       <ha-form
         .hass=${this.hass}
         .data=${this._basicData()}
-        .schema=${this._basicSchema()}
+        .schema=${this._basicSchema}
         .computeLabel=${this._computeLabel}
         @value-changed=${this._basicChanged}
       ></ha-form>
