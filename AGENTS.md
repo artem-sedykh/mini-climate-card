@@ -213,10 +213,19 @@ model classes in `src/models/`, the helpers in `src/utils/`, every branch of
 configuration merge, from the user's YAML end.
 
 `test/config.test.js` and `test/handle-click.test.js` ask for jsdom with a
-`@vitest-environment` docblock; the rest do not pay for it. The first
-constructs the card element, which works without a DOM because `setConfig`
-only reads and merges - nothing renders, so the Home Assistant elements are
-never needed.
+`@vitest-environment` docblock; so does `test/documented-contract.test.js`.
+The rest do not pay for it. The first two construct the card element, which
+works without a DOM because `setConfig` only reads and merges - nothing
+renders, so the Home Assistant elements are never needed.
+
+That last one is not about the card so much as about the pages that describe
+it. `docs/functions.md` (and `tap-action.md`, `secondary-info.md`) is written
+as the contract an assistant configures against, which makes each of its
+claims a thing that can quietly stop being true - `this` still being the
+option's YAML, `call_service` still missing from an indicator, `change_action`
+still receiving `selected` then `state` then `entity`. Every test in it is
+one sentence from those pages, written as YAML text rather than as a function,
+since that is the only form the documentation can show.
 
 Two things that suite pins down are worth knowing before changing them:
 

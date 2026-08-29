@@ -14,12 +14,13 @@ Every function gets the same four arguments, in this order, whatever it is:
 | `state` | the value as the card reads it - for an indicator its current value, for a button its state (after `state:mapper`, if any) |
 | `entity` | the entity the option reads (the button's own entity, or the climate one) |
 | `climate_entity` | the card's climate entity |
-| `hvac_mode` | the current hvac mode |
+| `hvac_mode` | the mode the card is showing (`{ id, name }`, or nothing if none is selected) |
 
 Functions that take something instead of, or in addition to, `state` are noted
 below. `this` inside a function is the option's own YAML, so anything written
-beside the function is readable from it, and `this.call_service(...)` and
-`this.toggle_state(...)` are available. See
+beside the function is readable from it. `this.toggle_state(...)` is on every
+option; `this.call_service(...)` is on the ones that act - buttons and target
+temperature, not indicators. See
 [the template context](buttons.md#buttons-functions).
 
 ## source:__filter {#source__filter}
