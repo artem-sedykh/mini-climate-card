@@ -65,7 +65,8 @@ PAGE_SUMMARIES = {
     ),
     'functions.md': (
         'The reference for options written as functions: the arguments each one is '
-        'called with, what it returns, and the context it runs in.'
+        'called with, what it returns, and that this is the option\'s own YAML - extra '
+        'keys, nested maps, entity_config.'
     ),
     'tap-action.md': 'What a tap on the card or on an indicator does.',
     'secondary-info.md': 'The line under the entity name, and the types it can show.',

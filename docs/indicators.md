@@ -53,7 +53,10 @@ stops changing with the reading, so the indicators line up. See
 `value` - current indicator value  
 `entity` - indicator entity  
 `climate_entity` - climate entity
-`hvac_mode` - current hvac_mode  
+`hvac_mode` - current hvac_mode
+
+What `this` is, including extra keys and `entity_config`, is
+[`this`](functions.md#this). The mapper below uses it as `this.source.values`.  
 
 ## source mapper
 

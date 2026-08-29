@@ -72,6 +72,38 @@ describe('"this inside a function is the option\'s own YAML"', () => {
   });
 });
 
+describe('"a nested map keeps its path"', () => {
+  it('icon.items is this.icon.items, not this.items', () => {
+    const { element } = card({
+      buttons: {
+        speed: {
+          type: 'dropdown',
+          state: { attribute: 'fan_mode' },
+          icon: {
+            items: { auto: 'mdi:fan-auto', low: 'mdi:fan-speed-1' },
+            template: "(state) => this.icon.items[state] || 'mdi:fan'",
+          },
+        },
+      },
+    });
+
+    expect(button(element, 'speed').icon).toBe('mdi:fan-auto');
+  });
+});
+
+describe('"entity_config is the whole card configuration"', () => {
+  it('a button template reads the card name', () => {
+    const { element } = card({
+      name: 'Kitchen',
+      buttons: {
+        turbo: { toggle_action: '() => this.entity_config.name' },
+      },
+    });
+
+    expect(button(element, 'turbo').handleToggle()).toBe('Kitchen');
+  });
+});
+
 describe('"call_service is on the controls that act"', () => {
   it('a button has it and an indicator does not', () => {
     const { element } = card({
