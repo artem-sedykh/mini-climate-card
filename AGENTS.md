@@ -339,6 +339,18 @@ release_notes/       one file per version, read by the release workflow
 The card has **no translations of its own**. `src/utils/getLabel.ts` asks
 `hass.localize` for Home Assistant's own keys and falls back to a literal.
 
+The keys are the ones the frontend uses today,
+`component.climate.entity_component._.state.<mode>` and
+`...state_attributes.<attribute>.state.<value>`, with the older
+`state.climate.*` and `state_attributes.climate.*` kept behind them for an
+installation that still answers those. **A key is a fact about Home Assistant,
+so only the bench can check it** (#133): every stub in `test/` answers the keys
+it was written with, so a fixture and the card agreed for years about a Home
+Assistant that no longer existed, while every label on a real dashboard was
+drawn as its raw id. `test/e2e/labels.test.mjs` asks the running frontend
+instead, and compares what the card drew with what `hass.localize` answers
+rather than with a string spelled out in the test.
+
 ## How a card configuration is resolved
 
 This is the part worth understanding before changing anything about options.

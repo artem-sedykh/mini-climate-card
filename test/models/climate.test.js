@@ -1,7 +1,28 @@
 import { describe, expect, it, vi } from 'vitest';
 import ClimateObject from '../../src/models/climate';
 
-const hass = { localize: key => ({ 'state.climate.cool': 'Cooling' })[key] || '' };
+// Today's keys, as a real Home Assistant answers them - measured on 2026.8.3,
+// where every key this card used before #133 answers an empty string. The old
+// spellings are exercised separately, by `legacyHass` below.
+const TRANSLATIONS = {
+  'component.climate.entity_component._.state.cool': 'Cool',
+  'component.climate.entity_component._.state_attributes.fan_mode.state.auto': 'Auto',
+  'component.climate.entity_component._.state_attributes.hvac_action.state.cooling': 'Cooling',
+};
+
+const hass = { localize: key => TRANSLATIONS[key] || '' };
+
+// An installation old enough to still answer the keys the card asked for
+// before #133, and nothing else. The card keeps them at the end of each list,
+// so this one has to keep working.
+const legacyHass = {
+  localize: key =>
+    ({
+      'state.climate.cool': 'Kaelte',
+      'state_attributes.climate.fan_mode.auto': 'Automatik',
+      'state_attributes.climate.hvac_action.cooling': 'Kuehlt',
+    })[key] || '',
+};
 
 const entity = (state, attributes = {}) => ({
   entity_id: 'climate.living_room',
@@ -66,9 +87,27 @@ describe('ClimateObject.defaultHvacModes', () => {
   it('builds the dropdown from the entity, translating what it can', () => {
     const c = climate('cool', { hvac_modes: ['cool', 'heat'] });
     expect(c.defaultHvacModes).toEqual([
-      { id: 'cool', name: 'Cooling', icon: 'mdi:snowflake' },
+      { id: 'cool', name: 'Cool', icon: 'mdi:snowflake' },
+      // Untranslated, and the fallback is the raw id: an entity can report a
+      // mode Home Assistant has no string for.
       { id: 'heat', name: 'heat', icon: 'mdi:weather-sunny' },
     ]);
+  });
+
+  it('asks for the key a current Home Assistant answers, first', () => {
+    // The whole of #133. The card asked only for `state.climate.<mode>` and
+    // `component.climate.state._.<mode>`, and both were gone - so every mode
+    // was drawn as its raw id, in every language.
+    const asked = [];
+    const spy = { localize: key => (asked.push(key), TRANSLATIONS[key] || '') };
+    new ClimateObject(spy, {}, entity('cool', { hvac_modes: ['cool'] })).defaultHvacModes;
+
+    expect(asked[0]).toBe('component.climate.entity_component._.state.cool');
+  });
+
+  it('still reads the old keys, for an installation that has them', () => {
+    const c = new ClimateObject(legacyHass, {}, entity('cool', { hvac_modes: ['cool'] }));
+    expect(c.defaultHvacModes[0].name).toBe('Kaelte');
   });
 
   it('leaves a mode the card has no icon for without one', () => {
@@ -85,7 +124,13 @@ describe('ClimateObject.defaultHvacModes', () => {
 describe('ClimateObject.defaultFanModes', () => {
   it('maps each mode the entity reports to a label', () => {
     const c = climate('cool', { fan_modes: ['auto', 'low'] });
-    expect(c.defaultFanModes).toEqual({ auto: 'auto', low: 'low' });
+    // `low` has no string here, and falls back to the id it came as.
+    expect(c.defaultFanModes).toEqual({ auto: 'Auto', low: 'low' });
+  });
+
+  it('still reads the old key, for an installation that has it', () => {
+    const c = new ClimateObject(legacyHass, {}, entity('cool', { fan_modes: ['auto'] }));
+    expect(c.defaultFanModes).toEqual({ auto: 'Automatik' });
   });
 
   it('is empty when the entity reports no fan modes', () => {
@@ -94,9 +139,19 @@ describe('ClimateObject.defaultFanModes', () => {
 });
 
 describe('ClimateObject.hvacAction', () => {
-  it('answers the raw action when nothing overrides it', () => {
+  it('translates the action when Home Assistant has a string for it', () => {
     const c = climate('cool', { hvac_action: 'cooling' });
-    expect(c.hvacAction).toEqual({ id: 'cooling', name: 'cooling' });
+    expect(c.hvacAction).toEqual({ id: 'cooling', name: 'Cooling' });
+  });
+
+  it('answers the raw action when nothing has a string for it', () => {
+    const c = climate('cool', { hvac_action: 'defrosting' });
+    expect(c.hvacAction).toEqual({ id: 'defrosting', name: 'defrosting' });
+  });
+
+  it('still reads the old key, for an installation that has it', () => {
+    const c = new ClimateObject(legacyHass, {}, entity('cool', { hvac_action: 'cooling' }));
+    expect(c.hvacAction).toEqual({ id: 'cooling', name: 'Kuehlt' });
   });
 
   it('takes a string override from secondary_info.source as the name', () => {
