@@ -123,7 +123,7 @@
 | buttons: `name:toggle_action`             | function                            | optional     | v1.0.1 | For type `button`                                                                                             |
 | buttons: `name:style`                     | function                            | optional     | v1.0.1 | Styles                                                                                                        |
 | tap_action                                | [action object](tap-action.md#tap-action-object) | true         | v1.0.4 | Action on click/tap, [tap_action](tap-action.md#tap-action-example)                                                        |
-| scale                                     | number                              | optional     | v1.0.1 | UI scale modifier, default is `1`                                                                             |
+| scale                                     | number                              | optional     | v1.0.1 | UI scale modifier, default is `1`. See [A bigger card](examples.md#a-bigger-card)                             |
 
 ### hide_icon
 
