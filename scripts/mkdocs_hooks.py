@@ -177,6 +177,19 @@ def _for_assistants(name, site_url):
     ).strip()
 
 
+def _write(path, text):
+    """Write a generated file with LF, on any machine.
+
+    `Path.write_text` opens in text mode, which on Windows turns every newline
+    into CRLF - so the same build produced a file 2041 bytes larger there than
+    in CI, for 2041 lines. Nothing downstream broke, but a file that is byte
+    identical only on one operating system is not one to compare or diff, and
+    the constant above says LF.
+    """
+    with open(path, 'w', encoding='utf-8', newline='') as handle:
+        handle.write(text)
+
+
 def write_llms_files(config):
     """Publish the documentation in the shape an assistant can read (#292).
 
@@ -252,8 +265,8 @@ def write_llms_files(config):
             '',
         ]
 
-    (site_dir / 'llms.txt').write_text(NL.join(index), encoding='utf-8')
-    (site_dir / 'llms-full.txt').write_text(NL.join(full), encoding='utf-8')
+    _write(site_dir / 'llms.txt', NL.join(index))
+    _write(site_dir / 'llms-full.txt', NL.join(full))
 
 
 def on_post_build(config):
