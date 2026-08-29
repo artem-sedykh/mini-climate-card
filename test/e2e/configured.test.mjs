@@ -194,9 +194,18 @@ describe('a card written the way people write them', () => {
     for (let index = 0; index < count; index += 1) {
       const one = dropdowns.nth(index);
       await one.locator('ha-icon-button').first().click();
-      await session.page.waitForTimeout(400);
 
-      const labels = await session.page.locator('.mc-menu__item__label').allTextContents();
+      // Wait for the menu to have something in it rather than for 400ms
+      // (#304), but keep the loop's tolerance: a dropdown that opens nothing
+      // is passed over, as it was before, instead of failing the scenario
+      // here. The one being looked for is found by its labels below.
+      const labels = await until(
+        async () => {
+          const found = await session.page.locator('.mc-menu__item__label').allTextContents();
+          return found.length ? found : null;
+        },
+        { timeout: 5000 },
+      ).catch(() => []);
 
       if (labels.map(label => label.trim()).includes('Sweeping')) {
         swing = index;

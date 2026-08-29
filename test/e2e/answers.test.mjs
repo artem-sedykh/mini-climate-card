@@ -433,12 +433,24 @@ describe('the answers people were given', () => {
     await dropdown.evaluate(node => {
       node.shadowRoot.querySelector('mc-dropdown-base').shadowRoot.getElementById('button').click();
     });
-    await session.page.waitForTimeout(400);
 
-    const opened = await dropdown.evaluate(
-      node =>
-        node.shadowRoot.querySelector('mc-dropdown-base').shadowRoot.getElementById('menu').open,
-    );
+    // Polled rather than read after a fixed wait (#304). The menu opens over a
+    // render and a `showPopover`, and on a loaded runner that took longer than
+    // the 400ms this used to allow - once, in CI, on a commit that changed a
+    // markdown file. A red run of a scenario nobody touched reads as a broken
+    // branch, which is the expensive part of a flake rather than the rerun.
+    const menuOpen = () =>
+      dropdown.evaluate(
+        node =>
+          node.shadowRoot.querySelector('mc-dropdown-base').shadowRoot.getElementById('menu').open,
+      );
+
+    const opened = await until(async () => (await menuOpen()) || null, {
+      diagnose: async () => ({
+        open: await menuOpen(),
+        items: await session.page.locator('.mc-menu__item__label').allTextContents(),
+      }),
+    });
     assert.equal(opened, true, 'the menu did not open from the control row');
 
     await dropdown.evaluate(node => {
