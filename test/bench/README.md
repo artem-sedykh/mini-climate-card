@@ -163,6 +163,41 @@ A fixed wait is still right in three places, and they are worth telling apart:
   `tap_action` and expects no dialog. There is no state to poll for; the wait
   is the measurement.
 
+## Pointing it at an older Home Assistant
+
+`BENCH_HA_VERSION` is the point of this directory, and the first honest attempt
+to use it - a matrix of eight versions, looking for the oldest one the card
+still works on - is worth writing down, because most of what it found was about
+the bench rather than about the card.
+
+**Every leg failed before rendering anything.** `setupBroker` handed the MQTT
+config flow `protocol` and `other_settings`, which arrived when that flow was
+rewritten; an older Home Assistant answers `extra keys not allowed`. So the
+bench could not start on anything older than about 2025 at all. The payload is
+built from the step's own `data_schema` now: send what this version offers,
+skip what it does not. Anything else added here should be built the same way.
+
+With that fixed, the run says this (2026-08-29, v3.3.0):
+
+| version | result |
+|---|---|
+| 2026.8.3, latest, 2024.12.5 | green |
+| 2025.12.4 | the more-info dialog is not detected as open |
+| 2025.6.3, 2025.1.4 | the theme scenario's **control** fails: `--ha-card-background` does not reach the card |
+| 2024.6.4, 2023.9.3 | the editor scenario times out; 2023.9 also loses the preset row |
+
+None of those is "the card does not render". They are the scenarios' own
+assumptions about Home Assistant internals - what an open `ha-more-info-dialog`
+looks like, whether a theme variable reaches `ha-card`, how the editor dialog
+opens - and the result is not even monotonic: 2024.12.5 passes where 2025.x
+does not.
+
+**So the suite does not answer "the oldest version this card supports"**, and
+`hacs.json` names no minimum for that reason. Getting an answer means triaging
+those three scenarios version by version, not reading a matrix. If you take
+that on, start with the theme control: it is the one that already knows how to
+say "this measurement cannot see anything here".
+
 ## What it is not
 
 It is **not** where geometry is measured. `test/browser/` renders the card in

@@ -64,31 +64,6 @@ jobs:
           - label: Home Assistant latest
             version: latest
             experimental: true
-          # TEMPORARY: measuring the oldest Home Assistant this card still
-          # works on, so `hacs.json` can name a minimum instead of guessing at
-          # one. Every leg is allowed to fail - which of them do is the answer.
-          # Reverted once it is in.
-          - label: HA 2025.12.4
-            version: 2025.12.4
-            experimental: true
-          - label: HA 2025.6.3
-            version: 2025.6.3
-            experimental: true
-          - label: HA 2025.1.4
-            version: 2025.1.4
-            experimental: true
-          - label: HA 2024.12.5
-            version: 2024.12.5
-            experimental: true
-          - label: HA 2024.6.4
-            version: 2024.6.4
-            experimental: true
-          - label: HA 2024.1.6
-            version: 2024.1.6
-            experimental: true
-          - label: HA 2023.9.3
-            version: 2023.9.3
-            experimental: true
 
     steps:
       - uses: actions/checkout@v7
