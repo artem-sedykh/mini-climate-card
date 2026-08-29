@@ -32,16 +32,33 @@ const setupBroker = async token => {
     { handler: 'mqtt', show_advanced_options: false },
     token,
   );
-  // `other_settings` is a section of the broker step, and its two certificate
-  // keys are required even when nothing about them is being set.
+  // Built from the schema the step declares rather than from a fixed list of
+  // keys, because that list is a fact about one Home Assistant. `protocol` and
+  // the `other_settings` section arrived with a rewrite of this flow; sending
+  // them to a version that predates it fails the whole run with `extra keys
+  // not allowed`, before a card has been rendered at all - which is what the
+  // bench looks like when it is asked about an older Home Assistant.
+  //
+  // `set_client_cert` and `set_ca_cert` are required when they are offered,
+  // wherever they are offered: at the top level in older versions, inside
+  // `other_settings` in newer ones.
+  const known = {
+    broker: process.env.BENCH_MQTT_HOST || 'mqtt',
+    port: Number(process.env.BENCH_MQTT_INTERNAL_PORT || 1883),
+    protocol: '5',
+    other_settings: { set_client_cert: false, set_ca_cert: 'off' },
+    set_client_cert: false,
+    set_ca_cert: 'off',
+  };
+
+  const offered = new Set((flow.body.data_schema || []).map(field => field.name));
+  const payload = Object.fromEntries(
+    Object.entries(known).filter(([name]) => offered.has(name) || offered.size === 0),
+  );
+
   const done = await request(
     `/api/config/config_entries/flow/${flow.body.flow_id}`,
-    {
-      broker: process.env.BENCH_MQTT_HOST || 'mqtt',
-      port: Number(process.env.BENCH_MQTT_INTERNAL_PORT || 1883),
-      protocol: '5',
-      other_settings: { set_client_cert: false, set_ca_cert: 'off' },
-    },
+    payload,
     token,
   );
   if (done.body.type !== 'create_entry') throw new Error(`mqtt: ${JSON.stringify(done.body)}`);
