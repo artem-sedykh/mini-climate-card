@@ -32,7 +32,7 @@ v2 is only compatible from version 2022.11 onwards
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=2.21
+    - url: /local/mini-climate-card-bundle.js?v=3.3.0
       type: module
   ```
 
@@ -43,14 +43,14 @@ v2 is only compatible from version 2022.11 onwards
 2. Grab `mini-climate-card-bundle.js`
 
   ```console
-  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/download/v2.2.1/mini-climate-card-bundle.js
+  $ wget https://github.com/artem-sedykh/mini-climate-card/releases/latest/download/mini-climate-card-bundle.js
   ```
 
 3. Add a reference to `mini-climate-card-bundle.js` inside your `ui-lovelace.yaml`.
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=2.2.1
+    - url: /local/mini-climate-card-bundle.js?v=3.3.0
       type: module
   ```
 
@@ -59,11 +59,11 @@ v2 is only compatible from version 2022.11 onwards
 
 2. Replace the local file with the latest one attached in the [latest release](https://github.com/artem-sedykh/mini-climate-card/releases/latest).
 
-3. Add the new version number to the end of the cards reference url in your `ui-lovelace.yaml` like below.
+3. Change the version at the end of the card's reference url in your `ui-lovelace.yaml` - any new value will do, it is what makes the browser fetch the new file rather than the one it cached.
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=2.2.1
+    - url: /local/mini-climate-card-bundle.js?v=3.3.0
       type: module
   ```
 

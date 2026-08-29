@@ -1,4 +1,5 @@
 {
   "name": "mini climate card",
-  "filename": "mini-climate-card-bundle.js"
+  "filename": "mini-climate-card-bundle.js",
+  "hide_default_branch": true
 }
