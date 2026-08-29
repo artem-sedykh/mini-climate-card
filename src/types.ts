@@ -154,7 +154,13 @@ export interface TargetTemperatureConfig {
 export interface RawCardConfig {
   entity: string;
   name?: string;
-  icon?: string;
+  /**
+   * A string is an mdi name. An object is the same `{ template, style }` an
+   * indicator already takes - the left icon is the one that could not follow
+   * state (#38, #42). Extra keys are data the template reads back through
+   * `this`, the way `items` works on a button icon.
+   */
+  icon?: string | { template?: string; style?: string; [key: string]: any };
   scale?: number;
   group?: boolean;
   swap_temperatures?: boolean;

@@ -4,7 +4,8 @@
 // to a question: how to draw a card with nothing but the temperature (#40),
 // how to show an indicator's icon without its value (#64), how to shorten a
 // value (#57), how to colour the mode icon by the mode and by what the unit is
-// doing (#62, #129), how to colour an indicator by the mode (#168), how to
+// doing (#62, #129), how to colour the entity icon from hvac_action (#38, #42),
+// how to colour an indicator by the mode (#168), how to
 // press the mode instead of picking it out of a list (#160), and why a
 // button's own colour needs `!important`.
 //
@@ -56,6 +57,12 @@ describe('the answers people were given', () => {
 
       return {
         icon: !!root.querySelector('.entity__icon'),
+        entityIcon: root.querySelector('.entity__icon ha-icon')?.icon ?? null,
+        entityIconColour: (() => {
+          const entityIcon = root.querySelector('.entity__icon');
+          return entityIcon ? getComputedStyle(entityIcon).color : null;
+        })(),
+        entityIconActive: root.querySelector('.entity__icon')?.hasAttribute('color') ?? false,
         nameText: root.querySelector('.entity__info__name')?.textContent.trim() ?? null,
         secondary: !!root.querySelector('.entity__secondary_info'),
         toggleButton: !!root.querySelector('.toggle-button'),
@@ -249,6 +256,38 @@ describe('the answers people were given', () => {
       return now.modeIconColour === 'rgb(255, 0, 0)' ? now : null;
     });
     assert.equal(heating.modeIconColour, 'rgb(255, 0, 0)');
+  });
+
+  it('picks the entity icon from hvac_action (#38, #42)', async () => {
+    // The left icon is the one that could not follow state: a string, tinted
+    // by HVAC mode. A zigbee2mqtt thermostat stays in `heat`, so without a
+    // template it looks on while idle. Style owns the colour (no `color`
+    // attribute) so the two halves can disagree with the mode.
+    await callService(bench.tokens, 'climate', 'set_hvac_mode', {
+      entity_id: bench.ids.bench_ac,
+      hvac_mode: 'heat',
+    });
+    await publish(bench.tokens, 'bench/ac/action', 'heating');
+
+    const heating = await until(async () => {
+      const now = await look('Entity icon by action');
+      return now && now.entityIcon === 'mdi:radiator' && now.entityIconColour === 'rgb(255, 0, 0)'
+        ? now
+        : null;
+    });
+    assert.equal(heating.entityIcon, 'mdi:radiator');
+    assert.equal(heating.entityIconColour, 'rgb(255, 0, 0)');
+    assert.equal(heating.entityIconActive, false, 'style owns the colour; isActive must not tint');
+
+    await publish(bench.tokens, 'bench/ac/action', 'idle');
+
+    const idle = await until(async () => {
+      const now = await look('Entity icon by action');
+      return now && now.entityIcon === 'mdi:radiator-off' ? now : null;
+    });
+    assert.equal(idle.entityIcon, 'mdi:radiator-off');
+    assert.equal(idle.entityIconColour, 'rgb(128, 128, 128)');
+    assert.equal(idle.entityIconActive, false);
   });
 
   it('lets a button style beat the active colour with !important', async () => {

@@ -74,6 +74,15 @@ class MiniClimate extends LitElement {
    */
   shouldHideIcon: Template<boolean>;
 
+  /**
+   * The left entity icon, when `icon` is the `{ template, style }` object
+   * indicators already take. A string `icon` stays a string and is read from
+   * `config` in `computeIcon`; these are only set for the object form.
+   */
+  iconTemplate: Template<string> | undefined;
+
+  iconStyle: Template<Record<string, string>> | undefined;
+
   private _hass!: HomeAssistant;
 
   static getStubConfig(
@@ -107,6 +116,8 @@ class MiniClimate extends LitElement {
     this.climate = {} as ClimateObject;
     this.targetTemperatureValue = 0;
     this.shouldHideIcon = () => false;
+    this.iconTemplate = undefined;
+    this.iconStyle = undefined;
   }
 
   static override get properties() {
@@ -559,6 +570,23 @@ class MiniClimate extends LitElement {
         ? compileTemplate(hideIcon, this.config)
         : () => hideIcon === true;
 
+    // The left icon is the one that could not follow state: a string is an
+    // mdi name, an object is `{ template, style }` the way an indicator's
+    // icon already is (#38, #42). Compiled here, not per render, for the
+    // same reason `hide_icon` is. Context is the object itself so extra keys
+    // (`items`, and anything else) are `this.<key>` from the template.
+    this.iconTemplate = undefined;
+    this.iconStyle = undefined;
+    if (config.icon && typeof config.icon === 'object') {
+      const context = { ...config.icon, entity_config: config };
+      if (config.icon.template) {
+        this.iconTemplate = compileTemplate(config.icon.template, context);
+      }
+      if (config.icon.style) {
+        this.iconStyle = compileTemplate(config.icon.style, context);
+      }
+    }
+
     this.config.indicators = this.getIndicatorsConfig(config);
 
     this.config.buttons = this.getButtonsConfig(config);
@@ -702,9 +730,13 @@ class MiniClimate extends LitElement {
   renderIcon(): TemplateResult {
     if (this.shouldHideIcon(this.climate.entity, this.climate.mode)) return html``;
 
-    const state = this.climate.isActive;
+    // `isActive` follows HVAC mode, so a thermostat that stays in `heat`
+    // is always tinted - even when `hvac_action` is idle, which is the
+    // whole of #38. A style template owns the colour instead: applying
+    // both would paint idle yellow whenever the style returned `{}`.
+    const tinted = this.climate.isActive && !this.iconStyle;
     return html`
-      <div class='entity__icon' ?color=${state}>
+      <div class='entity__icon' ?color=${tinted} style=${styleMap(this.computeIconStyle())}>
         <ha-icon .icon=${this.computeIcon()} ></ha-icon>
       </div>`;
   }
@@ -796,7 +828,25 @@ class MiniClimate extends LitElement {
   }
 
   computeIcon(): string {
-    return this.config.icon ? this.config.icon : this.climate.icon || ICON.DEFAULT;
+    if (this.iconTemplate) {
+      const name = this.iconTemplate(this.climate.entity, this.climate.mode);
+      if (name) return name;
+    }
+
+    // An object `icon` is truthy and is not an mdi name - reading it here
+    // would put `[object Object]` on `ha-icon`. The string form is the one
+    // that has always been a glyph.
+    if (typeof this.config.icon === 'string' && this.config.icon) return this.config.icon;
+
+    return this.climate.icon || ICON.DEFAULT;
+  }
+
+  computeIconStyle(): Record<string, string> {
+    if (this.iconStyle) {
+      return this.iconStyle(this.climate.entity, this.climate.mode) || {};
+    }
+
+    return {};
   }
 
   computeClasses({ config } = this) {

@@ -115,6 +115,46 @@ describe('hide_icon', () => {
   });
 });
 
+describe('the entity icon', () => {
+  it('keeps a string as the glyph', () => {
+    expect(build({ icon: 'mdi:radiator' }).card.computeIcon()).toBe('mdi:radiator');
+  });
+
+  it('falls back to the entity icon, then to the default', () => {
+    expect(build({}, { entity: climateEntity({ icon: 'mdi:heat-wave' }) }).card.computeIcon()).toBe(
+      'mdi:heat-wave',
+    );
+    expect(build({}).card.computeIcon()).toBe('mdi:air-conditioner');
+  });
+
+  it('lets a template read extra keys off the icon object through `this`', () => {
+    // Same extension point as a button icon's `items`: unknown keys on the
+    // object are data, not options, and the template indexes them.
+    const { card } = build(
+      {
+        icon: {
+          items: { heating: 'mdi:radiator', idle: 'mdi:radiator-off' },
+          template: "(entity) => this.items[entity.attributes.hvac_action] || 'mdi:radiator-off'",
+        },
+      },
+      { entity: climateEntity({ hvac_action: 'heating' }) },
+    );
+
+    expect(card.computeIcon()).toBe('mdi:radiator');
+  });
+
+  it('does not treat an object icon as an mdi name', () => {
+    // `config.icon` stays the object after setConfig. Using it as the glyph
+    // would put `[object Object]` on ha-icon.
+    const { card } = build({
+      icon: { template: "() => 'mdi:radiator'" },
+    });
+
+    expect(card.computeIcon()).toBe('mdi:radiator');
+    expect(typeof card.config.icon).toBe('object');
+  });
+});
+
 describe('indicators', () => {
   it('takes the id from the key it was written under', () => {
     const { card } = build({ indicators: { power: { source: { attribute: 'x' } } } });

@@ -147,6 +147,44 @@ describe('the visual config editor', () => {
     expect(changed.hvac_mode.source).to.deep.equal({ heat: 'Heat' });
   });
 
+  it('does not put a template icon through the icon picker', async () => {
+    // The basic form has an icon selector. An object `icon` is a template,
+    // and a selector that cannot show it would stringify it and write a
+    // string back over the YAML. The field is omitted instead.
+    const icon = {
+      template:
+        "(entity) => entity.attributes.hvac_action === 'heating' ? 'mdi:radiator' : 'mdi:radiator-off'",
+    };
+    const { editor } = await mountEditor({
+      config: { entity: ENTITY_ID, name: 'Valve', icon },
+    });
+
+    const form = basicForm(editor);
+    expect(form.schema.map(entry => entry.name)).to.not.include('icon');
+    expect(form.data.icon).to.equal(undefined);
+    expect(form.data.name).to.equal('Valve');
+
+    let changed;
+    editor.addEventListener('config-changed', event => {
+      changed = event.detail.config;
+    });
+
+    form.fire({ entity: ENTITY_ID, name: 'Valve', group: true });
+
+    expect(changed.icon).to.deep.equal(icon);
+    expect(changed.group).to.equal(true);
+  });
+
+  it('still offers the icon picker when icon is a string', async () => {
+    const { editor } = await mountEditor({
+      config: { entity: ENTITY_ID, icon: 'mdi:radiator' },
+    });
+
+    const form = basicForm(editor);
+    expect(form.schema.map(entry => entry.name)).to.include('icon');
+    expect(form.data.icon).to.equal('mdi:radiator');
+  });
+
   it('opens with the action of a string tap_action, not the default', async () => {
     // The card documents the string shorthand (`tap_action: none`). A string
     // spreads into character keys under `{ action: 'more-info', ...spread }`,
