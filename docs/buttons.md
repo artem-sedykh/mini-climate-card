@@ -14,7 +14,7 @@
 | [`disabled`](functions.md#disabled)        | function | button config     | value, entity, climate_entity, hvac_mode          | boolean                          |
 | [`style`](functions.md#style)           | function | button config     | value, entity, climate_entity, hvac_mode          | object                           |
 | [`toggle_action`](functions.md#toggle_action)   | function | button config     | state, entity, climate_entity, hvac_mode          | promise                          |
-| [`change_action`](functions.md#change_action)   | function | button config     | selected_value, entity, climate_entity, hvac_mode | promise                          |
+| [`change_action`](functions.md#change_action)   | function | button config     | selected_value, state, entity, climate_entity, hvac_mode | promise                          |
 | [`hide`](functions.md#hide)            | function | button config     | state, entity, climate_entity, hvac_mode          | boolean                          |
 | [`icon`](functions.md#icon_template)    | function | button config     | state, entity, climate_entity, hvac_mode          | string                           |
 

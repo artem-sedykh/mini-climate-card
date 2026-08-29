@@ -417,6 +417,87 @@ describe('the answers people were given', () => {
     assert.equal((await entity(bench.tokens, bench.ids.bench_ac)).state, 'off');
   });
 
+  it('puts the hvac mode in the secondary line, as a dropdown (#194)', async () => {
+    // The request was for an `hvac-mode-dropdown` type beside the
+    // `fan-mode-dropdown` one. No new type is needed: `fan_mode` is a button
+    // like any other, so pointing its `state` at the entity itself, its
+    // `source` at the modes and its `change_action` at `set_hvac_mode` gives
+    // that line the mode - with its name, and pressable, which is what the
+    // control row's icon-only dropdown does not offer.
+    //
+    // The scenario is here rather than in the answer alone because the answer
+    // is a configuration, and a configuration that stops working is exactly
+    // what nobody notices.
+    const card = session.page.locator('mini-climate').filter({ hasText: 'Mode under the name' });
+
+    const line = () =>
+      card.evaluate(node => {
+        const fan = node.shadowRoot
+          .querySelector('mc-secondary-info')
+          ?.shadowRoot.querySelector('mc-fan-mode-secondary');
+
+        return {
+          label: fan?.shadowRoot.querySelector('.name')?.textContent.trim() ?? null,
+          icon: fan?.shadowRoot.querySelector('ha-icon')?.icon ?? null,
+          // The whole drop is the button, not the icon alone (#270).
+          pressable: !!fan?.shadowRoot.querySelector('.mc-dropdown__button'),
+        };
+      });
+
+    await callService(bench.tokens, 'climate', 'set_hvac_mode', {
+      entity_id: bench.ids.bench_ac,
+      hvac_mode: 'off',
+    });
+
+    const before_ = await until(async () => {
+      const now = await line();
+      return now.label === 'Off' ? now : null;
+    });
+    assert.equal(before_.icon, 'mdi:thermostat');
+    assert.equal(before_.pressable, true);
+    // And the control row's own dropdown is gone: the card shows the mode
+    // once, where the answer put it.
+    assert.equal((await look('Mode under the name')).modeMenu, false);
+
+    // Pick another mode from that line, and let the entity answer for it: a
+    // `change_action` written to the signature the tables used to document
+    // sends the call without an `entity_id`, which Home Assistant refuses and
+    // the dashboard does not show at all - the console carries it and nothing
+    // else does.
+    await card.evaluate(node => {
+      const fan = node.shadowRoot
+        .querySelector('mc-secondary-info')
+        .shadowRoot.querySelector('mc-fan-mode-secondary');
+      fan.shadowRoot.querySelector('.mc-dropdown__button').click();
+    });
+
+    await until(async () => {
+      const picked = await card.evaluate(node => {
+        const fan = node.shadowRoot
+          .querySelector('mc-secondary-info')
+          .shadowRoot.querySelector('mc-fan-mode-secondary');
+        const menu = fan.shadowRoot.querySelector('mc-menu');
+        const item = menu?.shadowRoot.querySelector('[data-value="cool"]');
+        if (!item) return false;
+        item.click();
+        return true;
+      });
+      return picked || null;
+    });
+
+    const state = await until(async () => {
+      const now = await entity(bench.tokens, bench.ids.bench_ac);
+      return now.state === 'cool' ? now.state : null;
+    });
+    assert.equal(state, 'cool');
+
+    const after_ = await until(async () => {
+      const now = await line();
+      return now.label === 'Cool' ? now : null;
+    });
+    assert.equal(after_.label, 'Cool');
+  });
+
   it('moves the fan mode dropdown into the control row, working (location)', async () => {
     // `fan_mode` is pushed into `config.buttons` under that id, so the option
     // that moves a button moves it too - and it arrives as a dropdown, which
