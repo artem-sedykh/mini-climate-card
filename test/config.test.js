@@ -358,6 +358,15 @@ describe('the hvac mode', () => {
     card.initDefaultHvacModeSource();
     expect(card.hvacMode.source.map(s => s.id)).toEqual(['off', 'cool']);
   });
+
+  it('takes hide as a boolean, like every other hide in this card', () => {
+    // The first line of the answer to #160: a unit with two modes hides the
+    // dropdown and toggles the mode from a button instead. `hide` here is
+    // read off the model rather than off the configuration, because a boolean
+    // is turned into a function instead of being compiled as a template.
+    expect(build({}).card.hvacMode.hide).toBe(false);
+    expect(build({ hvac_mode: { hide: true } }).card.hvacMode.hide).toBe(true);
+  });
 });
 
 describe('temperature and target temperature', () => {
