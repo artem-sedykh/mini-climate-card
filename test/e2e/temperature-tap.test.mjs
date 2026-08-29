@@ -28,10 +28,7 @@ describe('a tap on a temperature reading (#65)', () => {
   // `mc-temperature`, because `.state__value` is also what an indicator
   // renders.
   const readings = index =>
-    cards
-      .nth(index)
-      .locator('mc-temperature .state__value')
-      .filter({ hasNotText: '/' });
+    cards.nth(index).locator('mc-temperature .state__value').filter({ hasNotText: '/' });
 
   // Which entity the dialog is showing. `entityId` on the dialog is null at
   // the moment it opens, and its `textContent` is empty because everything is
