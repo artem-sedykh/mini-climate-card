@@ -6,8 +6,16 @@
 // card asked for the same, both agreed, and no Home Assistant had answered
 // either for years. Every label on a real dashboard was drawn as its raw id.
 //
-// On an English dashboard the difference is one capital letter, which is why
-// the report was filed as a question about German.
+// **Nothing here names a translation key, and nothing here names an English
+// word.** The card is compared with `hass.formatEntityState` and
+// `hass.formatEntityAttributeValue` - the frontend's own formatters, the ones
+// the built-in thermostat card draws with. So the claim under test is "the
+// card says what Home Assistant would say", which stays true when the strings
+// are rewritten, when the dashboard is in German, and - the reason it is
+// written this way - when Home Assistant moves the keys again. A test that
+// spelled out `component.climate.entity_component._.state.cool` would go on
+// passing against the very move it exists to catch, because it would be
+// asking the same dead key as the card.
 import { after, before, describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { dialogs, open, until } from '../bench/browser.mjs';
@@ -18,6 +26,33 @@ describe('the labels Home Assistant has for the entity (#133)', () => {
   let bench;
   let session;
   let card;
+
+  // What the frontend itself would draw for this entity, asked of the frontend.
+  const asHomeAssistantWouldDrawIt = () =>
+    card.evaluate(node => {
+      const hass = document.querySelector('home-assistant').hass;
+      const stateObj = hass.states[node.climate.id];
+
+      // The oracle is an API of the frontend like any other, so its absence is
+      // news rather than a reason to skip: it arrived in 2023.9 and the card
+      // reads the same translations through it.
+      if (typeof hass.formatEntityState !== 'function') return { missing: true };
+
+      return {
+        modes: (stateObj.attributes.hvac_modes || []).map(mode => ({
+          id: mode,
+          label: hass.formatEntityState(stateObj, mode),
+        })),
+        fanMode: {
+          id: stateObj.attributes.fan_mode,
+          label: hass.formatEntityAttributeValue(stateObj, 'fan_mode'),
+        },
+        hvacAction: {
+          id: stateObj.attributes.hvac_action,
+          label: hass.formatEntityAttributeValue(stateObj, 'hvac_action'),
+        },
+      };
+    });
 
   before(async () => {
     bench = await prepare();
@@ -39,34 +74,30 @@ describe('the labels Home Assistant has for the entity (#133)', () => {
     if (session) await session.close();
   });
 
-  it('translates the fan mode on the secondary info line', async () => {
-    // Asserted against what Home Assistant itself would draw rather than
-    // against a mode by name: the bench is long-lived and the scenarios before
-    // this one leave the entity on whichever fan mode they picked. Comparing
-    // with `localize` also keeps the assertion honest in English, where the
-    // difference between a translation and the raw id is one capital letter.
-    const shown = await card.evaluate(node => {
-      const hass = document.querySelector('home-assistant').hass;
-      const raw = hass.states[node.climate.id].attributes.fan_mode;
-      const secondary = node.shadowRoot.querySelector('mc-secondary-info');
-      const fan = secondary.shadowRoot.querySelector('mc-fan-mode-secondary');
+  it('has an oracle to compare against, and it says something', async () => {
+    const ha = await asHomeAssistantWouldDrawIt();
+    assert.equal(ha.missing, undefined, 'hass.formatEntityState is gone; this suite needs it');
 
-      return {
-        raw,
-        label: fan.shadowRoot.querySelector('.name')?.textContent.trim() ?? null,
-        expected: hass.localize(
-          `component.climate.entity_component._.state_attributes.fan_mode.state.${raw}`,
-        ),
-      };
-    });
-
-    assert.equal(shown.label, shown.expected, JSON.stringify(shown));
-    // And not vacuously: an empty translation would make the two agree on the
-    // fallback, which is the state this issue is about.
-    assert.notEqual(shown.label, shown.raw, JSON.stringify(shown));
+    // Not vacuous: on a Home Assistant with no strings at all every formatted
+    // value would equal its id, and every assertion below would pass while the
+    // card drew nothing but ids - which is the bug.
+    const translated = ha.modes.filter(mode => mode.label !== mode.id);
+    assert.ok(translated.length > 0, `nothing is translated at all: ${JSON.stringify(ha)}`);
   });
 
-  it('translates the modes in the dropdown', async () => {
+  it('draws the fan mode as Home Assistant draws it', async () => {
+    const ha = await asHomeAssistantWouldDrawIt();
+
+    const label = await card.evaluate(node => {
+      const secondary = node.shadowRoot.querySelector('mc-secondary-info');
+      const fan = secondary.shadowRoot.querySelector('mc-fan-mode-secondary');
+      return fan.shadowRoot.querySelector('.name')?.textContent.trim() ?? null;
+    });
+
+    assert.equal(label, ha.fanMode.label, JSON.stringify({ label, ha: ha.fanMode }));
+  });
+
+  it('draws every mode in the dropdown as Home Assistant draws it', async () => {
     const menu = card.locator('mc-mode-menu');
 
     await menu.evaluate(node => {
@@ -85,25 +116,24 @@ describe('the labels Home Assistant has for the entity (#133)', () => {
       return found.length ? found : null;
     });
 
-    // The entity reports off, cool, heat, dry and fan_only. Two of them are
-    // asserted by name; `fan_only` is asserted as "not the id", because the
-    // string Home Assistant uses for it is the kind of thing that gets
-    // rewritten between releases and this test is not about its wording.
-    assert.ok(labels.includes('Cool'), labels.join(' | '));
-    assert.ok(labels.includes('Heat'), labels.join(' | '));
-    assert.ok(!labels.includes('fan_only'), `an untranslated id in ${labels.join(' | ')}`);
+    const ha = await asHomeAssistantWouldDrawIt();
+    assert.deepEqual(
+      labels,
+      ha.modes.map(mode => mode.label),
+    );
 
     await session.page.keyboard.press('Escape');
   });
 
-  it('translates the hvac action', async () => {
+  it('reads the hvac action as Home Assistant reads it', async () => {
     // The model rather than the rendering: `hvac-action` is a secondary info
     // type no card on this view is using, and what is under test is the label
-    // it would draw - the same `getLabel` call, on the same real translations.
+    // it would draw - the same `getLabel` call, on the same translations.
+    const ha = await asHomeAssistantWouldDrawIt();
     const action = await card.evaluate(node => node.climate.hvacAction);
 
-    assert.equal(action.id, 'cooling');
-    assert.equal(action.name, 'Cooling');
+    assert.equal(action.id, ha.hvacAction.id);
+    assert.equal(action.name, ha.hvacAction.label);
   });
 
   it('reports nothing to the console while doing it', async () => {

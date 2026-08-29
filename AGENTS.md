@@ -348,8 +348,11 @@ so only the bench can check it** (#133): every stub in `test/` answers the keys
 it was written with, so a fixture and the card agreed for years about a Home
 Assistant that no longer existed, while every label on a real dashboard was
 drawn as its raw id. `test/e2e/labels.test.mjs` asks the running frontend
-instead, and compares what the card drew with what `hass.localize` answers
-rather than with a string spelled out in the test.
+instead, and compares what the card drew with **`hass.formatEntityState` and
+`hass.formatEntityAttributeValue`** - the frontend's own formatters, the ones
+the built-in cards draw with. Naming neither a key nor an English word is the
+point: a test that spelled out today's key would go on passing through the next
+move of the keys, because it would be asking the same dead key as the card.
 
 ## How a card configuration is resolved
 
