@@ -11,3 +11,11 @@ default_config:
 
 logger:
   default: warning
+
+# Themes are here for one question the card cannot answer in its own config:
+# what colour its background is (#164). A theme is the native way to set the
+# variables it reads, and the only one the bench can exercise - `card_mod`,
+# which is how most reporters set them for a single card, is a third-party
+# resource this bench deliberately does not carry.
+frontend:
+  themes: !include_dir_merge_named themes

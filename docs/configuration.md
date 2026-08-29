@@ -178,10 +178,16 @@ Can be specified by color name, hexadecimal, rgb, rgba, hsl, hsla, basically any
 |---------------------------------|-----------------------------------------------------------------------|---------------------------------|
 | mini-climate-name-font-weight   | 400                                                                   | Font weight of the entity name  |
 | mini-climate-info-font-weight   | 300                                                                   | Font weight of the states       |
-| mini-climate-icon-color         | --mini-humidifier-base-color, var(--paper-item-icon-color, #44739e)   | The color for icons             |
-| mini-climate-button-color       | --mini-humidifier-button-color, var(--paper-item-icon-color, #44739e) | The color for buttons icons     |
+| mini-climate-icon-color         | var(--mini-climate-base-color, var(--paper-item-icon-color, #44739e)) | The color for icons             |
+| mini-climate-button-color       | var(--paper-item-icon-color, #44739e)                                 | The color for buttons icons     |
 | mini-climate-accent-color       | var(--accent-color)                                                   | The accent color of UI elements |
-| mini-climate-base-color         | var(--primary-text-color) & var(--paper-item-icon-color)              | The color of base text          |
+| mini-climate-base-color         | var(--primary-text-color, #000)                                       | The color of base text, and what the icon color falls back to |
 | mini-climate-background-opacity | 1                                                                     | Opacity of the background       |
 | mini-climate-scale              | 1                                                                     | Scale of the card               |
 | mini-climate-card-box-shadow    | var(--ha-card-box-shadow, none)                                       | The card shadow                 |
+
+The card also honours Home Assistant's own card variables - `ha-card-background`,
+`ha-card-border-radius`, `ha-card-border-width` and `ha-card-border-color`. Those
+are what the background of the card is made of, and setting `background` on
+`ha-card` directly does not reach it: see
+[A translucent card](examples.md#a-translucent-card).
