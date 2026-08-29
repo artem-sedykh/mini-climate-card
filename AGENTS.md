@@ -150,6 +150,15 @@ TypeScript migration and nothing noticed - `mkdocs build --strict` checks the
 links between pages of the site, not the paths a sentence names, and it never
 sees this file at all.
 
+**`npm run check:version`** - `scripts/check-readme-version.mjs`. Every `?v=`
+in `README.md` names the version in `package.json`, and no download link is
+pinned to a release tag. Both rot in silence: the cache-buster is the only
+thing that makes a browser fetch an updated card from `/local`, which Home
+Assistant serves with a month-long `max-age`, so a stale number copied out of
+the README makes the next update look like it did nothing - and the `wget` line
+named `v2.2.1` until v3.3.0, so following the CLI instructions in 2026
+downloaded a bundle from 2022. Seen failing both ways.
+
 **`npm run check:options`** - `scripts/check-docs-options.mjs`, over the keys
 of `RawCardConfig`, the `secondary_info` types the component switches on, and
 the option table in `docs/configuration.md`. Every option the card reads has to
@@ -728,7 +737,10 @@ master makes the next release a minor however small the rest of it is.
 
 1. Bump `version` in `package.json`. It carries a `v` prefix here (`"v2.7.4"`),
    which is unusual but load-bearing: the README badge reads it, and `cd.yml`
-   fails the release if it disagrees with the tag.
+   fails the release if it disagrees with the tag. The `?v=` in the README's
+   install instructions moves with it - `npm run check:version` fails the build
+   until it does, which is the only reason it will not be forgotten. It was
+   `2.21` and `2.2.1` for the whole of 3.x.
 2. Rewrite the summary paragraph of `release_notes/v<version>.md` to say what
    the release turned out to be about. The release job reads that exact path
    and fails if it is missing, and it is also what HACS shows in its update
