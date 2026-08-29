@@ -226,8 +226,15 @@ and a percentage speaking for both would be one nobody could act on. The script
 refuses to write anything when the summary is missing or has no line coverage
 in it. It measures the unit layer only, and the
 thresholds are set to what the suite reaches today rather than to a round
-number. The number is held down by `src/main.ts` at 68%, half of which is
-render methods that only run in a browser; the models are at 95%.
+number. `src/main.ts` used to hold it down at 68%; what was missing there was
+the deciding rather than the drawing - the classes and styles a render is
+handed, the name, what a press does, the two sources filled in `firstUpdated`
+rather than in `setConfig`, and what `getStubConfig` inserts from the picker.
+All of it answers plain objects and events, so `test/card-logic.test.js` covers
+it without rendering anything, and the file is at 86%. The rest of it is the
+render methods, and they stay in `test/browser/`, which renders them in two
+engines: asserting on a lit template here would be a number rather than a
+check. The models are at 96%.
 
 `test/menu.test.js` covers the card's own menu under jsdom - when it opens,
 when it closes, and what it reports when an option is picked. What jsdom

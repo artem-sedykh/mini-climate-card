@@ -33,13 +33,21 @@ export default defineConfig({
         // say "this must not slide" rather than "aim here". Raise them when
         // coverage rises.
         //
-        // The number is held down by src/main.js, which is at 68%: half of it
-        // is render methods that only run in a browser. The models, which are
-        // where a wrong attribute or a crossed argument hides, are at 95%.
-        statements: 82,
-        branches: 74,
-        functions: 72,
-        lines: 83,
+        // `src/main.ts` used to hold this down at 68%. What was missing was
+        // not the drawing but the deciding - the classes, the styles, the
+        // name, what a press does, the two sources filled after the first
+        // update, and what the card picker inserts. All of that answers plain
+        // objects and events, so it is unit-testable, and it is now at 86%.
+        //
+        // What is left there is the render methods, and they stay left: they
+        // name Home Assistant elements that exist only in a browser, and
+        // `test/browser/` renders them in two engines. Chasing those last
+        // points here would mean asserting on lit templates instead of on
+        // what a card draws.
+        statements: 88,
+        branches: 79,
+        functions: 81,
+        lines: 89,
       },
     },
   },
