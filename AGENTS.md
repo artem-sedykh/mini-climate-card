@@ -651,12 +651,34 @@ fault that shows up as a doubled call rather than as an error.
 
 ## Releasing
 
+**The notes are written as the changes land, not at the end.** There is always
+a `release_notes/v<next>.md` on master with no release behind it yet, and a
+pull request that changes something a user can see adds its entry to that file
+in the same commit as the change. `scripts/build-changelog.mjs` skips a file
+whose version is ahead of `package.json`, so an unreleased note sits there
+without reaching `CHANGELOG.md`. Notes reconstructed from a log after the fact
+say what changed; notes written beside the change say why, which is the half a
+person upgrading actually needs.
+
+Whether the next one is a minor or a patch is decided by what has landed since
+the last tag, not by the size of the change being released. One `feat:` on
+master makes the next release a minor however small the rest of it is.
+
 1. Bump `version` in `package.json`. It carries a `v` prefix here (`"v2.7.4"`),
-   which is unusual but load-bearing: the README badge reads it.
-2. Write `release_notes/v<version>.md`. The release job reads that exact path
-   and fails if it is missing.
-3. Tag `v<version>` and push the tag. `.github/workflows/cd.yml` builds and
+   which is unusual but load-bearing: the README badge reads it, and `cd.yml`
+   fails the release if it disagrees with the tag.
+2. Rewrite the summary paragraph of `release_notes/v<version>.md` to say what
+   the release turned out to be about. The release job reads that exact path
+   and fails if it is missing, and it is also what HACS shows in its update
+   dialog.
+3. Regenerate the changelog - `npm run changelog` - in the same commit as the
+   bump. Until `package.json` moves, the entry for this version is skipped, so
+   it appears only now. CI checks the file is current.
+4. Tag `v<version>` and push the tag. `.github/workflows/cd.yml` builds and
    publishes the bundle with that file as the release body.
+5. **Open the next `release_notes/v<next>.md` straight away**, empty, so the
+   next change has somewhere to write itself down. A release that ends without
+   one is how notes start being reconstructed afterwards.
 
 ### The documentation
 
