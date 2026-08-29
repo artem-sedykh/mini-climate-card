@@ -157,12 +157,16 @@ thing that makes a browser fetch an updated card from `/local`, which Home
 Assistant serves with a month-long `max-age`, so a stale number copied out of
 the README makes the next update look like it did nothing - and the `wget` line
 named `v2.2.1` until v3.3.0, so following the CLI instructions in 2026
-downloaded a bundle from 2022. Seen failing both ways.
+downloaded a bundle from 2022. Seen failing both ways. CI runs it as its own
+step, before the browsers are installed - it needs neither a build nor a
+browser (#314). `release-prepare.yml` rewrites the README along with
+`package.json`; this is what says so when the two drift anyway.
 
 **`npm run check:options`** - `scripts/check-docs-options.mjs`, over the keys
 of `RawCardConfig`, the `secondary_info` types the component switches on, and
 the option table in `docs/configuration.md`. Every option the card reads has to
-be documented, and every option the table names has to be read.
+be documented, and every option the table names has to be read. CI runs it
+as its own step for the same reason as `check:version` (#314).
 
 The second direction is the one that matters: a row describing an option the
 card does not have is worse than a missing row, because a reader trusts it. The
@@ -209,10 +213,19 @@ model classes in `src/models/`, the helpers in `src/utils/`, every branch of
 configuration merge, from the user's YAML end.
 
 `test/config.test.js` and `test/handle-click.test.js` ask for jsdom with a
-`@vitest-environment` docblock; the rest do not pay for it. The first
-constructs the card element, which works without a DOM because `setConfig`
-only reads and merges - nothing renders, so the Home Assistant elements are
-never needed.
+`@vitest-environment` docblock; so does `test/documented-contract.test.js`.
+The rest do not pay for it. The first two construct the card element, which
+works without a DOM because `setConfig` only reads and merges - nothing
+renders, so the Home Assistant elements are never needed.
+
+That last one is not about the card so much as about the pages that describe
+it. `docs/functions.md` (and `tap-action.md`, `secondary-info.md`) is written
+as the contract an assistant configures against, which makes each of its
+claims a thing that can quietly stop being true - `this` still being the
+option's YAML, `call_service` still missing from an indicator, `change_action`
+still receiving `selected` then `state` then `entity`. Every test in it is
+one sentence from those pages, written as YAML text rather than as a function,
+since that is the only form the documentation can show.
 
 Two things that suite pins down are worth knowing before changing them:
 
@@ -735,12 +748,32 @@ Whether the next one is a minor or a patch is decided by what has landed since
 the last tag, not by the size of the change being released. One `feat:` on
 master makes the next release a minor however small the rest of it is.
 
-1. Bump `version` in `package.json`. It carries a `v` prefix here (`"v2.7.4"`),
+Run the **Prepare a release** workflow (`workflow_dispatch`,
+`.github/workflows/release-prepare.yml`) with the version, without the leading
+`v`. It checks the release notes exist and are not empty, that the tag is new
+and the version ahead of the current one, bumps `package.json` and the `?v=`
+in the README, rebuilds `CHANGELOG.md` and pushes `release/<version>`. The run
+summary links to the pull request form.
+
+**Open that pull request by hand.** A pull request opened with `GITHUB_TOKEN`
+does not trigger other workflows - GitHub blocks that to stop workflows
+recursing - so the required "Lint, test and build" check would never report on
+it and it could not be merged at all. One click, and the checks then run as they
+do for any branch.
+
+Then merge it, tag `v<version>` (`git tag -a`, the annotated form) and push the
+tag. After the tag: open `release_notes/v<next>.md`, close the `v<version>`
+milestone and open `v<next>` - the two steps the workflow cannot do, and the
+two that get forgotten.
+
+By hand, if the workflow is not available:
+
+1. Bump `version` in `package.json`. It carries a `v` prefix here (`"v3.3.0"`),
    which is unusual but load-bearing: the README badge reads it, and `cd.yml`
    fails the release if it disagrees with the tag. The `?v=` in the README's
    install instructions moves with it - `npm run check:version` fails the build
    until it does, which is the only reason it will not be forgotten. It was
-   `2.21` and `2.2.1` for the whole of 3.x.
+   `2.21` and `2.2.1` for the whole of 3.x. The workflow does both in one step.
 2. Rewrite the summary paragraph of `release_notes/v<version>.md` to say what
    the release turned out to be about. The release job reads that exact path
    and fails if it is missing, and it is also what HACS shows in its update
@@ -748,8 +781,9 @@ master makes the next release a minor however small the rest of it is.
 3. Regenerate the changelog - `npm run changelog` - in the same commit as the
    bump. Until `package.json` moves, the entry for this version is skipped, so
    it appears only now. CI checks the file is current.
-4. Tag `v<version>` and push the tag. `.github/workflows/cd.yml` builds and
-   publishes the bundle with that file as the release body.
+4. Tag `v<version>` (`git tag -a v<version> -m "v<version>"`) and push the tag.
+   `.github/workflows/cd.yml` builds and publishes the bundle with that file as
+   the release body.
 5. **Open the next `release_notes/v<next>.md` straight away**, empty, so the
    next change has somewhere to write itself down. A release that ends without
    one is how notes start being reconstructed afterwards.

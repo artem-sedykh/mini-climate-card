@@ -84,6 +84,21 @@ jobs:
         # for the whole of the TypeScript migration (#244).
         run: npm run check:docs
 
+      - name: The README names the version this repository is at
+        # `?v=` in the install instructions is the only cache-buster a person
+        # has, and it said 2.21 and 2.2.1 for the whole of 3.x. A check that
+        # only runs when someone types `npm run build` locally will not catch
+        # the next one (#314).
+        run: npm run check:version
+
+      - name: Every option the card reads is documented
+        # The other direction of the same kind of drift: a row describing an
+        # option the card does not have, or an option the card reads that the
+        # table never named. `collapse` was the second of those, for six years.
+        # Needs neither a build nor a browser, so it sits with the other
+        # documentation checks (#314).
+        run: npm run check:options
+
       - name: Changelog
         # CHANGELOG.md is generated from release_notes/; this fails if the two
         # drift. It needs neither a build nor a browser, so it starts as early

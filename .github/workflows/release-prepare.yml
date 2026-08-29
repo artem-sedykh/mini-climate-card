@@ -1,0 +1,167 @@
+# Prepares a release: everything up to the pull request, none of the typing.
+#
+# Releasing by hand is: bump `version` in package.json, write the release notes,
+# open a pull request, merge it, tag, push the tag. The checks that catch the
+# mistakes already exist in cd.yml - it refuses a tag whose version does not
+# match package.json, and a tag with no release notes file - but they fire at
+# tag time, which is the latest possible moment. The tag is already pushed when
+# the build says the notes are missing, so the fix is a deleted tag rather than
+# an edit.
+#
+# This runs the same checks first, then does the mechanical part.
+#
+# **It stops at a pushed branch on purpose.** A pull request opened with
+# GITHUB_TOKEN does not trigger other workflows - GitHub blocks that to stop
+# workflows recursing - so the required "Lint, test and build" check would never
+# report on it, and the pull request could not be merged at all. Opening it by
+# hand takes one click on the link in the run summary and the checks then run as
+# they do for any other branch.
+#
+# Tagging stays manual and stays after the merge. The point was never to release
+# without a human; it is that the human should be reading the release notes
+# rather than editing a version string and remembering the order of six steps.
+
+name: Prepare a release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release, without the leading v (for example 3.4.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          # The tag check below needs them, and a shallow checkout has none.
+          fetch-depth: 0
+
+      - name: Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: The version has to look like a version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if ! printf '%s' "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Version must be MAJOR.MINOR.PATCH without a leading v. Got: $VERSION"
+            exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: The release notes have to exist, and say something
+        run: |
+          notes="release_notes/v${VERSION}.md"
+          if [ ! -f "$notes" ]; then
+            echo "Missing $notes. Write the release notes first - they are the release body,"
+            echo "and they are what HACS shows in its update dialog."
+            exit 1
+          fi
+          if [ ! -s "$notes" ]; then
+            echo "$notes is empty."
+            exit 1
+          fi
+
+      - name: The version has to be a new one, and ahead of the current one
+        run: |
+          if git rev-parse -q --verify "refs/tags/v${VERSION}" >/dev/null; then
+            echo "Tag v${VERSION} already exists."
+            exit 1
+          fi
+
+          current=$(node -p "require('./package.json').version.replace(/^v/, '')")
+          if [ "$current" = "$VERSION" ]; then
+            echo "package.json is already at $VERSION."
+            exit 1
+          fi
+          # sort -V puts them in version order; the current one must come first.
+          first=$(printf '%s\n%s\n' "$current" "$VERSION" | sort -V | head -1)
+          if [ "$first" != "$current" ]; then
+            echo "Version $VERSION is behind the current $current."
+            exit 1
+          fi
+
+      - name: Bump the version and rebuild the changelog
+        run: |
+          # A regex on the one line, rather than reading and re-serialising the
+          # file: JSON.stringify would reformat everything around it.
+          node -e '
+            const fs = require("fs");
+            const file = "package.json";
+            const before = fs.readFileSync(file, "utf8");
+            const after = before.replace(
+              /^(\s*"version":\s*")[^"]*(",)$/m,
+              `$1v${process.env.VERSION}$2`,
+            );
+            if (after === before) {
+              console.error("Could not find the version line in package.json.");
+              process.exit(1);
+            }
+            fs.writeFileSync(file, after);
+          '
+          # The install instructions carry the same version, and `check:version`
+          # fails the release pull request if they disagree. Bumped here rather
+          # than left to whoever opens it.
+          node -e '
+            const fs = require("fs");
+            const file = "README.md";
+            const before = fs.readFileSync(file, "utf8");
+            const after = before.replace(/\?v=[\w.-]+/g, `?v=${process.env.VERSION}`);
+            if (after === before) {
+              console.error("No `?v=` in README.md to bump.");
+              process.exit(1);
+            }
+            fs.writeFileSync(file, after);
+          '
+          npm run changelog
+
+      - name: Push the release branch
+        run: |
+          branch="release/${VERSION}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          # README.md is the install instructions: the bump above rewrites `?v=`,
+          # and `check:version` fails the pull request if the file is not in the
+          # commit. Leaving it out is how the sister card's copy of this workflow
+          # would have shipped a branch that CI refused.
+          git add package.json CHANGELOG.md README.md
+          git commit -m "build: release ${VERSION}"
+          git push origin "$branch"
+          echo "BRANCH=$branch" >> "$GITHUB_ENV"
+
+      - name: Say what to do next
+        run: |
+          {
+            echo "### Release ${VERSION} is ready for a pull request"
+            echo ""
+            echo "Branch \`${BRANCH}\` is pushed, with the version bumped and the"
+            echo "changelog rebuilt."
+            echo ""
+            echo "[Open the pull request](https://github.com/${GITHUB_REPOSITORY}/compare/master...${BRANCH}?expand=1)"
+            echo "- opening it by hand is what makes the checks run, see the comment at the"
+            echo "top of this workflow."
+            echo ""
+            echo "After it is merged:"
+            echo ""
+            echo '```'
+            echo "git checkout master && git pull"
+            echo "git tag -a v${VERSION} -m 'v${VERSION}'"
+            echo "git push origin v${VERSION}"
+            echo '```'
+            echo ""
+            echo "Then open \`release_notes/\` for the next version, close the"
+            echo "\`v${VERSION}\` milestone and open the next - the two steps this"
+            echo "workflow cannot do, and the two that get forgotten."
+          } >> "$GITHUB_STEP_SUMMARY"
