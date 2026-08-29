@@ -17,11 +17,47 @@ Every function gets the same four arguments, in this order, whatever it is:
 | `hvac_mode` | the mode the card is showing (`{ id, name }`, or nothing if none is selected) |
 
 Functions that take something instead of, or in addition to, `state` are noted
-below. `this` inside a function is the option's own YAML, so anything written
-beside the function is readable from it. `this.toggle_state(...)` is on every
-option; `this.call_service(...)` is on the ones that act - buttons and target
-temperature, not indicators. See
-[the template context](buttons.md#buttons-functions).
+below. What `this` is - the option's own YAML, extra keys included - is
+[`this`](#this).
+
+## `this` {#this}
+
+`this` is the option the function belongs to - the YAML, as written. A key the
+card does not recognise is data, not an error: a topic, a price, a lookup
+table. That is the extension point, and it is why `icon.items` works.
+
+Because the context is the **whole** option, a nested map keeps its path.
+`this.items` would look on the button, where there is no such key:
+
+```yaml
+type: custom:mini-climate
+entity: climate.dahatsu
+fan_mode:
+  hide: true
+  icon:
+    items:
+      auto: 'mdi:fan-auto'
+      low: 'mdi:fan-speed-1'
+      medium: 'mdi:fan-speed-2'
+      high: 'mdi:fan-speed-3'
+    template: >
+      (state) => this.icon.items[state] || 'mdi:fan'
+```
+
+The exception is the card's own `icon`: there `this` is the icon object, so
+extra keys are `this.items`. See [fan-mode-dropdown](secondary-info.md#fan-mode-dropdown)
+and [icon](configuration.md#icon).
+
+The card then adds three names of its own:
+
+| name | what it is | on |
+|---|---|---|
+| `toggle_state(state)` | the opposite of `on` / `off` | buttons, indicators, target temperature |
+| `call_service(domain, service, options)` | a Home Assistant service call | buttons and target temperature |
+| `entity_config` | the whole card configuration | the same, and the entity icon |
+
+An indicator does not get `call_service`: it displays. A `secondary_info` or
+`toggle` hide function sees only its own YAML.
 
 ## source:__filter {#source__filter}
 

@@ -81,8 +81,9 @@ secondary_info: fan-mode-dropdown
 
 The dropdown under the name draws `fan_mode`'s icon. A template can pick a
 different glyph per mode; `items` is data the template reads back through
-`this`. Hide the fan_mode button so the same control is not on the card
-twice.
+`this` as `this.icon.items`, because the context is the whole `fan_mode`
+option, not the nested `icon` object. See [`this`](functions.md#this). Hide
+the fan_mode button so the same control is not on the card twice.
 
 A string on `secondary_info.icon` replaces this and freezes the glyph, which
 is why that key is left off here.

@@ -25,12 +25,16 @@
 `source` - dropdown source object array: [ { id: 'id', name: 'name' }, ... ]  
 `selected_value` -  selected dropdown value  
 
-**execution context methods:**  
+**execution context methods:**
 
 | Name           | arguments                 | description                                             | return type |
 |----------------|---------------------------|---------------------------------------------------------|-------------|
-| `toggle_state` | sate                      | toggle state, example: `this.toggle_state('on') => off` | string      |
+| `toggle_state` | state                     | toggle state, example: `this.toggle_state('on') => off` | string      |
 | `call_service` | domain, service, options, | call Home Assistant service                             | promise     |
+| `entity_config` |                    | the whole card configuration                              | object      |
+
+A key the card does not recognise is on `this` as well - that is how
+`icon.items` is read. See [`this`](functions.md#this).
 
 ## dropdown
 > Consider an example swing_mode configuration:

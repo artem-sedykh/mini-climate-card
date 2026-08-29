@@ -99,8 +99,10 @@ a real question in the tracker, which is why they are worth checking first:
   none of it. Every example in these pages is an arrow.
 - **An unknown key is not an error.** The configuration is open at the leaves -
   anything written beside a template is handed to that template as
-  `this.<key>`, which is how options of your own are passed in. The cost is
-  that a misspelled option is not rejected, it just never does anything.
+  `this.<key>`, which is how options of your own are passed in. Nested maps keep
+  their path (`this.icon.items`, not `this.items`). The cost is that a
+  misspelled option is not rejected, it just never does anything. See
+  [`this`](functions.md#this).
 - **A broken configuration is a red square.** Home Assistant draws
   `hui-error-card`, 56px high, and shows no message on it - the text goes to
   the browser console. If a card renders as a red bar, open the console before
