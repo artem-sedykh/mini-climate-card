@@ -150,8 +150,10 @@ template, the way `items` works on a button icon.
 
 A string `icon` still tints the glyph while the unit is on (`isActive` follows
 HVAC mode). When `style` is present it owns the colour instead, so idle can
-look idle while the mode stays `heat`. The entity icon's colour rule is not
-`!important`, unlike `hvac_mode.style`.
+look idle while the mode stays `heat`. A style that does not set `color`
+leaves the icon uncoloured (`--mc-icon-color`): the tint is dropped on the
+presence of `style`, not on the presence of a colour in it. The entity icon's
+colour rule is not `!important`, unlike `hvac_mode.style`.
 
 ```yaml
 # a fixed glyph

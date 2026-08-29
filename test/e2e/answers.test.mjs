@@ -58,9 +58,20 @@ describe('the answers people were given', () => {
       return {
         icon: !!root.querySelector('.entity__icon'),
         entityIcon: root.querySelector('.entity__icon ha-icon')?.icon ?? null,
-        entityIconColour: (() => {
-          const entityIcon = root.querySelector('.entity__icon');
-          return entityIcon ? getComputedStyle(entityIcon).color : null;
+        // The wrap's `color` is not the glyph: `--icon-primary-color` paints
+        // `ha-svg-icon` and leaves the wrap reporting the template's colour
+        // (#162, #287). The bench is the layer that has a real `ha-icon`.
+        entityIconGlyphColour: (() => {
+          const icon = root.querySelector('.entity__icon ha-icon');
+          if (!icon?.shadowRoot) return null;
+          const svg =
+            icon.shadowRoot.querySelector('svg') ??
+            icon.shadowRoot.querySelector('ha-svg-icon')?.shadowRoot?.querySelector('svg');
+          if (!svg) return null;
+          const fill = getComputedStyle(svg).fill;
+          if (fill && fill !== 'none') return fill;
+          const path = svg.querySelector('path');
+          return path ? getComputedStyle(path).fill : fill;
         })(),
         entityIconActive: root.querySelector('.entity__icon')?.hasAttribute('color') ?? false,
         nameText: root.querySelector('.entity__info__name')?.textContent.trim() ?? null,
@@ -271,22 +282,28 @@ describe('the answers people were given', () => {
 
     const heating = await until(async () => {
       const now = await look('Entity icon by action');
-      return now && now.entityIcon === 'mdi:radiator' && now.entityIconColour === 'rgb(255, 0, 0)'
+      return now &&
+        now.entityIcon === 'mdi:radiator' &&
+        now.entityIconGlyphColour === 'rgb(255, 0, 0)'
         ? now
         : null;
     });
     assert.equal(heating.entityIcon, 'mdi:radiator');
-    assert.equal(heating.entityIconColour, 'rgb(255, 0, 0)');
+    assert.equal(heating.entityIconGlyphColour, 'rgb(255, 0, 0)');
     assert.equal(heating.entityIconActive, false, 'style owns the colour; isActive must not tint');
 
     await publish(bench.tokens, 'bench/ac/action', 'idle');
 
     const idle = await until(async () => {
       const now = await look('Entity icon by action');
-      return now && now.entityIcon === 'mdi:radiator-off' ? now : null;
+      return now &&
+        now.entityIcon === 'mdi:radiator-off' &&
+        now.entityIconGlyphColour === 'rgb(128, 128, 128)'
+        ? now
+        : null;
     });
     assert.equal(idle.entityIcon, 'mdi:radiator-off');
-    assert.equal(idle.entityIconColour, 'rgb(128, 128, 128)');
+    assert.equal(idle.entityIconGlyphColour, 'rgb(128, 128, 128)');
     assert.equal(idle.entityIconActive, false);
   });
 
