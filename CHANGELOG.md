@@ -9,6 +9,135 @@
 Every release of this card, newest first. Each heading links to the release it
 came from, where the asset and the date are.
 
+## [v3.3.0](https://github.com/artem-sedykh/mini-climate-card/releases/tag/v3.3.0)
+
+This release is what a card looks like after it is finally read against a
+running Home Assistant rather than against its own tests.
+
+The three fixes below were all invisible to a green test suite. The modes, the
+fan speeds and the action had not been translated for years, in any language,
+because Home Assistant moved the keys and every fixture in this repository
+named the same dead ones the card did. An indicator with `round` drew the text
+`NaN` whenever its sensor was unavailable, which every sensor is sooner or
+later. And `round` on a whole number dropped the decimal point, so a column of
+indicators changed width with the reading.
+
+What is new is small and asked for: a tap action on either temperature, so the
+sensor a reading comes from is one press away, and the entity icon on the left
+can follow state with a template the way an indicator's already could.
+
+The documentation has a Recipes section now - the questions this tracker gets
+asked more than once, each with the YAML, a picture, and a card on the test
+bench, so an answer fails a run when it stops being true. Three of the requests
+this release closed were closed by writing one, without a line of card code.
+
+### Added
+
+- **The left entity icon as a template.** `icon` was a string. Indicators and
+  buttons already take `{ template, style }`; the entity icon is the one that
+  could not follow state. A zigbee2mqtt thermostat that stays in `heat` can
+  now pick its glyph and colour from `hvac_action`, and a unit that uses
+  `preset_mode` can do the same.
+  [#38](https://github.com/artem-sedykh/mini-climate-card/issues/38)
+  [#42](https://github.com/artem-sedykh/mini-climate-card/issues/42)
+  [#295](https://github.com/artem-sedykh/mini-climate-card/issues/295)
+- **`fixed` on an indicator.** `round` answers a number, so a reading that
+  rounds to a whole one drops its decimal point - `23.01` at `round: 1` reads
+  `23` - and a column of indicators in a vertical stack changes width with the
+  reading. `fixed: 1` reads `23.0` and keeps the width. `temperature` has taken
+  `fixed` since v1.2.2; an indicator now takes it too, and `fixed` wins when
+  both are written.
+  [#163](https://github.com/artem-sedykh/mini-climate-card/issues/163)
+- **A tap action on either temperature reading.** The entity name and every
+  indicator have taken a `tap_action` for years; the two temperatures beside
+  them took none, so a tap on `22 / 24` reached nothing at all.
+  `temperature.tap_action` and `target_temperature.tap_action` take the same
+  action object, and the same string shorthand. Both default to `none`, so a
+  card that says nothing about them is untouched - the pointer cursor
+  included. `more-info` opens the entity the reading comes from, which is the
+  point of it: when `temperature.source.entity` names a sensor of its own, that
+  sensor's history was not reachable from the card at all. Hold and double tap
+  are not part of this
+  ([#104](https://github.com/artem-sedykh/mini-climate-card/issues/104)).
+  [#65](https://github.com/artem-sedykh/mini-climate-card/issues/65)
+
+### Fixed
+
+- **The modes, the fan speeds and the action are translated again.** Home
+  Assistant moved the strings for an entity's state and its attributes under
+  `component.<domain>.entity_component.*`, and the keys this card asked for -
+  `state.climate.*` and `state_attributes.climate.*` - answer nothing on any
+  current version. Every one of those labels was drawn as the raw id instead:
+  `cool` where the thermostat card draws `Cool`, and `cool` on a German
+  dashboard that has `Kuehlbetrieb` sitting in Home Assistant unread. It
+  affects the mode dropdown, the `hvac-mode` and `hvac-action` secondary info
+  lines and the fan speeds. On an English dashboard the difference is one
+  capital letter, which is why it was reported as a question about German and
+  stayed open for four years. The old keys are still asked for, after the
+  current ones, for an installation old enough to answer them.
+  [#133](https://github.com/artem-sedykh/mini-climate-card/issues/133)
+
+- **An unavailable sensor no longer reads `NaN`.** An indicator with `round`
+  set drew the literal text `NaN` for any reading arithmetic cannot be done on
+  - `unavailable`, `unknown`, a clock, a fan mode. The guard read
+  `Number.isNaN(value) === false`, which does not coerce, so every text state
+  passed it and reached the rounding. `round` appears 17 times in this
+  project's own examples, and every sensor is unavailable at some point. The
+  temperature had the same defect, visible when `temperature.source.entity`
+  points the reading at an entity other than the climate one.
+  [#298](https://github.com/artem-sedykh/mini-climate-card/issues/298)
+
+### Documentation
+
+- The documentation is published for assistants as well as for people:
+  [llms.txt](https://artem-sedykh.github.io/mini-climate-card/llms.txt) as an
+  index and
+  [llms-full.txt](https://artem-sedykh.github.io/mini-climate-card/llms-full.txt)
+  as every page in one file, both generated at build time from the pages
+  themselves. Cards are increasingly written with Claude, Cursor or ChatGPT,
+  and none of them know this card well enough to invent options for it
+  ([#292](https://github.com/artem-sedykh/mini-climate-card/issues/292)).
+- A page on doing exactly that -
+  [AI assistants](https://artem-sedykh.github.io/mini-climate-card/ai-assistants/) -
+  with what to check in what comes back: the mode control is always a dropdown,
+  templates have to be arrow functions, an unknown key is ignored rather than
+  refused, and a broken configuration is a red square with the message in the
+  browser console.
+
+- The mode under the name with its label, in
+  [Examples](https://artem-sedykh.github.io/mini-climate-card/examples/): the
+  answer to a request for an `hvac-mode-dropdown` secondary info type, which
+  turned out to need no new type - `fan_mode` is a button, so it can be pointed
+  at the modes and drawn in the line that shows a control with its name
+  ([#194](https://github.com/artem-sedykh/mini-climate-card/issues/194)).
+- The argument list for a button's `change_action` was wrong in two tables:
+  it is handed `(selected_value, state, entity, ...)`, and the tables omitted
+  `state`. Following them put the state where the entity was expected, so the
+  service call went out with no entity and Home Assistant refused it - with
+  nothing on the dashboard to say so.
+- A press instead of the mode dropdown, in
+  [Examples](https://artem-sedykh.github.io/mini-climate-card/examples/): the
+  mode control is always a menu, and a unit with two modes is better served by
+  hiding it and putting a button in its place
+  ([#160](https://github.com/artem-sedykh/mini-climate-card/issues/160)). Like
+  the other recipes it is a card on the test bench with a scenario asserting
+  it.
+- The fan mode in the top row, in the same place: `fan_mode` takes `location`
+  like any other button, and the caveat that comes with it is that the
+  secondary info line shows the fan mode by default, so a card that moves the
+  dropdown up says it twice.
+- The sensor behind the temperature, one tap away, in
+  [Examples](https://artem-sedykh.github.io/mini-climate-card/examples/): what
+  `temperature.tap_action` is for, with the picture being the dialog rather
+  than the card, because a card with a tap action looks exactly like a card
+  without one. A card on the bench and a scenario assert it, as the other
+  recipes do.
+- `location` now has an example of its own in
+  [Buttons](https://artem-sedykh.github.io/mini-climate-card/buttons/) and in
+  [Controls](https://artem-sedykh.github.io/mini-climate-card/controls/). It
+  was only ever a row in the option table, so the top row of the card read as
+  somewhere `fan_mode` could go and no other button could.
+
 ## [v3.2.0](https://github.com/artem-sedykh/mini-climate-card/releases/tag/v3.2.0)
 
 A visual editor for the card, `scale` that finally scales the icons too, and
