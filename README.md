@@ -84,6 +84,7 @@ and the same pages are in [`docs/`](https://github.com/artem-sedykh/mini-climate
 | [Tap action](https://github.com/artem-sedykh/mini-climate-card/blob/master/docs/tap-action.md) | what a tap does, with examples |
 | [Secondary info](https://github.com/artem-sedykh/mini-climate-card/blob/master/docs/secondary-info.md) | the line under the name, and its types |
 | [Examples](https://github.com/artem-sedykh/mini-climate-card/blob/master/docs/examples.md) | a complete configuration |
+| [AI assistants](https://github.com/artem-sedykh/mini-climate-card/blob/master/docs/ai-assistants.md) | writing a card with Claude, Cursor or ChatGPT, and what to check in what it writes |
 | [Development](https://github.com/artem-sedykh/mini-climate-card/blob/master/docs/development.md) | building the card, and what to do when it errors |
 | [Visual editor](https://github.com/artem-sedykh/mini-climate-card/blob/master/docs/visual-editor-parameters.md) | which options the built-in UI editor exposes, and which stay YAML-only |
 
