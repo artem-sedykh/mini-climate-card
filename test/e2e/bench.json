@@ -110,6 +110,21 @@
     },
     {
       "domain": "sensor",
+      "id": "bench_room_temperature",
+      "discovery": {
+        "name": "Bench room temperature",
+        "unique_id": "bench_room_temperature",
+        "object_id": "bench_room_temperature",
+        "state_topic": "bench/room_temperature",
+        "unit_of_measurement": "°C",
+        "device_class": "temperature"
+      },
+      "state": {
+        "bench/room_temperature": "22.7"
+      }
+    },
+    {
+      "domain": "sensor",
       "id": "bench_humidity",
       "discovery": {
         "name": "Bench humidity",
@@ -838,6 +853,17 @@
               "action": "more-info",
               "entity": "{{bench_trv}}"
             }
+          }
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": "Reading from a sensor",
+          "temperature": {
+            "source": {
+              "entity": "{{bench_room_temperature}}"
+            },
+            "tap_action": "more-info"
           }
         },
         {

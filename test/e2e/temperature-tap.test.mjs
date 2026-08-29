@@ -7,7 +7,7 @@
 // says the event was dispatched and nothing about who hears it. This layer is
 // where "the dialog opened" can be asserted.
 //
-// The view holds two cards, and the second one is the point: a detector that
+// The view holds three cards, and the last one is the point: a detector that
 // answers "open" to anything would pass every assertion below without it
 // (#188 and the three wrong answers recorded in ha-live-testing).
 import { after, before, describe, it } from 'node:test';
@@ -93,11 +93,23 @@ describe('a tap on a temperature reading (#65)', () => {
     await close();
   });
 
+  it('opens the sensor the reading comes from, not the climate entity', async () => {
+    // The case the request was about, and the recipe in docs/examples.md: a
+    // current temperature read from a sensor of its own, whose history is not
+    // reachable from the card without this.
+    await readings(1).nth(1).click();
+
+    const text = await until(async () => (await showing()) || null);
+    assert.match(text, /Bench room temperature/);
+
+    await close();
+  });
+
   it('opens nothing from a card that did not ask for it', async () => {
     // The control. Both readings of a card with no tap_action, which is every
     // card that existed before this option.
     for (const index of [0, 1]) {
-      await readings(1).nth(index).click();
+      await readings(2).nth(index).click();
     }
     await session.page.waitForTimeout(1500);
 

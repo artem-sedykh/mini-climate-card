@@ -39,6 +39,10 @@ entity unless a `source: entity` names another one. That is the case this
 exists for: a current temperature taken from a separate sensor has its own
 history, and nothing else on the card leads to it.
 
+Everything the card's own `tap_action` can do works here too - `navigate`,
+`call-service`, or a `fire-dom-event` popup as in the
+[examples below](#tap-action-example).
+
 ```yaml
 # the history of the sensor the reading comes from
 type: custom:mini-climate
