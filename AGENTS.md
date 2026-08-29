@@ -157,12 +157,15 @@ thing that makes a browser fetch an updated card from `/local`, which Home
 Assistant serves with a month-long `max-age`, so a stale number copied out of
 the README makes the next update look like it did nothing - and the `wget` line
 named `v2.2.1` until v3.3.0, so following the CLI instructions in 2026
-downloaded a bundle from 2022. Seen failing both ways.
+downloaded a bundle from 2022. Seen failing both ways. CI runs it as its own
+step, before the browsers are installed - it needs neither a build nor a
+browser (#314).
 
 **`npm run check:options`** - `scripts/check-docs-options.mjs`, over the keys
 of `RawCardConfig`, the `secondary_info` types the component switches on, and
 the option table in `docs/configuration.md`. Every option the card reads has to
-be documented, and every option the table names has to be read.
+be documented, and every option the table names has to be read. CI runs it
+as its own step for the same reason as `check:version` (#314).
 
 The second direction is the one that matters: a row describing an option the
 card does not have is worse than a missing row, because a reader trusts it. The
