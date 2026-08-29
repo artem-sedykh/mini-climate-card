@@ -18,7 +18,8 @@ indicators:
 
 ## round and fixed
 
-`round` gives a number and `fixed` gives a string with that many decimals kept:
+`round` drops everything past the decimals you asked for. `fixed` always shows
+that many, so a reading of `48.02` stays `48.0` instead of turning into `48`:
 
 ```yaml
 indicators:
@@ -30,10 +31,10 @@ indicators:
       entity: sensor.humidity
 ```
 
-A reading of `48.02` shows as `48.0` with `fixed: 1` and as `48` with
-`round: 1` - so a column of indicators keeps its width only with `fixed`. Both
-leave a reading that is not a number alone, so an unavailable sensor reads
-`unavailable`. See [round and fixed](configuration.md#round-and-fixed).
+Which matters when several cards sit above one another - the value's width
+stops changing with the reading, so the indicators line up. See
+[round and fixed](configuration.md#round-and-fixed) and the
+[recipe](examples.md#indicators-that-line-up-in-a-stack).
 
 ## indicator functions
 

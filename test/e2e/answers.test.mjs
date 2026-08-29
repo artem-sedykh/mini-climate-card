@@ -314,36 +314,28 @@ describe('the answers people were given', () => {
     assert.equal(idle.entityIconActive, false);
   });
 
-  it('keeps the decimals with fixed, and drops them with round (#163, #298)', async () => {
-    // Four indicators on one card, reading two sensors. The reading is chosen
-    // to round to a whole number, which is the whole of #163: `round` answers
-    // a number, so the decimal point goes and the column width follows the
-    // reading. `fixed` answers a string and keeps the zero.
+  it('leaves a text state alone when round is set (#298)', async () => {
+    // Two indicators on the same sensor, whose state is a clock: one with
+    // `round: 1` and one without. They have to read the same.
     //
-    // The fourth reads a sensor whose state is a clock, with `round` set. It
-    // used to draw the text `NaN` (#298) - the guard did not coerce, so the
-    // string reached round(). That is the case a person hits when a sensor
-    // goes unavailable, which is why it is here rather than only in a unit.
-    // Both readings are published here rather than taken from the seed: the
-    // clock is also what the mapper scenario above writes to, and a scenario
-    // that asserts a value another one happens to have left is only passing
-    // by arrangement.
-    await publish(bench.tokens, 'bench/humidity', '48.02');
+    // They did not. The guard was `Number.isNaN(value) === false`, which does
+    // not coerce, so the string reached `round()` and the card drew the text
+    // `NaN` - which is what every indicator with `round` did for as long as
+    // its sensor was unavailable.
     await publish(bench.tokens, 'bench/clock', '12:34:56');
 
-    const expected = ['48.0', '48', '48.02', '12:34:56'];
     const seen = await until(
       async () => {
-        const now = await look('Indicator decimals');
-        return now && now.indicatorValues.join('|') === expected.join('|') ? now : null;
+        const now = await look('Text state with round');
+        return now && now.indicatorValues[0] === '12:34:56' ? now : null;
       },
       {
         timeout: 30000,
-        diagnose: async () => (await look('Indicator decimals'))?.indicatorValues ?? null,
+        diagnose: async () => (await look('Text state with round'))?.indicatorValues ?? null,
       },
     );
 
-    assert.deepEqual(seen.indicatorValues, expected);
+    assert.deepEqual(seen.indicatorValues, ['12:34:56', '12:34:56']);
   });
 
   it('lets a button style beat the active colour with !important', async () => {

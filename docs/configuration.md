@@ -180,42 +180,29 @@ icon:
 
 ### round and fixed
 
-Two ways to shorten a reading, and they are not the same.
+Both shorten a reading. They differ in one case: when the reading has no
+fraction left to show.
 
-`round` answers a **number**, so a reading that rounds to a whole one loses its
-decimal point: at `round: 1`, `23.74` reads `23.7` and `23.01` reads `23`. The
-width of the value then depends on the reading, which is what makes a column of
-indicators in a vertical stack jump about
-([#163](https://github.com/artem-sedykh/mini-climate-card/issues/163)).
+- `round: 1` - a humidity of `48.02` reads **`48`**, and `48.37` reads `48.4`
+- `fixed: 1` - `48.02` reads **`48.0`**, and `48.37` reads `48.4`
 
-`fixed` answers a **string** with exactly that many decimals, zeros included:
-at `fixed: 1`, `23.74` reads `23.7` and `23.01` reads `23.0`. The width is the
-same whatever the reading is. `temperature` has taken `fixed` since v1.2.2;
-an indicator takes it from v3.3.0.
+That is the whole difference, and it is not about the number. The width of the
+value changes with it, and everything drawn to the right of it moves along - so
+in a column of cards the indicators stop lining up. See
+[Indicators that line up in a stack](examples.md#indicators-that-line-up-in-a-stack)
+for what that looks like ([#163](https://github.com/artem-sedykh/mini-climate-card/issues/163)).
 
-When both are written, `fixed` wins - as it already does for `temperature`.
+`temperature` has taken `fixed` since v1.2.2; an indicator takes it from
+v3.3.0. When both are written, `fixed` wins.
 
-```yaml
-type: custom:mini-climate
-entity: climate.my_ac
-indicators:
-  temperature:
-    icon: mdi:thermometer
-    unit: "°C"
-    fixed: 1
-    source:
-      entity: sensor.room_temperature
-  humidity:
-    icon: mdi:water-percent
-    unit: "%"
-    fixed: 1
-    source:
-      entity: sensor.room_humidity
-```
-
-Neither option touches a reading that is not a number: an indicator whose
-sensor is `unavailable` reads `unavailable`, not `NaN`
+Neither touches a reading that is not a number, so an indicator whose sensor is
+`unavailable` reads `unavailable` rather than `NaN`
 ([#298](https://github.com/artem-sedykh/mini-climate-card/issues/298)).
+
+If you write templates on the value, note that `fixed` hands them a string and
+`round` hands them a number. Comparisons still work either way, because
+JavaScript converts (`value > 50`), but a call like `value.toFixed(1)` does not
+exist on a string.
 
 ### hide_icon
 
