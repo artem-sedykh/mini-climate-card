@@ -107,6 +107,14 @@ export interface IndicatorConfig {
   icon?: string | IconConfig;
   unit?: string;
   round?: number;
+  /**
+   * Decimals to keep, trailing zeros and all - `TemperatureConfig` has had
+   * this since v1.2.2 and an indicator had only `round`, which drops the
+   * decimal point whenever a reading rounds to a whole number and makes a
+   * column of indicators jump about (#163). Wins over `round` when both are
+   * written, the same way it does for the temperature.
+   */
+  fixed?: number;
   // Not optional: `getIndicatorConfig` normalises a missing one to
   // `{ action: 'none' }`, so by the time an indicator model sees it there is
   // always one.

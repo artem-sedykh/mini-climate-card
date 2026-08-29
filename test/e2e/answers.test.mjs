@@ -55,8 +55,15 @@ describe('the answers people were given', () => {
         ? (deep(modeMenu.shadowRoot, 'ha-icon')[0] ?? deep(modeMenu.shadowRoot, 'ha-svg-icon')[0])
         : null;
 
+      const allValues = indicators
+        ? [...indicators.shadowRoot.querySelectorAll('.state__value')].map(node =>
+            node.textContent.trim(),
+          )
+        : [];
+
       return {
         icon: !!root.querySelector('.entity__icon'),
+        indicatorValues: allValues,
         entityIcon: root.querySelector('.entity__icon ha-icon')?.icon ?? null,
         // The wrap's `color` is not the glyph: `--icon-primary-color` paints
         // `ha-svg-icon` and leaves the wrap reporting the template's colour
@@ -305,6 +312,30 @@ describe('the answers people were given', () => {
     assert.equal(idle.entityIcon, 'mdi:radiator-off');
     assert.equal(idle.entityIconGlyphColour, 'rgb(128, 128, 128)');
     assert.equal(idle.entityIconActive, false);
+  });
+
+  it('leaves a text state alone when round is set (#298)', async () => {
+    // Two indicators on the same sensor, whose state is a clock: one with
+    // `round: 1` and one without. They have to read the same.
+    //
+    // They did not. The guard was `Number.isNaN(value) === false`, which does
+    // not coerce, so the string reached `round()` and the card drew the text
+    // `NaN` - which is what every indicator with `round` did for as long as
+    // its sensor was unavailable.
+    await publish(bench.tokens, 'bench/clock', '12:34:56');
+
+    const seen = await until(
+      async () => {
+        const now = await look('Text state with round');
+        return now && now.indicatorValues[0] === '12:34:56' ? now : null;
+      },
+      {
+        timeout: 30000,
+        diagnose: async () => (await look('Text state with round'))?.indicatorValues ?? null,
+      },
+    );
+
+    assert.deepEqual(seen.indicatorValues, ['12:34:56', '12:34:56']);
   });
 
   it('lets a button style beat the active colour with !important', async () => {

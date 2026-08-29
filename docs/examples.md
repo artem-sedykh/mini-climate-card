@@ -245,6 +245,45 @@ icon:
 
 ![the entity icon drawn as a blue snowflake while the unit is cooling](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/entity-icon-by-action.png)
 
+### Indicators that line up in a stack
+
+`round` gives a number, so a reading with nothing left after the decimal point
+loses it: at `round: 1` a temperature of 24 reads `24`, while 21.5 reads
+`21.5`. The value is then narrower on one card than on the other, and every
+indicator to the right of it shifts along. Put a few of these cards above one
+another and the columns are ragged.
+
+`fixed` shows the decimals whether there is anything in them or not, so the
+width stops depending on the reading.
+
+```yaml
+type: custom:mini-climate
+entity: climate.thermostat
+indicators:
+  temperature:
+    icon: mdi:thermometer
+    unit: "°C"
+    fixed: 1
+    source:
+      attribute: current_temperature
+  humidity:
+    icon: mdi:water-percent
+    unit: "%"
+    fixed: 1
+    source:
+      entity: sensor.room_humidity
+```
+
+![four cards in a column: the two on round have their humidity column out of line, the two on fixed line up](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/indicator-decimals.png)
+
+The top two cards use `round: 1`. One of them reads a whole 24 degrees, so its
+value is the narrower of the two and its humidity sits 11px to the left of the
+card below it. The bottom two use `fixed: 1`: 24 reads `24.0`, and the columns
+line up.
+
+Both leave a reading that is not a number alone, so a sensor that goes
+`unavailable` reads `unavailable` rather than `NaN`.
+
 ### A press instead of the mode dropdown
 
 The mode control is a dropdown and nothing else: `hvac_mode` is built like any

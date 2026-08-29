@@ -97,6 +97,7 @@
 | indicators: `name:unit`                   | string                              | optional     | v1.0.1 | Display unit                                                                                                  |
 | indicators: `name:unit`                   | function                            | optional     | v3.1.0 | [Unit template](functions.md#unit_template)                                                                   |
 | indicators: `name:round`                  | number                              | optional     | v1.0.1 | Rounding number value                                                                                         |
+| indicators: `name:fixed`                  | number                              | optional     | v3.3.0 | Decimals to keep, trailing zeros and all, see [round and fixed](#round-and-fixed)                              |
 | indicators: `name:hide`                   | boolean                             | optional     | v2.5.0 | Hide indicator, default value `False`                                                                         |
 | indicators: `name:hide`                   | function                            | optional     | v2.5.0 | Custom hide indicator function                                                                                |
 | indicators: `name:source`                 | number                              | optional     | v1.0.1 | Data source                                                                                                   |
@@ -176,6 +177,32 @@ icon:
         : 'var(--mc-icon-color)',
     })
 ```
+
+### round and fixed
+
+Both shorten a reading. They differ in one case: when the reading has no
+fraction left to show.
+
+- `round: 1` - a humidity of `48.02` reads **`48`**, and `48.37` reads `48.4`
+- `fixed: 1` - `48.02` reads **`48.0`**, and `48.37` reads `48.4`
+
+That is the whole difference, and it is not about the number. The width of the
+value changes with it, and everything drawn to the right of it moves along - so
+in a column of cards the indicators stop lining up. See
+[Indicators that line up in a stack](examples.md#indicators-that-line-up-in-a-stack)
+for what that looks like ([#163](https://github.com/artem-sedykh/mini-climate-card/issues/163)).
+
+`temperature` has taken `fixed` since v1.2.2; an indicator takes it from
+v3.3.0. When both are written, `fixed` wins.
+
+Neither touches a reading that is not a number, so an indicator whose sensor is
+`unavailable` reads `unavailable` rather than `NaN`
+([#298](https://github.com/artem-sedykh/mini-climate-card/issues/298)).
+
+If you write templates on the value, note that `fixed` hands them a string and
+`round` hands them a number. Comparisons still work either way, because
+JavaScript converts (`value > 50`), but a call like `value.toFixed(1)` does not
+exist on a string.
 
 ### hide_icon
 

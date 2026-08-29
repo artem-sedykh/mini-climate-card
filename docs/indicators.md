@@ -16,6 +16,26 @@ indicators:
       entity: sensor.humidity
 ```
 
+## round and fixed
+
+`round` drops everything past the decimals you asked for. `fixed` always shows
+that many, so a reading of `48.02` stays `48.0` instead of turning into `48`:
+
+```yaml
+indicators:
+  humidity:
+    icon: mdi:water-percent
+    unit: "%"
+    fixed: 1
+    source:
+      entity: sensor.humidity
+```
+
+Which matters when several cards sit above one another - the value's width
+stops changing with the reading, so the indicators line up. See
+[round and fixed](configuration.md#round-and-fixed) and the
+[recipe](examples.md#indicators-that-line-up-in-a-stack).
+
 ## indicator functions
 
 > Consider configuring an indicator using javascript

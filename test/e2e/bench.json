@@ -454,6 +454,26 @@
         {
           "type": "custom:mini-climate",
           "entity": "{{bench_ac}}",
+          "name": "Text state with round",
+          "indicators": {
+            "rounded": {
+              "icon": "mdi:clock-outline",
+              "source": {
+                "entity": "{{bench_clock}}"
+              },
+              "round": 1
+            },
+            "bare": {
+              "icon": "mdi:clock-outline",
+              "source": {
+                "entity": "{{bench_clock}}"
+              }
+            }
+          }
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
           "name": "Button colour",
           "buttons": {
             "eco": {
@@ -693,6 +713,113 @@
               }
             }
           }
+        }
+      ]
+    },
+    {
+      "title": "Indicator decimals",
+      "cards": [
+        {
+          "type": "vertical-stack",
+          "cards": [
+            {
+              "type": "custom:mini-climate",
+              "entity": "{{bench_ac}}",
+              "name": "AC (round)",
+              "indicators": {
+                "temperature": {
+                  "icon": "mdi:thermometer",
+                  "unit": "°C",
+                  "round": 1,
+                  "source": {
+                    "attribute": "current_temperature"
+                  }
+                },
+                "humidity": {
+                  "icon": "mdi:water-percent",
+                  "unit": "%",
+                  "round": 1,
+                  "source": {
+                    "entity": "{{bench_humidity}}"
+                  }
+                }
+              }
+            },
+            {
+              "type": "custom:mini-climate",
+              "entity": "{{bench_trv}}",
+              "name": "Valve (round)",
+              "indicators": {
+                "temperature": {
+                  "icon": "mdi:thermometer",
+                  "unit": "°C",
+                  "round": 1,
+                  "source": {
+                    "attribute": "current_temperature"
+                  }
+                },
+                "humidity": {
+                  "icon": "mdi:water-percent",
+                  "unit": "%",
+                  "round": 1,
+                  "source": {
+                    "entity": "{{bench_humidity}}"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "vertical-stack",
+          "cards": [
+            {
+              "type": "custom:mini-climate",
+              "entity": "{{bench_ac}}",
+              "name": "AC (fixed)",
+              "indicators": {
+                "temperature": {
+                  "icon": "mdi:thermometer",
+                  "unit": "°C",
+                  "fixed": 1,
+                  "source": {
+                    "attribute": "current_temperature"
+                  }
+                },
+                "humidity": {
+                  "icon": "mdi:water-percent",
+                  "unit": "%",
+                  "fixed": 1,
+                  "source": {
+                    "entity": "{{bench_humidity}}"
+                  }
+                }
+              }
+            },
+            {
+              "type": "custom:mini-climate",
+              "entity": "{{bench_trv}}",
+              "name": "Valve (fixed)",
+              "indicators": {
+                "temperature": {
+                  "icon": "mdi:thermometer",
+                  "unit": "°C",
+                  "fixed": 1,
+                  "source": {
+                    "attribute": "current_temperature"
+                  }
+                },
+                "humidity": {
+                  "icon": "mdi:water-percent",
+                  "unit": "%",
+                  "fixed": 1,
+                  "source": {
+                    "entity": "{{bench_humidity}}"
+                  }
+                }
+              }
+            }
+          ]
         }
       ]
     }

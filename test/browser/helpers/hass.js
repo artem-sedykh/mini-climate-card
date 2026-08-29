@@ -79,6 +79,10 @@ export const createHass = ({ state = 'heat', attributes = {} } = {}) => {
       [ENTITY_ID, entity],
       sensor('humidity', '45', '%'),
       sensor('power', '850', 'W'),
+      // A sensor that is not answering, which is the state every sensor takes
+      // sooner or later. `round` used to turn it into the text `NaN` (#298),
+      // and only a rendered card shows that.
+      sensor('offline', 'unavailable', 'W'),
       [
         'switch.bedroom_plug',
         {
