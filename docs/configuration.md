@@ -12,6 +12,9 @@
 | name                                      | string                              | optional     | v1.0.1 | Override the entities friendly name                                                                           |
 | group                                     | boolean                             | optional     | v1.0.2 | Removes border, paddings, background color and box-shadow                                                     |
 | icon                                      | string                              | optional     | v1.0.1 | Specify a custom icon from any of the available mdi icons                                                     |
+| icon                                      | object                              | optional     | v3.3.0 | Icon object, see [icon](#icon)                                                                                |
+| icon: `template`                          | function                            | optional     | v3.3.0 | Icon template function                                                                                        |
+| icon: `style`                             | function                            | optional     | v3.3.0 | Styles for the entity icon                                                                                    |
 | swap_temperatures                         | boolean                             | optional     | V2.1.1 | Swap the current and the target temperature in the card                                                       |
 | hide_icon                                 | boolean                             | optional     | v3.0.0 | Hide the entity icon on the left, default value `False`                                                       |
 | hide_icon                                 | function                            | optional     | v3.0.0 | Custom hide the entity icon function, see [hide_icon](#hide_icon)                                             |
@@ -124,6 +127,55 @@
 | buttons: `name:style`                     | function                            | optional     | v1.0.1 | Styles                                                                                                        |
 | tap_action                                | [action object](tap-action.md#tap-action-object) | true         | v1.0.4 | Action on click/tap, [tap_action](tap-action.md#tap-action-example)                                                        |
 | scale                                     | number                              | optional     | v1.0.1 | UI scale modifier, default is `1`. See [A bigger card](examples.md#a-bigger-card)                             |
+
+### icon
+
+The left entity icon. A string is a fixed mdi name. An object is the same
+`{ template, style }` [an indicator already takes](functions.md#icon_template):
+the glyph and its colour follow the climate entity, which is what
+[#38](https://github.com/artem-sedykh/mini-climate-card/issues/38) and
+[#42](https://github.com/artem-sedykh/mini-climate-card/issues/42) asked for.
+
+| Name        | Type     | execution context | arguments                 | return type          |
+|-------------|----------|-------------------|---------------------------|----------------------|
+| `template`  | function | icon config       | climate_entity, hvac_mode | string               |
+| `style`     | function | icon config       | climate_entity, hvac_mode | object               |
+
+`climate_entity` - climate entity
+`hvac_mode` - current hvac_mode
+
+Arguments match `hide_icon`: the left icon has no value of its own, so it
+reads the climate entity. Extra keys on the object are `this.<key>` from the
+template, the way `items` works on a button icon.
+
+A string `icon` still tints the glyph while the unit is on (`isActive` follows
+HVAC mode). When `style` is present it owns the colour instead, so idle can
+look idle while the mode stays `heat`. A style that does not set `color`
+leaves the icon uncoloured (`--mc-icon-color`): the tint is dropped on the
+presence of `style`, not on the presence of a colour in it. The entity icon's
+colour rule is not `!important`, unlike `hvac_mode.style`.
+
+```yaml
+# a fixed glyph
+type: custom:mini-climate
+entity: climate.thermostat
+icon: mdi:radiator
+
+# glyph and colour from hvac_action
+type: custom:mini-climate
+entity: climate.thermostat
+icon:
+  template: >
+    (entity) => entity.attributes.hvac_action === 'heating'
+      ? 'mdi:radiator'
+      : 'mdi:radiator-off'
+  style: >
+    (entity) => ({
+      color: entity.attributes.hvac_action === 'heating'
+        ? 'var(--mc-icon-active-color)'
+        : 'var(--mc-icon-color)',
+    })
+```
 
 ### hide_icon
 

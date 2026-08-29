@@ -212,6 +212,39 @@ hvac_mode:
 
 ![the mode icon drawn in blue while the unit is cooling](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/mode-icon-by-action.png)
 
+### The entity icon following what the unit is doing
+
+The left icon is a string by default, and its tint follows HVAC mode
+(`isActive`), so a thermostat that stays in `heat` looks on even while
+`hvac_action` is idle. That is [#38](https://github.com/artem-sedykh/mini-climate-card/issues/38)
+and the same hole as [#42](https://github.com/artem-sedykh/mini-climate-card/issues/42)
+for `preset_mode`.
+
+`icon` takes the `{ template, style }` object indicators already have.
+Arguments are `(climate_entity, hvac_mode)`, matching `hide_icon`. When
+`style` is present it owns the colour, so idle can look idle; the entity
+icon's colour rule is not `!important`, unlike the mode icon above.
+
+```yaml
+icon:
+  template: >
+    (entity) => entity.attributes.hvac_action === 'heating'
+      ? 'mdi:radiator'
+      : entity.attributes.hvac_action === 'cooling'
+        ? 'mdi:snowflake'
+        : 'mdi:radiator-off'
+  style: >
+    (entity) => ({
+      color: entity.attributes.hvac_action === 'heating'
+        ? 'rgb(255, 0, 0)'
+        : entity.attributes.hvac_action === 'cooling'
+          ? 'rgb(0, 0, 255)'
+          : 'rgb(128, 128, 128)',
+    })
+```
+
+![the entity icon drawn as a blue snowflake while the unit is cooling](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/entity-icon-by-action.png)
+
 ### A press instead of the mode dropdown
 
 The mode control is a dropdown and nothing else: `hvac_mode` is built like any

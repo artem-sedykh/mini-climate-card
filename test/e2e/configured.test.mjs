@@ -456,7 +456,20 @@ describe('a card written the way people write them', () => {
     // All three indicators render here only once their entities are in
     // `hass.states`; a fresh bench registers bench entities asynchronously, so
     // assert the count only after it has settled (flaky #275).
-    await until(async () => ((await states.count()) >= 3 ? true : null));
+    //
+    // Thirty seconds rather than the default ten, for the reason the
+    // `power_switch` wait was raised in v3.2.0: on a bench that has just come
+    // up the fixtures register more slowly than the ten seconds allow, and the
+    // pinned version loses that race while `latest` wins it. The `diagnose`
+    // is the other half - a bare timeout reports `last value null`, which does
+    // not tell "no indicators yet" from "two of the three".
+    await until(async () => ((await states.count()) >= 3 ? true : null), {
+      timeout: 30000,
+      diagnose: async () => ({
+        indicators: await states.count(),
+        rendered: await states.allTextContents(),
+      }),
+    });
 
     for (const index of [0, 1]) {
       await states.nth(index).click();

@@ -91,6 +91,10 @@ an icon that follows the state rather than being fixed. `fan_mode` is a button,
 so the same form applies there - including the dropdown under the name, see
 [fan-mode-dropdown](secondary-info.md#fan-mode-dropdown).
 
+The card's own `icon` takes the same object. Arguments there are
+`(climate_entity, hvac_mode)`, matching `hide_icon`, because the left icon has
+no value of its own. See [icon](configuration.md#icon).
+
 | argument | what it is |
 |---|---|
 | `state` | the value the option reads (mapped, for a button) |

@@ -284,11 +284,26 @@ export default class MiniClimateEditor extends LitElement {
     const data: Record<string, any> = {};
     for (let i = 0; i < BASIC_KEYS.length; i += 1) {
       const k = BASIC_KEYS[i];
-      if (this.config[k] !== undefined) {
-        data[k] = this.config[k];
-      }
+      if (this.config[k] === undefined) continue;
+      // An object `icon` is a template, not an mdi name. The icon selector
+      // cannot show it, and handing it over would stringify it into the
+      // picker and write a string back over the YAML (#38).
+      if (k === 'icon' && typeof this.config[k] === 'object') continue;
+      data[k] = this.config[k];
     }
     return data;
+  }
+
+  /**
+   * The basic form omits the icon picker when `icon` is a template object,
+   * for the same reason `_basicData` skips it: a picker that cannot represent
+   * the value must not be given a chance to replace it.
+   */
+  private _basicSchema(): SchemaEntry[] {
+    if (this.config.icon && typeof this.config.icon === 'object') {
+      return BASIC_SCHEMA.filter(entry => entry.name !== 'icon');
+    }
+    return BASIC_SCHEMA;
   }
 
   /** Return the stored tap_action, defaulting action to 'more-info'. */
@@ -325,6 +340,10 @@ export default class MiniClimateEditor extends LitElement {
     const newConfig = { ...this.config };
     for (let i = 0; i < BASIC_KEYS.length; i += 1) {
       const k = BASIC_KEYS[i] as string;
+      // The icon field is off the form when it is a template object, so
+      // `updated.icon` is missing. Treating that as "cleared" would delete
+      // the YAML the picker cannot edit.
+      if (k === 'icon' && typeof this.config.icon === 'object') continue;
       if (updated[k] !== undefined && updated[k] !== '') {
         (newConfig as Record<string, any>)[k] = updated[k];
       } else {
@@ -438,7 +457,7 @@ export default class MiniClimateEditor extends LitElement {
       <ha-form
         .hass=${this.hass}
         .data=${this._basicData()}
-        .schema=${BASIC_SCHEMA}
+        .schema=${this._basicSchema()}
         .computeLabel=${this._computeLabel}
         @value-changed=${this._basicChanged}
       ></ha-form>

@@ -13,7 +13,7 @@ Parameters that require JavaScript function strings (`change_action`, `active`, 
 |---|---|---|
 | `entity` | entity picker | Required. Climate or fan entity (`climate.*` / `fan.*`) |
 | `name` | text | Optional override for the entity's friendly name |
-| `icon` | icon picker | Custom MDI icon (e.g. `mdi:air-conditioner`) |
+| `icon` | icon picker | Custom MDI icon (e.g. `mdi:air-conditioner`). A `{ template, style }` object is YAML-only: the picker is omitted so it cannot overwrite it |
 | `group` | toggle | Remove card background, padding and box-shadow |
 | `scale` | number (0.5 - 3) | UI scale modifier (affects `--mc-unit` CSS variable) |
 | `swap_temperatures` | toggle | Swap the current and target temperature positions |

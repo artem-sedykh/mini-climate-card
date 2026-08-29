@@ -90,10 +90,21 @@ export interface ConfigFunctions {
   unit?: { template?: Template<string> };
 }
 
+/**
+ * `{ template, style }` as the user writes it, for an indicator, a button,
+ * or the card's own left icon. Extra keys are data the template reads
+ * through `this` - `items` on a button is the existing case.
+ */
+export interface IconConfig {
+  template?: string;
+  style?: string;
+  [key: string]: any;
+}
+
 export interface IndicatorConfig {
   id: string;
   source: Source;
-  icon?: string | { template?: string; style?: string };
+  icon?: string | IconConfig;
   unit?: string;
   round?: number;
   // Not optional: `getIndicatorConfig` normalises a missing one to
@@ -106,7 +117,7 @@ export interface IndicatorConfig {
 export interface ButtonConfig {
   id: string;
   type?: string;
-  icon?: string | { template?: string; style?: string };
+  icon?: string | IconConfig;
   order?: number;
   location?: string;
   state?: Source;
@@ -154,7 +165,7 @@ export interface TargetTemperatureConfig {
 export interface RawCardConfig {
   entity: string;
   name?: string;
-  icon?: string;
+  icon?: string | IconConfig;
   scale?: number;
   group?: boolean;
   swap_temperatures?: boolean;
@@ -208,6 +219,7 @@ export interface CardConfig {
    * indicators. Before #234 the two spellings behaved differently.
    */
   tap_action: TapAction;
+  icon?: string | IconConfig;
   hide_current_temperature?: boolean | string;
   hide_icon?: boolean | string;
   [key: string]: any;

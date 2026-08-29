@@ -445,6 +445,15 @@
         {
           "type": "custom:mini-climate",
           "entity": "{{bench_ac}}",
+          "name": "Entity icon by action",
+          "icon": {
+            "template": "(entity) => entity.attributes.hvac_action === 'heating' ? 'mdi:radiator' : entity.attributes.hvac_action === 'cooling' ? 'mdi:snowflake' : 'mdi:radiator-off'",
+            "style": "(entity) => ({ color: entity.attributes.hvac_action === 'heating' ? 'rgb(255, 0, 0)' : entity.attributes.hvac_action === 'cooling' ? 'rgb(0, 0, 255)' : 'rgb(128, 128, 128)' })"
+          }
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
           "name": "Button colour",
           "buttons": {
             "eco": {
