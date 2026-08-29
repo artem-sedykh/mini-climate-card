@@ -344,6 +344,53 @@ wants the dropdown; this trades the choice for the press.
 
 ![the mode drawn as a single button that toggles between heat and off](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/mode-toggle.png)
 
+### The mode under the name, with its label
+
+The mode control in the top row is an icon: it opens a list, and what it is
+showing has to be read off the glyph. The line under the entity name can hold a
+control with its **name** on it - that is what `secondary_info:
+fan-mode-dropdown` does for the fan speed - and `fan_mode` is a button like any
+other, so it can be pointed at the modes instead.
+
+```yaml
+type: custom:mini-climate
+entity: climate.bedroom
+hvac_mode:
+  hide: true
+secondary_info:
+  type: fan-mode-dropdown
+fan_mode:
+  icon: mdi:thermostat
+  # the entity's own state, not the fan_mode attribute
+  state: {}
+  source:
+    'off': Off
+    heat: Heat
+    cool: Cool
+    dry: Dry
+  change_action: >
+    (selected, state, entity) => this.call_service('climate', 'set_hvac_mode', { entity_id: entity.entity_id, hvac_mode: selected })
+```
+
+Three things worth knowing:
+
+- `hvac_mode: hide` is not optional decoration - without it the card shows the
+  mode twice, once in each place;
+- the names are yours. The built-in mode control takes them from Home
+  Assistant's own translations; this one shows the `source` you write, so it is
+  also how a mode gets a name of your choosing;
+- the card now has no fan speed control, because `fan_mode` is what was
+  repurposed. A unit with fan modes wants a button of its own for them.
+
+And the trap that costs the most time here: a button's `change_action` is
+handed `(selected_value, state, entity, ...)`. Written as `(selected, entity)`
+the second argument is the state, `entity.entity_id` is undefined, the service
+call goes out without an entity, Home Assistant refuses it - and **the
+dashboard shows nothing at all**. The message reaches the browser console and
+nowhere else.
+
+![the mode with its name in the line under the entity name](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/mode-in-secondary-line.png)
+
 ### The fan mode in the top row
 
 `fan_mode` is a button like any other - `setConfig` pushes it into `buttons`

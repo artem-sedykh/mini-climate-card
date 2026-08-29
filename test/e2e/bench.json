@@ -547,6 +547,28 @@
             "order": 0
           },
           "secondary_info": "hvac-action"
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": "Mode under the name",
+          "hvac_mode": {
+            "hide": true
+          },
+          "secondary_info": {
+            "type": "fan-mode-dropdown"
+          },
+          "fan_mode": {
+            "icon": "mdi:thermostat",
+            "state": {},
+            "source": {
+              "off": "Off",
+              "cool": "Cool",
+              "heat": "Heat",
+              "dry": "Dry"
+            },
+            "change_action": "(selected, state, entity) => this.call_service('climate', 'set_hvac_mode', { entity_id: entity.entity_id, hvac_mode: selected })"
+          }
         }
       ]
     },
