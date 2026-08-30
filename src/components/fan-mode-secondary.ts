@@ -2,13 +2,12 @@ import define from '../utils/define';
 import { LitElement, html, css, type PropertyValues, type TemplateResult } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
 import sharedStyle from '../sharedStyle';
-import type ButtonObject from '../models/button';
-import type { CardConfig, SourceItem } from '../types';
+import type { CardConfig, SecondaryDropdown, SourceItem } from '../types';
 import type ClimateMenu from './menu';
 import './menu';
 
 export default class ClimateFanModeSecondary extends LitElement {
-  fanMode!: ButtonObject;
+  fanMode!: SecondaryDropdown;
 
   config!: CardConfig;
 
@@ -20,7 +19,7 @@ export default class ClimateFanModeSecondary extends LitElement {
 
   constructor() {
     super();
-    this.fanMode = {} as ButtonObject;
+    this.fanMode = {} as SecondaryDropdown;
     this.config = {} as CardConfig;
     this.timer = undefined;
     this._selected = {} as SourceItem;
@@ -122,7 +121,7 @@ export default class ClimateFanModeSecondary extends LitElement {
   override render(): TemplateResult {
     const { type } = this.config.secondary_info;
 
-    if (type === 'fan-mode-dropdown') {
+    if (type === 'fan-mode-dropdown' || type === 'hvac-mode-dropdown') {
       return this.renderFanModeDropdown();
     }
 

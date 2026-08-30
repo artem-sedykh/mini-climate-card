@@ -137,3 +137,48 @@ describe('HvacModeObject.handleChange', () => {
     expect(hvacMode().handleChange('heat')).toBeUndefined();
   });
 });
+
+describe('HvacModeObject.icon', () => {
+  it('uses the built-in glyph for the current mode', () => {
+    expect(hvacMode({ source: { cool: 'Cool' } }).icon).toBe('mdi:snowflake');
+  });
+
+  it('uses the selected source icon when one is set', () => {
+    expect(hvacMode({ source: { cool: { name: 'Cool', icon: 'mdi:x' } } }).icon).toBe('mdi:x');
+  });
+
+  it('uses a string icon on the config over the mode glyph', () => {
+    expect(hvacMode({ icon: 'mdi:thermostat', source: { cool: 'Cool' } }).icon).toBe(
+      'mdi:thermostat',
+    );
+  });
+
+  it('calls an icon template without the card mode', () => {
+    const template = vi.fn(() => 'mdi:from-template');
+    const climateEntity = { entity_id: 'climate.a' };
+    const h = hvacMode(
+      { functions: { icon: { template } }, source: { cool: 'Cool' } },
+      entity('cool'),
+      {
+        entity: climateEntity,
+        mode: 'cool',
+      },
+    );
+    expect(h.icon).toBe('mdi:from-template');
+    expect(template).toHaveBeenCalledWith('cool', h.entity, climateEntity);
+  });
+
+  it('falls back to the default climate icon when nothing matches', () => {
+    expect(hvacMode({ source: { heat: 'Heat' } }).icon).toBe('mdi:air-conditioner');
+  });
+});
+
+describe('HvacModeObject.actionTimeout', () => {
+  it('defaults to two seconds', () => {
+    expect(hvacMode().actionTimeout).toBe(2000);
+  });
+
+  it('reads action_timeout from the config', () => {
+    expect(hvacMode({ action_timeout: 50 }).actionTimeout).toBe(50);
+  });
+});

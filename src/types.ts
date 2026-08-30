@@ -134,8 +134,26 @@ export interface ButtonConfig {
   functions: ConfigFunctions;
 }
 
+/**
+ * What the secondary-info dropdown reads, whether it is drawing `fan_mode` or
+ * `hvac_mode`. Both models expose this surface; the component does not care
+ * which one it was handed (#194).
+ */
+export interface SecondaryDropdown {
+  source: SourceItem[];
+  selected: SourceItem | undefined;
+  state: unknown;
+  entity: HassEntity;
+  disabled: boolean;
+  icon: unknown;
+  actionTimeout: number;
+  handleChange: (selected: string) => unknown;
+}
+
 export interface HvacModeConfig {
   hide?: boolean;
+  icon?: string | IconConfig;
+  action_timeout?: number;
   state?: Source;
   source?: Record<string, any>;
   functions: ConfigFunctions;

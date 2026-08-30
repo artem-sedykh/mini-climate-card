@@ -35,7 +35,7 @@ Parameters that require JavaScript function strings (`change_action`, `active`, 
 
 | Parameter | Type | Description |
 |---|---|---|
-| `secondary_info.type` | select | Display type: `fan-mode`, `fan-mode-dropdown`, `hvac-mode`, `hvac-action`, `last-changed`, `last-updated` |
+| `secondary_info.type` | select | Display type: `fan-mode`, `fan-mode-dropdown`, `hvac-mode`, `hvac-mode-dropdown`, `hvac-action`, `last-changed`, `last-updated` |
 | `secondary_info.hide` | toggle | Hide the secondary info row |
 | `secondary_info.icon` | icon picker | Custom icon shown next to the secondary info text |
 

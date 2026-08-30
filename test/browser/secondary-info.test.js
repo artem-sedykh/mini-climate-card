@@ -71,3 +71,86 @@ describe('the fan mode under the name', () => {
     expect(hass.calls[0].options.fan_mode).to.equal('medium');
   });
 });
+
+describe('the hvac mode under the name (#194)', () => {
+  it('reads the current mode by its label and is a real button', async () => {
+    const { card } = await mountCard({
+      config: { secondary_info: 'hvac-mode-dropdown', hvac_mode: { hide: true } },
+    });
+    const host = secondary(card);
+    const button = host.shadowRoot.getElementById('button');
+
+    expect(host.shadowRoot.querySelector('.name').textContent.trim()).to.equal('Heat');
+    expect(button.localName).to.equal('button');
+    expect(button.shadowRoot, 'native button has no shadow root').to.not.exist;
+  });
+
+  it('opens its menu and sends one set_hvac_mode', async () => {
+    const { card, hass } = await mountCard({
+      config: { secondary_info: 'hvac-mode-dropdown', hvac_mode: { hide: true } },
+    });
+    const host = secondary(card);
+
+    host.shadowRoot.getElementById('button').click();
+    const menu = host.shadowRoot.getElementById('menu');
+    await menu.updateComplete;
+    await nextFrame();
+
+    menu.shadowRoot.querySelector('[data-value="cool"]').click();
+    await settle(card);
+
+    expect(hass.calls).to.have.lengthOf(1);
+    expect(hass.calls[0].service).to.equal('set_hvac_mode');
+    expect(hass.calls[0].options.hvac_mode).to.equal('cool');
+  });
+
+  it('leaves the fan mode behind the toggle', async () => {
+    const { card, hass } = await mountCard({
+      config: {
+        secondary_info: 'hvac-mode-dropdown',
+        hvac_mode: { hide: true },
+        toggle: { default: true },
+      },
+    });
+
+    const panel = card.shadowRoot.querySelector('.mc-toggle_content mc-buttons');
+    const ids = panel
+      ? [...panel.shadowRoot.querySelectorAll('mc-dropdown')].map(dropdown => dropdown.dropdown.id)
+      : [];
+    expect(ids).to.eql(['fan_mode']);
+
+    const host = secondary(card);
+    host.shadowRoot.getElementById('button').click();
+    const menu = host.shadowRoot.getElementById('menu');
+    await menu.updateComplete;
+    await nextFrame();
+    menu.shadowRoot.querySelector('[data-value="cool"]').click();
+    await settle(card);
+
+    const fan = panel.shadowRoot.querySelector('mc-dropdown');
+    const base = fan.shadowRoot.querySelector('mc-dropdown-base');
+    base.shadowRoot.getElementById('button').click();
+    const fanMenu = base.shadowRoot.getElementById('menu');
+    await fanMenu.updateComplete;
+    await nextFrame();
+    fanMenu.shadowRoot.querySelector('[data-value="medium"]').click();
+    await settle(card);
+
+    expect(hass.calls.map(call => call.service)).to.eql(['set_hvac_mode', 'set_fan_mode']);
+    expect(hass.calls[0].options.hvac_mode).to.equal('cool');
+    expect(hass.calls[1].options.fan_mode).to.equal('medium');
+  });
+
+  it('does not open more-info from a click on the wrap', async () => {
+    const { card } = await mountCard({ config: { secondary_info: 'hvac-mode-dropdown' } });
+    let events = 0;
+    card.addEventListener('hass-more-info', () => {
+      events += 1;
+    });
+
+    card.shadowRoot.querySelector('.entity__info__name_wrap').click();
+    await settle(card);
+
+    expect(events).to.equal(0);
+  });
+});

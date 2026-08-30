@@ -1,4 +1,5 @@
 import { getEntityValue } from '../utils/utils';
+import ICON, { ACTION_TIMEOUT } from '../const';
 import type { HassEntity, HvacModeConfig, SourceItem } from '../types';
 import type ClimateObject from './climate';
 
@@ -98,6 +99,33 @@ export default class HvacModeObject {
     if (state === undefined || state === null) return undefined;
 
     return this.source.find(s => s.id === state.toString());
+  }
+
+  get icon() {
+    // Same fallbacks the control-row menu uses (`mode-menu.ts`), so the
+    // dropdown under the name (#194) shows the mode's glyph without a new
+    // option. A string `icon` or a template on `hvac_mode` wins, the way a
+    // button's does.
+    if (this.config.functions.icon && this.config.functions.icon.template) {
+      return this.config.functions.icon.template(this.state, this.entity, this.climate.entity);
+    }
+
+    if (typeof this.config.icon === 'string' && this.config.icon) return this.config.icon;
+
+    const selected = this.selected;
+    if (selected?.icon) return selected.icon;
+
+    if (selected?.id !== undefined && selected.id !== null) {
+      const id = selected.id.toString().toUpperCase();
+      if (id in ICON) return ICON[id];
+    }
+
+    return ICON.DEFAULT;
+  }
+
+  get actionTimeout() {
+    const timeout = this.config.action_timeout;
+    return typeof timeout === 'number' ? timeout : ACTION_TIMEOUT;
   }
 
   handleChange(selected: string) {

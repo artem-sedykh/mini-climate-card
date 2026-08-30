@@ -569,6 +569,15 @@
             },
             "change_action": "(selected, state, entity) => this.call_service('climate', 'set_hvac_mode', { entity_id: entity.entity_id, hvac_mode: selected })"
           }
+        },
+        {
+          "type": "custom:mini-climate",
+          "entity": "{{bench_ac}}",
+          "name": "HVAC mode dropdown",
+          "hvac_mode": {
+            "hide": true
+          },
+          "secondary_info": "hvac-mode-dropdown"
         }
       ]
     },
