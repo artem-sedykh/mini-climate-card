@@ -1,6 +1,6 @@
 # Mini Climate Card - Visual Editor Parameters
 
-[Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Functions](functions.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Examples](examples.md) | [AI assistants](ai-assistants.md) | [Development](development.md) | [Visual editor](visual-editor-parameters.md)
+[Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Functions](functions.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Visual editor](visual-editor-parameters.md) | [Examples](examples.md) | [AI assistants](ai-assistants.md) | [Development](development.md)
 
 The following parameters are configurable via the built-in visual (UI) editor.  
 Parameters that require JavaScript function strings (`change_action`, `active`, `style`, etc.) remain YAML-only.
