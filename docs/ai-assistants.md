@@ -1,6 +1,6 @@
 # AI assistants
 
-[Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Functions](functions.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Examples](examples.md) | [AI assistants](ai-assistants.md) | [Development](development.md) | [Visual editor](visual-editor-parameters.md)
+[Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Functions](functions.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Visual editor](visual-editor-parameters.md) | [Examples](examples.md) | [AI assistants](ai-assistants.md) | [Development](development.md)
 
 > Writing a card with Claude, Cursor, ChatGPT or anything else of the kind.
 
