@@ -32,7 +32,7 @@ v2 is only compatible from version 2022.11 onwards
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=3.3.0
+    - url: /local/mini-climate-card-bundle.js?v=3.4.0
       type: module
   ```
 
@@ -50,7 +50,7 @@ v2 is only compatible from version 2022.11 onwards
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=3.3.0
+    - url: /local/mini-climate-card-bundle.js?v=3.4.0
       type: module
   ```
 
@@ -63,7 +63,7 @@ v2 is only compatible from version 2022.11 onwards
 
   ```yaml
   resources:
-    - url: /local/mini-climate-card-bundle.js?v=3.3.0
+    - url: /local/mini-climate-card-bundle.js?v=3.4.0
       type: module
   ```
 

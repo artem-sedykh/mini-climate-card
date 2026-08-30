@@ -9,6 +9,36 @@
 Every release of this card, newest first. Each heading links to the release it
 came from, where the asset and the date are.
 
+## [v3.4.0](https://github.com/artem-sedykh/mini-climate-card/releases/tag/v3.4.0)
+
+One feature, and the documentation catching up with it.
+
+`secondary_info: hvac-mode-dropdown` puts the HVAC mode in the line under the
+entity name, with its name on it rather than as a glyph to be read off an
+icon. That line already did this for the fan speed; doing it for the mode
+meant pointing `fan_mode` at the modes, which spent the card's fan control on
+it. The type does not touch `fan_mode`, so a card can carry both - and the
+examples page shows the type now instead of the workaround.
+
+### Added
+
+- **`hvac-mode-dropdown` secondary info type (#194).** The line under the
+  entity name can hold the HVAC mode with its label, the way
+  `fan-mode-dropdown` already does for the fan speed, without repurposing
+  `fan_mode`. `hvac_mode: hide` still matters - without it the mode is on the
+  card twice.
+
+### Documentation
+
+- **One way to put the mode under the name.** The examples page showed the
+  recipe that pointed `fan_mode` at the modes; it now shows the type, which
+  does the same thing without spending the fan control. Cards configured the
+  old way keep working, and the argument order that recipe used to warn about
+  moved to where it belongs - [change_action](https://artem-sedykh.github.io/mini-climate-card/functions/#change_action).
+- **What `this` is, in one place.** Extra keys on an option are data a template
+  reads back (`this.icon.items`, not `this.items`), and `entity_config` is the
+  rest of the card. [Functions](https://artem-sedykh.github.io/mini-climate-card/functions/#this).
+
 ## [v3.3.0](https://github.com/artem-sedykh/mini-climate-card/releases/tag/v3.3.0)
 
 This release is what a card looks like after it is finally read against a
