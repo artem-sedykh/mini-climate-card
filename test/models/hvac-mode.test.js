@@ -147,25 +147,16 @@ describe('HvacModeObject.icon', () => {
     expect(hvacMode({ source: { cool: { name: 'Cool', icon: 'mdi:x' } } }).icon).toBe('mdi:x');
   });
 
-  it('uses a string icon on the config over the mode glyph', () => {
-    expect(hvacMode({ icon: 'mdi:thermostat', source: { cool: 'Cool' } }).icon).toBe(
-      'mdi:thermostat',
+  it('ignores an icon on the config, which is a default rather than a choice', () => {
+    // `getButtonConfig` builds this section too, and it gives everything it
+    // builds `icon: mdi:radiobox-marked`. Answering it here would draw that
+    // one glyph whatever the mode is - which is what it did (#194). A fixed
+    // glyph for the line is `secondary_info.icon`. Asserted from the
+    // assembled configuration in `test/card-logic.test.js`; this pins the
+    // model on its own.
+    expect(hvacMode({ icon: 'mdi:radiobox-marked', source: { cool: 'Cool' } }).icon).toBe(
+      'mdi:snowflake',
     );
-  });
-
-  it('calls an icon template without the card mode', () => {
-    const template = vi.fn(() => 'mdi:from-template');
-    const climateEntity = { entity_id: 'climate.a' };
-    const h = hvacMode(
-      { functions: { icon: { template } }, source: { cool: 'Cool' } },
-      entity('cool'),
-      {
-        entity: climateEntity,
-        mode: 'cool',
-      },
-    );
-    expect(h.icon).toBe('mdi:from-template');
-    expect(template).toHaveBeenCalledWith('cool', h.entity, climateEntity);
   });
 
   it('falls back to the default climate icon when nothing matches', () => {

@@ -102,17 +102,17 @@ export default class HvacModeObject {
   }
 
   get icon() {
-    // Same fallbacks the control-row menu uses (`mode-menu.ts`), so the
-    // dropdown under the name (#194) shows the mode's glyph without a new
-    // option. A string `icon` or a template on `hvac_mode` wins, the way a
-    // button's does.
-    if (this.config.functions.icon && this.config.functions.icon.template) {
-      return this.config.functions.icon.template(this.state, this.entity, this.climate.entity);
-    }
-
-    if (typeof this.config.icon === 'string' && this.config.icon) return this.config.icon;
-
-    const selected = this.selected;
+    // The fallbacks the control-row menu uses (`calcIcon` in `mode-menu.ts`),
+    // so the dropdown under the name (#194) shows the mode's glyph without a
+    // new option. Deliberately not `this.config.icon`: `getButtonConfig`
+    // gives every section it builds a default `mdi:radiobox-marked`, so
+    // reading it here would answer that generic glyph for every mode and
+    // never reach the lines below. A fixed glyph for that line is
+    // `secondary_info.icon`, which the component reads before this.
+    //
+    // One difference from the menu: it ends at an empty string, which leaves
+    // an icon-sized hole in a line of text, so this ends at the card default.
+    const { selected } = this;
     if (selected?.icon) return selected.icon;
 
     if (selected?.id !== undefined && selected.id !== null) {

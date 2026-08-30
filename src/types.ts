@@ -152,7 +152,9 @@ export interface SecondaryDropdown {
 
 export interface HvacModeConfig {
   hide?: boolean;
-  icon?: string | IconConfig;
+  /** How long the line under the name keeps showing a mode the card has asked
+   * for and the entity has not confirmed. Same option, and same default, as a
+   * button's. */
   action_timeout?: number;
   state?: Source;
   source?: Record<string, any>;

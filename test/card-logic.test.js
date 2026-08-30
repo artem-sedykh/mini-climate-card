@@ -94,6 +94,34 @@ describe('secondaryInfoIsDropdown', () => {
   });
 });
 
+describe('the glyph the secondary line draws', () => {
+  // This one is asserted from the assembled configuration rather than from a
+  // model built by hand, because the bug it pins lives in the assembly:
+  // `getButtonConfig` builds `hvac_mode` like every other section and gives it
+  // `icon: mdi:radiobox-marked`, so a model reading `config.icon` answered
+  // that generic glyph for every mode, and every test written against a
+  // hand-made config agreed with it (#194).
+  const firstUpdate = card => card.firstUpdated(new Map([['climate', undefined]]));
+
+  it('is the current mode, not the default icon the section was built with', () => {
+    const { card } = build({ secondary_info: 'hvac-mode-dropdown' });
+    firstUpdate(card);
+
+    expect(card.config.hvac_mode.icon).toBe('mdi:radiobox-marked');
+    expect(card.hvacMode.icon).toBe('mdi:snowflake');
+  });
+
+  it('follows the mode the entity reports', () => {
+    const { card } = build(
+      { secondary_info: 'hvac-mode-dropdown' },
+      { entity: climateEntity({ hvac_modes: ['off', 'cool'] }, 'off') },
+    );
+    firstUpdate(card);
+
+    expect(card.hvacMode.icon).toBe('mdi:power');
+  });
+});
+
 describe('computeClasses', () => {
   it('marks a card that opens more-info, and one that does not', () => {
     expect(classes(build({}).card)['--more-info']).toBe(true);

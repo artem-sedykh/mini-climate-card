@@ -127,6 +127,23 @@ hvac_mode:
 `hvac_mode: hide` is not optional decoration - without it the card shows the
 mode twice, once in each place. The names come from Home Assistant's own
 translations, the same list the control-row dropdown uses; a `source` on
-`hvac_mode` replaces them. A string on `secondary_info.icon` freezes the
-glyph; without it the line uses the same per-mode icons as the control-row
-dropdown.
+`hvac_mode` replaces them, and it is read the same way in both places -
+`name`, `icon`, `order`, and `hide` for a mode this card should not offer at
+all:
+
+```yaml
+type: custom:mini-climate
+entity: climate.dahatsu
+secondary_info: hvac-mode-dropdown
+hvac_mode:
+  hide: true
+  source:
+    'off': 'Off'
+    cool: Cool
+    heat: Heat
+    dry:
+      hide: true
+```
+
+A string on `secondary_info.icon` freezes the glyph; without it the line draws
+the same per-mode icon as the control-row dropdown.

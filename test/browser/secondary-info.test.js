@@ -104,6 +104,63 @@ describe('the hvac mode under the name (#194)', () => {
     expect(hass.calls[0].options.hvac_mode).to.equal('cool');
   });
 
+  it('draws the glyph of the mode, not the icon the section was built with', async () => {
+    // `getButtonConfig` builds `hvac_mode` like any other section and gives it
+    // `icon: mdi:radiobox-marked`, so this line drew that one glyph for every
+    // mode until the model stopped reading it. The entity reports `heat`.
+    const { card } = await mountCard({
+      config: { secondary_info: 'hvac-mode-dropdown', hvac_mode: { hide: true } },
+    });
+
+    expect(secondary(card).shadowRoot.querySelector('ha-icon').icon).to.equal('mdi:weather-sunny');
+  });
+
+  it('still lets secondary_info.icon freeze the glyph', async () => {
+    const { card } = await mountCard({
+      config: {
+        secondary_info: { type: 'hvac-mode-dropdown', icon: 'mdi:thermostat' },
+        hvac_mode: { hide: true },
+      },
+    });
+
+    expect(secondary(card).shadowRoot.querySelector('ha-icon').icon).to.equal('mdi:thermostat');
+  });
+
+  it('leaves a hidden mode out of the list, and picks by the list it shows', async () => {
+    // `source:item:hide` takes a mode out of the control-row menu, so it takes
+    // it out of this one too. The pick arrives as an index, which is why the
+    // hidden mode is first here: a component that filtered only what it
+    // displays would send `off` for a press on `Cool`.
+    const { card, hass } = await mountCard({
+      config: {
+        secondary_info: 'hvac-mode-dropdown',
+        hvac_mode: {
+          hide: true,
+          source: { off: { name: 'Off', hide: true }, cool: 'Cool', heat: 'Heat' },
+        },
+      },
+    });
+    const host = secondary(card);
+
+    expect(host.shadowRoot.querySelector('.name').textContent.trim()).to.equal('Heat');
+
+    host.shadowRoot.getElementById('button').click();
+    const menu = host.shadowRoot.getElementById('menu');
+    await menu.updateComplete;
+    await nextFrame();
+
+    const listed = [...menu.shadowRoot.querySelectorAll('[data-value]')].map(
+      item => item.dataset.value,
+    );
+    expect(listed).to.eql(['cool', 'heat']);
+
+    menu.shadowRoot.querySelector('[data-value="cool"]').click();
+    await settle(card);
+
+    expect(hass.calls).to.have.lengthOf(1);
+    expect(hass.calls[0].options.hvac_mode).to.equal('cool');
+  });
+
   it('leaves the fan mode behind the toggle', async () => {
     const { card, hass } = await mountCard({
       config: {

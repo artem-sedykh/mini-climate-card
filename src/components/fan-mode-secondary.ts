@@ -32,22 +32,31 @@ export default class ClimateFanModeSecondary extends LitElement {
     };
   }
 
+  /** What the menu lists. `source:item:hide` takes an option out of it, the
+   * way the control-row mode menu does (`mode-menu.ts`) - and the menu reports
+   * a pick as an index, so every index in this component is read off this one
+   * list rather than off `source`. */
+  get items(): SourceItem[] {
+    return this.fanMode.source.filter(item => !item.hide);
+  }
+
   get selectedIndex(): number {
     // `_selected` is undefined whenever the device reports a mode the source
-    // list does not contain - a user-narrowed `source`, or an option the
-    // integration added later. Reading `.id` off it threw, and the throw came
-    // out of a click handler, so the pick did nothing at all. See #231.
-    return this.fanMode.source.map(item => item.id).indexOf(this._selected?.id as string);
+    // list does not contain - a user-narrowed `source`, a hidden one, or an
+    // option the integration added later. Reading `.id` off it threw, and the
+    // throw came out of a click handler, so the pick did nothing at all. See
+    // #231.
+    return this.items.map(item => item.id).indexOf(this._selected?.id as string);
   }
 
   handleChange(e: CustomEvent): void {
     const { index } = e.detail;
 
-    if (index === this.selectedIndex || !this.fanMode.source[index]) return;
+    if (index === this.selectedIndex || !this.items[index]) return;
 
     clearTimeout(this.timer);
 
-    const selected = this.fanMode.source[index];
+    const selected = this.items[index];
     const { entity } = this.fanMode;
     const oldSelected = this._selected;
     this._selected = selected;
@@ -110,7 +119,7 @@ export default class ClimateFanModeSecondary extends LitElement {
         </button>
         <mc-menu
           id=${'menu'}
-          .items=${this.fanMode.source}
+          .items=${this.items}
           .selected=${this._selected?.id}
           @selected=${this.handleChange}
         ></mc-menu>
