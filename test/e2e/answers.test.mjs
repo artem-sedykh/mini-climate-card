@@ -418,16 +418,17 @@ describe('the answers people were given', () => {
   });
 
   it('puts the hvac mode in the secondary line, as a dropdown (#194)', async () => {
-    // The request was for an `hvac-mode-dropdown` type beside the
-    // `fan-mode-dropdown` one. No new type is needed: `fan_mode` is a button
-    // like any other, so pointing its `state` at the entity itself, its
-    // `source` at the modes and its `change_action` at `set_hvac_mode` gives
-    // that line the mode - with its name, and pressable, which is what the
-    // control row's icon-only dropdown does not offer.
+    // The answer #194 was first given: no new type is needed, because
+    // `fan_mode` is a button like any other, so pointing its `state` at the
+    // entity itself, its `source` at the modes and its `change_action` at
+    // `set_hvac_mode` gives that line the mode - with its name, and pressable.
+    // It costs the fan control, which is why the `hvac-mode-dropdown` type
+    // below exists and why the documentation now shows that instead.
     //
-    // The scenario is here rather than in the answer alone because the answer
-    // is a configuration, and a configuration that stops working is exactly
-    // what nobody notices.
+    // This stays because people configured their cards this way on the
+    // strength of that answer, and it keeps working. The scenario is here
+    // rather than in the answer alone because the answer is a configuration,
+    // and a configuration that stops working is exactly what nobody notices.
     const card = session.page.locator('mini-climate').filter({ hasText: 'Mode under the name' });
 
     const line = () =>
@@ -496,6 +497,109 @@ describe('the answers people were given', () => {
       return now.label === 'Cool' ? now : null;
     });
     assert.equal(after_.label, 'Cool');
+  });
+
+  it('puts the hvac mode in the secondary line without taking the fan (#194)', async () => {
+    // The type the first answer said it would reopen for: the same line as
+    // `fan-mode-dropdown`, pointed at the HVAC mode, with `fan_mode` left as
+    // the fan. `hvac_mode.hide` keeps the control-row dropdown from saying
+    // the same thing twice.
+    const card = session.page.locator('mini-climate').filter({ hasText: 'HVAC mode dropdown' });
+
+    const line = () =>
+      card.evaluate(node => {
+        const drop = node.shadowRoot
+          .querySelector('mc-secondary-info')
+          ?.shadowRoot.querySelector('mc-fan-mode-secondary');
+
+        return {
+          label: drop?.shadowRoot.querySelector('.name')?.textContent.trim() ?? null,
+          pressable: !!drop?.shadowRoot.querySelector('.mc-dropdown__button'),
+        };
+      });
+
+    await callService(bench.tokens, 'climate', 'set_hvac_mode', {
+      entity_id: bench.ids.bench_ac,
+      hvac_mode: 'heat',
+    });
+
+    const before_ = await until(async () => {
+      const now = await line();
+      return now.label === 'Heat' ? now : null;
+    });
+    assert.equal(before_.pressable, true);
+    assert.equal((await look('HVAC mode dropdown')).modeMenu, false);
+    assert.equal((await look('HVAC mode dropdown')).toggleButton, true);
+
+    await card.evaluate(node => {
+      const drop = node.shadowRoot
+        .querySelector('mc-secondary-info')
+        .shadowRoot.querySelector('mc-fan-mode-secondary');
+      drop.shadowRoot.querySelector('.mc-dropdown__button').click();
+    });
+
+    await until(async () => {
+      const picked = await card.evaluate(node => {
+        const drop = node.shadowRoot
+          .querySelector('mc-secondary-info')
+          .shadowRoot.querySelector('mc-fan-mode-secondary');
+        const menu = drop.shadowRoot.querySelector('mc-menu');
+        const item = menu?.shadowRoot.querySelector('[data-value="cool"]');
+        if (!item) return false;
+        item.click();
+        return true;
+      });
+      return picked || null;
+    });
+
+    const state = await until(async () => {
+      const now = await entity(bench.tokens, bench.ids.bench_ac);
+      return now.state === 'cool' ? now.state : null;
+    });
+    assert.equal(state, 'cool');
+
+    await card.evaluate(node => {
+      node.shadowRoot.querySelector('.toggle-button').click();
+    });
+
+    await until(async () => {
+      const ready = await card.evaluate(node => {
+        const panel = node.shadowRoot.querySelector('.mc-toggle_content mc-buttons');
+        const dropdown = panel?.shadowRoot.querySelector('mc-dropdown');
+        return dropdown?.dropdown?.id === 'fan_mode' ? true : null;
+      });
+      return ready;
+    });
+
+    await card.evaluate(node => {
+      const panel = node.shadowRoot.querySelector('.mc-toggle_content mc-buttons');
+      const base = panel.shadowRoot
+        .querySelector('mc-dropdown')
+        .shadowRoot.querySelector('mc-dropdown-base');
+      base.shadowRoot.getElementById('button').click();
+    });
+
+    await until(async () => {
+      const picked = await card.evaluate(node => {
+        const panel = node.shadowRoot.querySelector('.mc-toggle_content mc-buttons');
+        const menu = panel.shadowRoot
+          .querySelector('mc-dropdown')
+          .shadowRoot.querySelector('mc-dropdown-base')
+          .shadowRoot.getElementById('menu');
+        if (!menu.open) return false;
+        const item = menu.shadowRoot.querySelector('[data-value="low"]');
+        if (!item) return false;
+        item.click();
+        return true;
+      });
+      return picked || null;
+    });
+
+    const fan = await until(async () => {
+      const now = await entity(bench.tokens, bench.ids.bench_ac);
+      return now.attributes.fan_mode === 'low' ? now : null;
+    });
+    assert.equal(fan.attributes.fan_mode, 'low');
   });
 
   it('moves the fan mode dropdown into the control row, working (location)', async () => {

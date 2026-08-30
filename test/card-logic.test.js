@@ -76,6 +76,52 @@ describe('secondaryInfoHidden', () => {
   });
 });
 
+describe('secondaryInfoIsDropdown', () => {
+  it('is true only for the two types that put a menu in that line', () => {
+    expect(build({ secondary_info: 'fan-mode-dropdown' }).card.secondaryInfoIsDropdown()).toBe(
+      true,
+    );
+    expect(build({ secondary_info: 'hvac-mode-dropdown' }).card.secondaryInfoIsDropdown()).toBe(
+      true,
+    );
+  });
+
+  it('is false for the display-only types, and for the default', () => {
+    // `hvac-mode` shows the name and is not pressable; a click on the wrap
+    // still belongs to more-info. Same for the default fan-mode line.
+    expect(build({ secondary_info: 'hvac-mode' }).card.secondaryInfoIsDropdown()).toBe(false);
+    expect(build({}).card.secondaryInfoIsDropdown()).toBe(false);
+  });
+});
+
+describe('the glyph the secondary line draws', () => {
+  // This one is asserted from the assembled configuration rather than from a
+  // model built by hand, because the bug it pins lives in the assembly:
+  // `getButtonConfig` builds `hvac_mode` like every other section and gives it
+  // `icon: mdi:radiobox-marked`, so a model reading `config.icon` answered
+  // that generic glyph for every mode, and every test written against a
+  // hand-made config agreed with it (#194).
+  const firstUpdate = card => card.firstUpdated(new Map([['climate', undefined]]));
+
+  it('is the current mode, not the default icon the section was built with', () => {
+    const { card } = build({ secondary_info: 'hvac-mode-dropdown' });
+    firstUpdate(card);
+
+    expect(card.config.hvac_mode.icon).toBe('mdi:radiobox-marked');
+    expect(card.hvacMode.icon).toBe('mdi:snowflake');
+  });
+
+  it('follows the mode the entity reports', () => {
+    const { card } = build(
+      { secondary_info: 'hvac-mode-dropdown' },
+      { entity: climateEntity({ hvac_modes: ['off', 'cool'] }, 'off') },
+    );
+    firstUpdate(card);
+
+    expect(card.hvacMode.icon).toBe('mdi:power');
+  });
+});
+
 describe('computeClasses', () => {
   it('marks a card that opens more-info, and one that does not', () => {
     expect(classes(build({}).card)['--more-info']).toBe(true);
@@ -281,6 +327,27 @@ describe('the defaults a card gets when it configures nothing', () => {
   it('sends the mode through climate.set_hvac_mode', () => {
     const { card, callService } = build({});
     card.config.hvac_mode.functions.change_action('heat', entity);
+    expect(callService).toHaveBeenCalledWith('climate', 'set_hvac_mode', {
+      entity_id: 'climate.living_room',
+      hvac_mode: 'heat',
+    });
+  });
+
+  it('keeps both service calls when the secondary line is the hvac dropdown', () => {
+    // The whole of #194: the type points that line at the mode without
+    // rewriting `fan_mode`. The recipe that closed the issue first did rewrite
+    // it, and then there was no fan control left.
+    const { card, callService } = build({ secondary_info: 'hvac-mode-dropdown' });
+
+    expect(card.fanModeConfig.state).toEqual({ attribute: 'fan_mode' });
+
+    card.fanModeConfig.functions.change_action('low', 'auto', entity);
+    card.config.hvac_mode.functions.change_action('heat', entity);
+
+    expect(callService).toHaveBeenCalledWith('climate', 'set_fan_mode', {
+      entity_id: 'climate.living_room',
+      fan_mode: 'low',
+    });
     expect(callService).toHaveBeenCalledWith('climate', 'set_hvac_mode', {
       entity_id: 'climate.living_room',
       hvac_mode: 'heat',

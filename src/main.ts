@@ -679,7 +679,7 @@ class MiniClimate extends LitElement {
   }
 
   override render(): TemplateResult {
-    const handle = this.config.secondary_info.type !== 'fan-mode-dropdown';
+    const handle = !this.secondaryInfoIsDropdown();
     return html`
       <ha-card
         class=${this.computeClasses()}
@@ -813,6 +813,16 @@ class MiniClimate extends LitElement {
       this.config.secondary_info.functions.hide &&
       this.config.secondary_info.functions.hide(this.climate.entity, this.climate.mode),
     );
+  }
+
+  /**
+   * The line under the name is itself a control. A press on the wrap around
+   * it would otherwise open more-info, which is why `handlePopup` is skipped
+   * for these two types and not for `hvac-mode` (that one only displays).
+   */
+  secondaryInfoIsDropdown(): boolean {
+    const type = this.config.secondary_info.type;
+    return type === 'fan-mode-dropdown' || type === 'hvac-mode-dropdown';
   }
 
   renderSecondaryInfo(): TemplateResult {

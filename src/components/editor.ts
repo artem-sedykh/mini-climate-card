@@ -77,6 +77,7 @@ const SECONDARY_INFO_SCHEMA: SchemaEntry[] = [
           { value: 'fan-mode', label: 'Fan mode' },
           { value: 'fan-mode-dropdown', label: 'Fan mode (dropdown)' },
           { value: 'hvac-mode', label: 'HVAC mode' },
+          { value: 'hvac-mode-dropdown', label: 'HVAC mode (dropdown)' },
           { value: 'hvac-action', label: 'HVAC action' },
           { value: 'last-changed', label: 'Last changed' },
           { value: 'last-updated', label: 'Last updated' },

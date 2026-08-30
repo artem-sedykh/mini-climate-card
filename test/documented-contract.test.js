@@ -330,5 +330,23 @@ describe('"a string on secondary_info is a type"', () => {
     expect(card({ secondary_info: 'fan-mode-dropdown' }).element.config.secondary_info.type).toBe(
       'fan-mode-dropdown',
     );
+    expect(card({ secondary_info: 'hvac-mode-dropdown' }).element.config.secondary_info.type).toBe(
+      'hvac-mode-dropdown',
+    );
+  });
+});
+
+describe('"the fan control stays where it was"', () => {
+  it('hvac-mode-dropdown leaves fan_mode reading the fan_mode attribute', () => {
+    const { element, callService } = card({ secondary_info: 'hvac-mode-dropdown' });
+    const entity = { entity_id: 'climate.my_ac' };
+
+    expect(element.fanModeConfig.state).toEqual({ attribute: 'fan_mode' });
+
+    element.fanModeConfig.functions.change_action('low', 'auto', entity);
+    expect(callService).toHaveBeenCalledWith('climate', 'set_fan_mode', {
+      entity_id: 'climate.my_ac',
+      fan_mode: 'low',
+    });
   });
 });

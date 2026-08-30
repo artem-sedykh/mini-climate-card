@@ -137,3 +137,39 @@ describe('HvacModeObject.handleChange', () => {
     expect(hvacMode().handleChange('heat')).toBeUndefined();
   });
 });
+
+describe('HvacModeObject.icon', () => {
+  it('uses the built-in glyph for the current mode', () => {
+    expect(hvacMode({ source: { cool: 'Cool' } }).icon).toBe('mdi:snowflake');
+  });
+
+  it('uses the selected source icon when one is set', () => {
+    expect(hvacMode({ source: { cool: { name: 'Cool', icon: 'mdi:x' } } }).icon).toBe('mdi:x');
+  });
+
+  it('ignores an icon on the config, which is a default rather than a choice', () => {
+    // `getButtonConfig` builds this section too, and it gives everything it
+    // builds `icon: mdi:radiobox-marked`. Answering it here would draw that
+    // one glyph whatever the mode is - which is what it did (#194). A fixed
+    // glyph for the line is `secondary_info.icon`. Asserted from the
+    // assembled configuration in `test/card-logic.test.js`; this pins the
+    // model on its own.
+    expect(hvacMode({ icon: 'mdi:radiobox-marked', source: { cool: 'Cool' } }).icon).toBe(
+      'mdi:snowflake',
+    );
+  });
+
+  it('falls back to the default climate icon when nothing matches', () => {
+    expect(hvacMode({ source: { heat: 'Heat' } }).icon).toBe('mdi:air-conditioner');
+  });
+});
+
+describe('HvacModeObject.actionTimeout', () => {
+  it('defaults to two seconds', () => {
+    expect(hvacMode().actionTimeout).toBe(2000);
+  });
+
+  it('reads action_timeout from the config', () => {
+    expect(hvacMode({ action_timeout: 50 }).actionTimeout).toBe(50);
+  });
+});

@@ -349,47 +349,27 @@ wants the dropdown; this trades the choice for the press.
 The mode control in the top row is an icon: it opens a list, and what it is
 showing has to be read off the glyph. The line under the entity name can hold a
 control with its **name** on it - that is what `secondary_info:
-fan-mode-dropdown` does for the fan speed - and `fan_mode` is a button like any
-other, so it can be pointed at the modes instead.
+fan-mode-dropdown` does for the fan speed, and `hvac-mode-dropdown` does for
+the mode. The fan control stays a button of its own.
 
 ```yaml
 type: custom:mini-climate
 entity: climate.bedroom
 hvac_mode:
   hide: true
-secondary_info:
-  type: fan-mode-dropdown
-fan_mode:
-  icon: mdi:thermostat
-  # the entity's own state, not the fan_mode attribute
-  state: {}
-  source:
-    'off': Off
-    heat: Heat
-    cool: Cool
-    dry: Dry
-  change_action: >
-    (selected, state, entity) => this.call_service('climate', 'set_hvac_mode', { entity_id: entity.entity_id, hvac_mode: selected })
+secondary_info: hvac-mode-dropdown
 ```
 
-Three things worth knowing:
+`hvac_mode: hide` is not optional decoration - without it the card shows the
+mode twice, once in each place. The names are Home Assistant's own; a `source`
+on `hvac_mode` replaces them, and takes a mode out of the list with `hide` -
+see [secondary info](secondary-info.md#hvac-mode-dropdown).
 
-- `hvac_mode: hide` is not optional decoration - without it the card shows the
-  mode twice, once in each place;
-- the names are yours. The built-in mode control takes them from Home
-  Assistant's own translations; this one shows the `source` you write, so it is
-  also how a mode gets a name of your choosing;
-- the card now has no fan speed control, because `fan_mode` is what was
-  repurposed. A unit with fan modes wants a button of its own for them.
+![the HVAC mode dropdown open under the name, with the fan toggle still on the card](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/hvac-mode-dropdown.png)
 
-And the trap that costs the most time here: a button's `change_action` is
-handed `(selected_value, state, entity, ...)`. Written as `(selected, entity)`
-the second argument is the state, `entity.entity_id` is undefined, the service
-call goes out without an entity, Home Assistant refuses it - and **the
-dashboard shows nothing at all**. The message reaches the browser console and
-nowhere else.
-
-![the mode with its name in the line under the entity name](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/mode-in-secondary-line.png)
+Before this type existed the same line was made by pointing `fan_mode` at the
+modes. That recipe still works, and a card configured that way keeps working,
+but it spends the fan control on it - which is what the type is for.
 
 ### The fan mode in the top row
 

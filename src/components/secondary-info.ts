@@ -63,6 +63,8 @@ export default class ClimateSecondaryInfo extends LitElement {
     switch (type) {
       case 'hvac-mode':
         return this.renderHvacMode();
+      case 'hvac-mode-dropdown':
+        return html`<mc-fan-mode-secondary .fanMode=${this.hvacMode} .config=${this.config}></mc-fan-mode-secondary>`;
       case 'hvac-action':
         return this.renderHvacAction();
       case 'last-changed':

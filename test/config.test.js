@@ -492,6 +492,11 @@ describe('the toggle and secondary info', () => {
     expect(card.config.secondary_info.type).toBe('hvac-mode');
   });
 
+  it('reads hvac-mode-dropdown as a secondary_info type', () => {
+    const { card } = build({ secondary_info: 'hvac-mode-dropdown' });
+    expect(card.config.secondary_info.type).toBe('hvac-mode-dropdown');
+  });
+
   it('defaults secondary_info to the fan mode', () => {
     expect(build({}).card.config.secondary_info.type).toBe('fan_mode');
   });

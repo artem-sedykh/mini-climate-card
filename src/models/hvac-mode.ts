@@ -1,4 +1,5 @@
 import { getEntityValue } from '../utils/utils';
+import ICON, { ACTION_TIMEOUT } from '../const';
 import type { HassEntity, HvacModeConfig, SourceItem } from '../types';
 import type ClimateObject from './climate';
 
@@ -98,6 +99,33 @@ export default class HvacModeObject {
     if (state === undefined || state === null) return undefined;
 
     return this.source.find(s => s.id === state.toString());
+  }
+
+  get icon() {
+    // The fallbacks the control-row menu uses (`calcIcon` in `mode-menu.ts`),
+    // so the dropdown under the name (#194) shows the mode's glyph without a
+    // new option. Deliberately not `this.config.icon`: `getButtonConfig`
+    // gives every section it builds a default `mdi:radiobox-marked`, so
+    // reading it here would answer that generic glyph for every mode and
+    // never reach the lines below. A fixed glyph for that line is
+    // `secondary_info.icon`, which the component reads before this.
+    //
+    // One difference from the menu: it ends at an empty string, which leaves
+    // an icon-sized hole in a line of text, so this ends at the card default.
+    const { selected } = this;
+    if (selected?.icon) return selected.icon;
+
+    if (selected?.id !== undefined && selected.id !== null) {
+      const id = selected.id.toString().toUpperCase();
+      if (id in ICON) return ICON[id];
+    }
+
+    return ICON.DEFAULT;
+  }
+
+  get actionTimeout() {
+    const timeout = this.config.action_timeout;
+    return typeof timeout === 'number' ? timeout : ACTION_TIMEOUT;
   }
 
   handleChange(selected: string) {

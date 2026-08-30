@@ -108,3 +108,42 @@ fan_mode:
     medium: Middling
     high: Strong
 ```
+
+## hvac-mode-dropdown
+
+The same line as `fan-mode-dropdown`, pointed at the HVAC mode instead of the
+fan speed. The fan control stays where it was.
+
+```yaml
+type: custom:mini-climate
+entity: climate.dahatsu
+secondary_info: hvac-mode-dropdown
+hvac_mode:
+  hide: true
+```
+
+![the HVAC mode dropdown open under the name, with the fan toggle still on the card](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/hvac-mode-dropdown.png)
+
+`hvac_mode: hide` is not optional decoration - without it the card shows the
+mode twice, once in each place. The names come from Home Assistant's own
+translations, the same list the control-row dropdown uses; a `source` on
+`hvac_mode` replaces them, and it is read the same way in both places -
+`name`, `icon`, `order`, and `hide` for a mode this card should not offer at
+all:
+
+```yaml
+type: custom:mini-climate
+entity: climate.dahatsu
+secondary_info: hvac-mode-dropdown
+hvac_mode:
+  hide: true
+  source:
+    'off': 'Off'
+    cool: Cool
+    heat: Heat
+    dry:
+      hide: true
+```
+
+A string on `secondary_info.icon` freezes the glyph; without it the line draws
+the same per-mode icon as the control-row dropdown.
