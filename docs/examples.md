@@ -361,46 +361,15 @@ secondary_info: hvac-mode-dropdown
 ```
 
 `hvac_mode: hide` is not optional decoration - without it the card shows the
-mode twice, once in each place.
+mode twice, once in each place. The names are Home Assistant's own; a `source`
+on `hvac_mode` replaces them, and takes a mode out of the list with `hide` -
+see [secondary info](secondary-info.md#hvac-mode-dropdown).
 
 ![the HVAC mode dropdown open under the name, with the fan toggle still on the card](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/hvac-mode-dropdown.png)
 
-The same line can still be made by pointing `fan_mode` at the modes, which is
-how this was done before the type existed. That recipe replaces the fan
-control, so a unit with fan modes wants a button of its own for them - or the
-type above, which does not touch `fan_mode`.
-
-```yaml
-type: custom:mini-climate
-entity: climate.bedroom
-hvac_mode:
-  hide: true
-secondary_info:
-  type: fan-mode-dropdown
-fan_mode:
-  icon: mdi:thermostat
-  # the entity's own state, not the fan_mode attribute
-  state: {}
-  source:
-    'off': Off
-    heat: Heat
-    cool: Cool
-    dry: Dry
-  change_action: >
-    (selected, state, entity) => this.call_service('climate', 'set_hvac_mode', { entity_id: entity.entity_id, hvac_mode: selected })
-```
-
-The names in that form are yours: the built-in mode control takes them from
-Home Assistant's own translations; this one shows the `source` you write.
-
-And the trap that costs the most time here: a button's `change_action` is
-handed `(selected_value, state, entity, ...)`. Written as `(selected, entity)`
-the second argument is the state, `entity.entity_id` is undefined, the service
-call goes out without an entity, Home Assistant refuses it - and **the
-dashboard shows nothing at all**. The message reaches the browser console and
-nowhere else.
-
-![the mode with its name in the line under the entity name](https://raw.githubusercontent.com/artem-sedykh/mini-climate-card/master/images/answers/mode-in-secondary-line.png)
+Before this type existed the same line was made by pointing `fan_mode` at the
+modes. That recipe still works, and a card configured that way keeps working,
+but it spends the fan control on it - which is what the type is for.
 
 ### The fan mode in the top row
 

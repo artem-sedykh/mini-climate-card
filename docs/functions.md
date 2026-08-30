@@ -322,6 +322,12 @@ buttons:
       (selected, state, entity) => this.call_service('climate', 'set_swing_mode', { entity_id: entity.entity_id, swing_mode: selected })
 ```
 
+The argument order is the trap that costs the most time here. Written as
+`(selected, entity)` the second argument is the state, `entity.entity_id` is
+undefined, the service call goes out with no entity, Home Assistant refuses
+it - and **the dashboard shows nothing at all**. The message reaches the
+browser console and nowhere else.
+
 ## unit:template {#unit_template}
 
 The unit of an indicator, computed from the value. This is how the unit

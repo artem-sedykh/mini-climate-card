@@ -418,16 +418,17 @@ describe('the answers people were given', () => {
   });
 
   it('puts the hvac mode in the secondary line, as a dropdown (#194)', async () => {
-    // The request was for an `hvac-mode-dropdown` type beside the
-    // `fan-mode-dropdown` one. No new type is needed: `fan_mode` is a button
-    // like any other, so pointing its `state` at the entity itself, its
-    // `source` at the modes and its `change_action` at `set_hvac_mode` gives
-    // that line the mode - with its name, and pressable, which is what the
-    // control row's icon-only dropdown does not offer.
+    // The answer #194 was first given: no new type is needed, because
+    // `fan_mode` is a button like any other, so pointing its `state` at the
+    // entity itself, its `source` at the modes and its `change_action` at
+    // `set_hvac_mode` gives that line the mode - with its name, and pressable.
+    // It costs the fan control, which is why the `hvac-mode-dropdown` type
+    // below exists and why the documentation now shows that instead.
     //
-    // The scenario is here rather than in the answer alone because the answer
-    // is a configuration, and a configuration that stops working is exactly
-    // what nobody notices.
+    // This stays because people configured their cards this way on the
+    // strength of that answer, and it keeps working. The scenario is here
+    // rather than in the answer alone because the answer is a configuration,
+    // and a configuration that stops working is exactly what nobody notices.
     const card = session.page.locator('mini-climate').filter({ hasText: 'Mode under the name' });
 
     const line = () =>
