@@ -73,6 +73,28 @@ was served predates the change.
 | `BENCH_CARD_DIST` | `../../dist` | what is served as `/local/bench/` |
 | `BENCH_MANIFEST` | `test/e2e/bench.json` | which card, which entities, which dashboard |
 
+### The build under test, and the month of cache in front of it
+
+Home Assistant serves `/local` with `Cache-Control: public, max-age=2678400`.
+The bundle's path does not change between deploys, so a browser that has looked
+at the bench once goes on rendering the build it saw then - and says nothing
+about it. The scenarios never notice, because each run opens a fresh profile; a
+person looking at the dashboard does, and the card's console banner cannot tell
+them apart, since it prints the version from `package.json` and that is one
+string for every build between releases.
+
+So `prepare()` registers the resource as `<bundle>.js?v=<etag>` and updates that
+url when the file changes ([#322]). The value follows the file rather than the
+clock: `ETag` here is the file's mtime and size, so a reload with nothing
+deployed still comes out of the cache - `transferSize: 0`, measured - and a
+reload after a deploy fetches.
+
+It also deletes anything else registered out of the bench's own directory. Two
+resources pointing at one bundle both load and the card's `define` runs twice;
+a resource left behind by whatever the bench held before 404s on every page
+load. The sister card's bench, converted from this one, carried this card's
+bundle that way for weeks.
+
 ## In CI
 
 `.github/workflows/bench.yml`, on pushes and pull requests that touch `src/`,
@@ -245,3 +267,4 @@ behind [#46].
 [#46]: https://github.com/artem-sedykh/mini-climate-card/issues/46
 [#175]: https://github.com/artem-sedykh/mini-climate-card/issues/175
 [#188]: https://github.com/artem-sedykh/mini-climate-card/issues/188
+[#322]: https://github.com/artem-sedykh/mini-climate-card/issues/322
