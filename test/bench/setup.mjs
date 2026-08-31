@@ -126,16 +126,77 @@ export const substitute = (value, ids) => {
   return value;
 };
 
+// The build under test, with something after it that changes when the file
+// does.
+//
+// Home Assistant serves `/local` with `Cache-Control: public, max-age=2678400`
+// - a month - and the bundle's path never changes, so a browser that has looked
+// at the bench once goes on rendering the build it saw then. The scenarios
+// never see it, because each run opens a fresh profile; a person looking at the
+// dashboard does, and has nothing to tell them: the card's console banner
+// prints the version from package.json, which is the same string for every
+// build between releases. See #322.
+//
+// The value follows the file rather than the clock, so the URL in the page is a
+// fact about the build and not about the run: `ETag` here is the file's mtime
+// and size, so it moves when the bundle is deployed and stays put when it is
+// not. Measured in one browser against the bench: a reload with nothing
+// changed reports `transferSize: 0`, and a reload after a deploy fetches the
+// whole 83KB again.
+const cacheBuster = async resource => {
+  try {
+    const response = await fetch(`${BASE}${resource}`, { method: 'HEAD' });
+    const tag = response.headers.get('etag') || response.headers.get('last-modified');
+
+    if (tag) return tag.replace(/\W+/g, '').slice(-16);
+  } catch {
+    // Falls through to the clock: a bench that cannot answer for its own
+    // bundle is a bench about to fail on something louder than this.
+  }
+  return String(Date.now());
+};
+
 const setupLovelace = async (token, manifest, ids) => {
   const ws = await connect(BASE, token);
 
+  const url = `${manifest.resource}?v=${await cacheBuster(manifest.resource)}`;
   const resources = await ws.send({ type: 'lovelace/resources' });
-  if (!resources.some(resource => resource.url === manifest.resource)) {
-    await ws.send({
-      type: 'lovelace/resources/create',
-      res_type: 'module',
-      url: manifest.resource,
-    });
+  // Matched on the path, so the one from the last run is updated rather than
+  // joined by a second resource pointing at the same bundle - two of those both
+  // load, and the card registers its elements twice.
+  const existing = resources.find(resource => resource.url.split('?')[0] === manifest.resource);
+
+  // And nothing else out of the bench's own directory. Two resources pointing
+  // at one bundle both load, and the card's `define` then runs twice; a
+  // resource left behind by whatever the bench held before 404s on every page
+  // load. The sister card's bench, converted from this one, carried
+  // `mini-climate-card-bundle.js` for weeks that way - so this is the half that
+  // keeps a bench from serving whatever it was before.
+  const directory = manifest.resource.replace(/[^/]+$/, '');
+  for (const resource of resources) {
+    if (resource === existing) continue;
+    if (!resource.url.startsWith(directory)) continue;
+
+    await ws.send({ type: 'lovelace/resources/delete', resource_id: resource.id });
+  }
+
+  if (!existing) {
+    await ws.send({ type: 'lovelace/resources/create', res_type: 'module', url });
+  } else if (existing.url !== url) {
+    // Storage mode has `update`; the bench creates its dashboards through the
+    // websocket API, so it is always in storage mode here. Deleting and
+    // recreating is the fallback for a Home Assistant that predates it.
+    try {
+      await ws.send({
+        type: 'lovelace/resources/update',
+        resource_id: existing.id,
+        res_type: 'module',
+        url,
+      });
+    } catch {
+      await ws.send({ type: 'lovelace/resources/delete', resource_id: existing.id });
+      await ws.send({ type: 'lovelace/resources/create', res_type: 'module', url });
+    }
   }
 
   const dashboards = await ws.send({ type: 'lovelace/dashboards/list' });
