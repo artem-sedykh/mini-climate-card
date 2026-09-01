@@ -196,7 +196,7 @@ jobs:
           node-version-file: .nvmrc
 
       - name: Download the coverage summary
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: coverage-summary
           path: coverage
