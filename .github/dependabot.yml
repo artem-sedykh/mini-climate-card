@@ -5,6 +5,15 @@ updates:
     schedule:
       interval: monthly
     open-pull-requests-limit: 5
+    ignore:
+      # typescript-eslint pins its peer to typescript ">=4.8.4 <6.1.0", so a
+      # major bump of typescript cannot install at all (npm ci dies on
+      # ERESOLVE). Worse, it lands in the dev-dependencies group below and
+      # takes every other bump in that pull request down with it - see #324,
+      # where a harmless rollup patch was blocked by typescript 7. Drop this
+      # entry once typescript-eslint supports the major we are on.
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
     groups:
       # One pull request per ecosystem bump instead of a dozen: the build
       # toolchain is not worth a review round each. Dependabot has been opening
