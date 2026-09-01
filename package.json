@@ -35,7 +35,7 @@
     "globals": "^17.11.0",
     "jsdom": "^30.0.1",
     "prettier": "^3.9.6",
-    "rollup": "^4.63.0",
+    "rollup": "^4.63.1",
     "rollup-plugin-esbuild": "^6.2.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.68.0",
