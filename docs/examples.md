@@ -94,8 +94,8 @@ indicators:
       values:
         'on': 'on'
         'off': 'off'
-    # localization of values
-    mapper: value => this.source.values[value]
+      # localization of values
+      mapper: value => this.source.values[value]
 ```
 
 ## Recipes
