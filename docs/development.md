@@ -2,7 +2,7 @@
 
 [Home](../README.md) | [Configuration](configuration.md) | [Controls](controls.md) | [Indicators](indicators.md) | [Buttons](buttons.md) | [Functions](functions.md) | [Tap action](tap-action.md) | [Secondary info](secondary-info.md) | [Visual editor](visual-editor-parameters.md) | [Examples](examples.md) | [AI assistants](ai-assistants.md) | [Development](development.md)
 
-*If you plan to contribute back to this repo, please fork & create the PR against the [dev](https://github.com/artem-sedykh/mini-climate-card/tree/dev) branch.*
+*If you plan to contribute back to this repo, please fork & create the PR against the [master](https://github.com/artem-sedykh/mini-climate-card/tree/master) branch.*
 
 **Clone this repository into your `config/www` folder using git.**
 

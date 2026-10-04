@@ -8,7 +8,7 @@
 | Name                                      | Type                                | Default      | Since  | Description                                                                                                   |
 |-------------------------------------------|-------------------------------------|--------------|--------|---------------------------------------------------------------------------------------------------------------|
 | type                                      | string                              | **required** | v1.0.1 | `custom:mini-climate`                                                                                         |
-| entity                                    | string                              | **required** | v1.0.1 | An entity_id from an entity within the `climate` domain                                                       |
+| entity                                    | string                              | **required** | v1.0.1 | An entity_id from the `climate` or `fan` domain                                                               |
 | name                                      | string                              | optional     | v1.0.1 | Override the entities friendly name                                                                           |
 | group                                     | boolean                             | optional     | v1.0.2 | Removes border, paddings, background color and box-shadow                                                     |
 | icon                                      | string                              | optional     | v1.0.1 | Specify a custom icon from any of the available mdi icons                                                     |
