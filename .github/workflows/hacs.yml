@@ -19,6 +19,12 @@ permissions:
 jobs:
   validate:
     name: HACS
+    # On a pull request the action validates the repository the pull request
+    # comes from. A fork has no releases and dist/ is not committed, so HACS
+    # finds no bundle and fails whatever the diff. A job skipped by `if`
+    # reports success, so the required check does not block the merge; master
+    # is still validated on push and every week.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
