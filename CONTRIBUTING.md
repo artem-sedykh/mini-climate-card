@@ -89,8 +89,10 @@ without a scope: `fix:`, `feat:`, `ci:`, `build:`, `docs:`.
 
 CI runs lint, formatting, the unit tests with coverage thresholds, the
 component tests in both engines, the build, assertions on the built bundle,
-HACS validation, and a gate that catches CRLF and BOM. `npm run build` locally
-covers everything except the component tests and the last two.
+HACS validation (skipped on a pull request from a fork, which HACS cannot
+validate without releases), and a gate that catches CRLF and BOM.
+`npm run build` locally covers everything except the component tests and the
+last two.
 
 The bench runs in a workflow of its own, against two versions of Home
 Assistant. **The `latest` leg is allowed to fail**, and if it does on your pull
