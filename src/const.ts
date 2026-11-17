@@ -14,6 +14,8 @@ const ICON: Record<string, string> = {
   TOGGLE: 'mdi:dots-horizontal',
   UP: 'mdi:chevron-up',
   DOWN: 'mdi:chevron-down',
+  PLUS: 'mdi:plus',
+  MINUS: 'mdi:minus',
 };
 
 export default ICON;

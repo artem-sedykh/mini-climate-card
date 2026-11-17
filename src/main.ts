@@ -29,6 +29,7 @@ import type {
 import './components/temperature';
 import './components/target-temperature';
 import './components/mode-menu';
+import './components/mode-bar';
 import './components/indicators';
 import './components/dropdown';
 import './components/buttons';
@@ -82,6 +83,15 @@ class MiniClimate extends LitElement {
   iconTemplate: Template<string> | undefined;
 
   iconStyle: Template<Record<string, string>> | undefined;
+
+  /**
+   * The configuration handed to the fan mode dropdown of `layout: two-row`.
+   * `mc-fan-mode-secondary` decides between a label and a dropdown from
+   * `secondary_info.type`, so the layout gives it a copy that asks for the
+   * dropdown whatever the line under the name is set to. Built once in
+   * `setConfig` so the component is not handed a new object every render.
+   */
+  fanDropdownConfig: CardConfig | undefined;
 
   private _hass!: HomeAssistant;
 
@@ -480,9 +490,13 @@ class MiniClimate extends LitElement {
       ...(config.target_temperature || {}),
     };
 
+    // `layout: two-row` puts the pair either side of the reading, where a
+    // minus and a plus read better than chevrons. Only the defaults move;
+    // `icons` written in the YAML still wins.
+    const twoRow = config.layout === 'two-row';
     item.icons = {
-      up: ICON.UP,
-      down: ICON.DOWN,
+      up: twoRow ? ICON.PLUS : ICON.UP,
+      down: twoRow ? ICON.MINUS : ICON.DOWN,
       ...(item.icons || {}),
     };
 
@@ -624,6 +638,14 @@ class MiniClimate extends LitElement {
     }
     this.config.secondary_info = this.getSecondaryInfoConfig(this.config.secondary_info);
 
+    this.fanDropdownConfig =
+      this.config.layout === 'two-row'
+        ? {
+            ...this.config,
+            secondary_info: { ...this.config.secondary_info, type: 'fan-mode-dropdown' },
+          }
+        : undefined;
+
     this.toggle = this.config.toggle.default;
 
     this.swapTemperatures = !!this.config.swap_temperatures;
@@ -678,7 +700,78 @@ class MiniClimate extends LitElement {
     `;
   }
 
+  /**
+   * `layout: two-row`: the icon on the left, and beside it two rows - the name
+   * and the target temperature between a minus and a plus on top, the hvac
+   * modes as a segmented bar and the fan mode dropdown underneath.
+   */
+  renderTwoRow(): TemplateResult {
+    const unavailable = this.climate.isUnavailable;
+    const fanMode = this.buttons.fan_mode;
+    const showFan = !!fanMode && !fanMode.hide && fanMode.source.length > 0;
+
+    return html`
+      <ha-card
+        class=${this.computeClasses()}
+        style=${styleMap(this.computeStyles())}>
+        <div class='mc__bg'></div>
+        <div class='mc-climate --two-row'>
+          <div class='mc-climate__core flex'>
+            ${this.renderIcon()}
+            <div class='entity__info tr__body'>
+              <div class='tr__row'>
+                <div class='entity__info__name tr__name'
+                  @click=${(e: Event) => this.handlePopup(e, true)}>
+                  ${this.name}
+                </div>
+                ${
+                  unavailable
+                    ? html`<span class="label ellipsis">${getLabel(this.hass, ['state.default.unavailable'], 'Unavailable')}</span>`
+                    : html`
+                    <mc-target-temperature
+                      class='tr__temp'
+                      horizontal
+                      .targetTemperature=${this.targetTemperature}
+                      @changing="${(e: CustomEvent) => this.handleChangingTargetTemperature(e)}">
+                      <mc-temperature
+                        class='--inline'
+                        .temperature=${this.temperature}
+                        .target=${this.targetTemperatureValue}
+                        .changing=${this.targetTemperatureChanging}
+                        .swapTemperatures=${this.swapTemperatures}>
+                      </mc-temperature>
+                    </mc-target-temperature>`
+                }
+              </div>
+              ${
+                unavailable
+                  ? ''
+                  : html`
+                  <div class='tr__row'>
+                    ${this.hvacMode.hide ? html`<span></span>` : html`<mc-mode-bar .mode=${this.hvacMode}></mc-mode-bar>`}
+                    ${
+                      showFan
+                        ? html`<div class='tr__fan'>
+                            <mc-fan-mode-secondary
+                              .fanMode=${fanMode}
+                              .config=${this.fanDropdownConfig}>
+                            </mc-fan-mode-secondary>
+                          </div>`
+                        : ''
+                    }
+                  </div>`
+              }
+            </div>
+          </div>
+          ${this.renderTogglePanel()}
+        </div>
+      </ha-card>
+    `;
+  }
+
   override render(): TemplateResult {
+    if (this.config.layout === 'two-row') return this.renderTwoRow();
+
     const handle = !this.secondaryInfoIsDropdown();
     return html`
       <ha-card

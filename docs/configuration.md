@@ -20,6 +20,7 @@
 | hide_icon                                 | function                            | optional     | v3.0.0 | Custom hide the entity icon function, see [hide_icon](#hide_icon)                                             |
 | hide_current_temperature                  | boolean                             | optional     | V2.1.2 | Hide the current temperature in the card                                                                      |
 | hide_current_temperature                  | function                            | optional     | V2.5.0 | Custom hide the current temperature in the card function                                                      |
+| layout                                    | string                              | optional     | v3.5.0 | `default` or `two-row`, see [layout](#layout)                                                                 |
 | **toggle**                                | object                              | optional     | v1.0.2 | Show/hide bottom buttons toggle button                                                                        |
 | toggle: `icon`                            | string                              | optional     | v1.0.2 | Custom icon, default value `mdi:dots-horizontal`                                                              |
 | toggle: `hide`                            | boolean                             | optional     | v1.0.2 | Hide toggle button, default value `False`                                                                     |
@@ -228,6 +229,35 @@ type: custom:mini-climate
 entity: climate.my_ac
 hide_icon: >
   (climate_entity) => climate_entity.state === 'off'
+```
+
+### layout
+
+`two-row` draws the card as the icon on the left and two rows beside it:
+
+- top left: the name; top right: the target temperature between a minus and
+  a plus button
+- bottom left: the hvac modes as a segmented bar, the current one filled in;
+  bottom right: the fan mode dropdown
+
+The mode bar reads `hvac_mode` like the dropdown it replaces, so
+`hvac_mode: source`, an item's `hide`, `order` and `icon`, `hvac_mode: hide`
+and `change_action` all apply. The fan mode dropdown follows `fan_mode: hide`
+and `fan_mode: source`. The line under the name (`secondary_info`) is not drawn
+in this layout. `target_temperature: icons` still overrides the minus and plus.
+
+The bar can be themed with `--mini-climate-mode-bar-background`,
+`--mini-climate-mode-bar-selected-color` and
+`--mini-climate-mode-bar-selected-text-color`.
+
+```yaml
+type: custom:mini-climate
+entity: climate.my_ac
+name: AC Living
+layout: two-row
+hide_current_temperature: true
+toggle:
+  hide: true
 ```
 
 ### toggle

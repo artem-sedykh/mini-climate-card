@@ -119,6 +119,9 @@ export default class ClimateTemperature extends LitElement {
     .state {
       margin-top:calc(var(--mc-unit) * .15);
     }
+    :host(.--inline) .state {
+      margin-top: 0;
+    }
     .state__value {
       font-weight: var(--mc-info-font-weight);
       line-height: calc(var(--mc-unit) * .475);

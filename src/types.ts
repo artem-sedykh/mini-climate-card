@@ -203,6 +203,7 @@ export interface RawCardConfig {
   group?: boolean;
   swap_temperatures?: boolean;
   hide_icon?: boolean | string;
+  layout?: 'default' | 'two-row';
   tap_action?: TapAction | string;
   secondary_info?: string | Record<string, any>;
   toggle?: Record<string, any>;

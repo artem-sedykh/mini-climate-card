@@ -232,6 +232,52 @@ const style = css`
     width: calc(var(--mc-unit) * 0.75);
     height: calc(var(--mc-unit) * 0.75);
   }
+  /* layout: two-row */
+  .--two-row .mc-climate__core {
+    align-items: center;
+    padding-right: 0;
+  }
+  .--two-row .entity__icon {
+    align-self: center;
+  }
+  .tr__body {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--mc-unit) * .2);
+    padding-bottom: 16px;
+  }
+  .--group .tr__body {
+    padding-bottom: 8px;
+  }
+  .tr__row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(var(--mc-unit) * .2);
+    min-width: 0;
+  }
+  .tr__name {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .--more-info .tr__name {
+    cursor: pointer;
+  }
+  .tr__temp, .tr__fan {
+    flex: 0 0 auto;
+    --ha-icon-display: flex;
+  }
+  mc-mode-bar {
+    flex: 0 1 auto;
+  }
+  ha-card.--initial .--two-row.mc-climate,
+  ha-card .--two-row.mc-climate {
+    padding: 16px 16px 0 16px;
+  }
+  ha-card.--group .--two-row.mc-climate {
+    padding: 8px 0 0 0;
+  }
 `;
 
 export default style;

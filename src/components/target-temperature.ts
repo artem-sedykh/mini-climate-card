@@ -11,14 +11,20 @@ export default class ClimateTargetTemperature extends LitElement {
   /** When the last press was, or null once what it added up to has been sent. */
   temp_last_changed: number | null | undefined;
 
+  /** `layout: two-row` draws the pair either side of the reading, which is
+   * slotted in between, rather than stacked on the card's right edge. */
+  horizontal: boolean;
+
   constructor() {
     super();
     this.timeout = 800;
+    this.horizontal = false;
   }
 
   static override get properties() {
     return {
       targetTemperature: { type: Object },
+      horizontal: { type: Boolean, reflect: true },
     };
   }
 
@@ -77,6 +83,24 @@ export default class ClimateTargetTemperature extends LitElement {
   override render(): TemplateResult | string {
     if (!this.targetTemperature) return '';
 
+    if (this.horizontal) {
+      return html`
+        <div class='controls-wrap --horizontal'>
+          <ha-icon-button class='temp --down'
+            .icon=${this.targetTemperature.icons.down}
+            @click=${(e: Event) => this.decrement(e)}>
+            <ha-icon .icon=${this.targetTemperature.icons.down}></ha-icon>
+          </ha-icon-button>
+          <slot></slot>
+          <ha-icon-button class='temp --up'
+            .icon=${this.targetTemperature.icons.up}
+            @click=${(e: Event) => this.increment(e)}>
+            <ha-icon .icon=${this.targetTemperature.icons.up}></ha-icon>
+          </ha-icon-button>
+        </div>
+      `;
+    }
+
     return html`
       <div class='controls-wrap'>
         <ha-icon-button class='temp --up'
@@ -124,6 +148,19 @@ export default class ClimateTargetTemperature extends LitElement {
     }
     .temp.--down {
       margin-top: auto;
+    }
+    .controls-wrap.--horizontal {
+      flex-direction: row;
+      align-items: center;
+      height: auto;
+    }
+    .--horizontal .temp.--up,
+    .--horizontal .temp.--down {
+      margin: 0;
+      --mdc-icon-size: calc(var(--mc-unit) * .45);
+    }
+    .--horizontal ::slotted(*) {
+      margin: 0 calc(var(--mc-unit) * .1);
     }
     `;
   }
